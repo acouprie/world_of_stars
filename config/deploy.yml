@@ -1,0 +1,67 @@
+service: world-of-stars
+image: ghcr.io/acouprie/world-of-stars
+
+# Servers — set DEPLOY_SERVER_IP in .kamal/secrets
+servers:
+  web:
+    - <%= ENV.fetch("DEPLOY_SERVER_IP") %>
+  job:
+    hosts:
+      - <%= ENV.fetch("DEPLOY_SERVER_IP") %>
+    cmd: bundle exec sidekiq -C config/sidekiq.yml
+
+# Kamal proxy (replaces nginx — handles SSL via Let's Encrypt)
+proxy:
+  ssl: true
+  host: worldofstars.fr
+  app_port: 80
+  response_timeout: 60
+
+# GitHub Container Registry
+registry:
+  server: ghcr.io
+  username: acouprie
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+# Env vars injected at deploy time
+env:
+  clear:
+    RAILS_ENV: production
+    RAILS_LOG_TO_STDOUT: "true"
+  secret:
+    - RAILS_MASTER_KEY
+    - DATABASE_URL
+    - REDIS_URL
+    - POSTGRES_PASSWORD
+    - ANTHROPIC_API_KEY
+    - LANGFUSE_PUBLIC_KEY
+    - LANGFUSE_SECRET_KEY
+
+# Accessories — managed by Kamal on the same VPS
+accessories:
+  db:
+    image: postgres:16-alpine
+    host: <%= ENV.fetch("DEPLOY_SERVER_IP") %>
+    port: 5432
+    env:
+      secret:
+        - POSTGRES_PASSWORD
+      clear:
+        POSTGRES_DB: world_of_stars_production
+        POSTGRES_USER: world_of_stars
+    directories:
+      - data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    host: <%= ENV.fetch("DEPLOY_SERVER_IP") %>
+    port: 6379
+    cmd: "redis-server --appendonly yes"
+    directories:
+      - data:/data
+
+builder:
+  arch: amd64
+  cache:
+    type: gha

@@ -1,0 +1,34 @@
+# PostgreSQL. Versions 9.5 and up are supported.
+#
+# Install the pg driver:
+#   gem install pg
+# On macOS with Homebrew:
+#   gem install pg -- --with-pg-config=/opt/homebrew/bin/pg_config
+# On Windows:
+#   gem install pg
+#       Choose the win32 build.
+#       Install PostgreSQL and put its /bin directory on your path.
+#
+# Configure Using Gemfile
+# gem "pg"
+#
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  max_connections: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  # DATABASE_URL env var takes precedence when set (Docker, production)
+
+development:
+  <<: *default
+  database: world_of_stars_development
+  host: <%= ENV.fetch("DB_HOST") { "localhost" } %>
+  username: <%= ENV.fetch("DB_USER") { "postgres" } %>
+  password: <%= ENV.fetch("POSTGRES_PASSWORD") { "password" } %>
+
+test:
+  <<: *default
+  database: world_of_stars_test
+
+production:
+  <<: *default
+  url: <%= ENV["DATABASE_URL"] %>

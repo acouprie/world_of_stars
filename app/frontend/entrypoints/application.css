@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+/* Game-specific base styles */
+:root {
+  --color-space-bg: #0a0e1a;
+  --color-star-primary: #e8d5a3;
+  --color-varek: #c0392b;
+  --color-elyrans: #2980b9;
+  --color-nexhari: #8e44ad;
+}
+
+html, body {
+  background-color: var(--color-space-bg);
+  color: var(--color-star-primary);
+  min-height: 100vh;
+}

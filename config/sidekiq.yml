@@ -1,0 +1,7 @@
+:concurrency: 5
+:queues:
+  - [critical, 10]   # combat resolution, fleet arrivals
+  - [default, 5]     # buildings, colonization
+  - [ai_factions, 3] # Varek/Elyrans/Nexhari decision ticks
+  - [narration, 2]   # Anthropic narrative generation (non-blocking)
+  - [low, 1]         # cleanup, stats
