@@ -46,6 +46,7 @@
 /spec/examples.txt
 /spec/vcr_cassettes
 
-# Kamal local secrets override
+# Kamal secrets (contient des vraies valeurs en prod — ne jamais commiter)
+/.kamal/secrets
 /.kamal/secrets.local
 
