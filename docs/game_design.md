@@ -374,7 +374,7 @@ L'énergie n'est **pas un stock consommable** : c'est une **capacité installée
 
 **Phase 1 — Comportements scriptés + LLM (MVP)**
 - Les règles de décision (qui attaquer, quand, avec quoi) sont codées en Ruby (scripts).
-- Le LLM (Claude via API Anthropic) intervient pour :
+- Le LLM intervient pour :
   - Choisir parmi les actions disponibles selon le contexte (état des ressources, carte, joueurs voisins)
   - Générer les messages narratifs des factions (déclarations de guerre, propositions commerciales, alertes Nexhari)
   - Donner de la variété et de la personnalité aux décisions sans les rendre imprévisibles au point de casser l'équilibrage
@@ -419,7 +419,7 @@ Les alliances humaines peuvent définir des statuts diplomatiques entre elles :
 | Frontend | Hotwire / Turbo (à confirmer selon besoins d'interactivité) |
 | Base de données | PostgreSQL |
 | Jobs asynchrones | Sidekiq |
-| IA en jeu | API Anthropic (Claude) — microservice Python en phase 2 si nécessaire |
+| IA en jeu | API LLM — microservice Python en phase 2 si nécessaire |
 | Carte galaxie | Canvas 2D (coordonnées x/y, rendu côté client) |
 
 ### Gestion du temps de jeu

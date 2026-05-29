@@ -1,7 +1,6 @@
 require "webmock/rspec"
 
-# Block ALL external HTTP calls — no accidental Anthropic spend in tests.
-# Use stub_anthropic_response (see spec/support/anthropic_helpers.rb) to stub.
+# Block ALL external HTTP calls in tests — stub explicitly with WebMock.
 WebMock.disable_net_connect!(allow_localhost: true)
 
 RSpec.configure do |config|

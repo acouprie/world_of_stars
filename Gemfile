@@ -17,9 +17,9 @@ gem "jbuilder"
 gem "bcrypt", "~> 3.1.7"
 # Redis — ActionCable, Sidekiq, cache
 gem "redis", "~> 5.0"
-# Background jobs (builds, fleets, AI ticks)
+# Background jobs (builds, fleets, faction ticks)
 gem "sidekiq", "~> 7.0"
-# Rate limiting (advisor API, login attempts)
+# Rate limiting (login attempts, futures APIs)
 gem "rack-attack"
 # Windows timezone support
 gem "tzinfo-data", platforms: %i[windows jruby]
@@ -40,8 +40,8 @@ group :development, :test do
   # Test suite
   gem "rspec-rails", "~> 7.0"
   gem "factory_bot_rails"
-  gem "webmock"          # blocks all external HTTP — no accidental Anthropic calls
-  gem "vcr"              # record/replay real Anthropic calls for integration tests
+  gem "webmock"          # blocks all external HTTP calls in tests
+  gem "vcr"              # record/replay real HTTP calls for integration tests
   gem "faker"
 end
 

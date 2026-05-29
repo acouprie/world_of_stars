@@ -34,9 +34,6 @@ env:
     - DATABASE_URL
     - REDIS_URL
     - POSTGRES_PASSWORD
-    - ANTHROPIC_API_KEY
-    - LANGFUSE_PUBLIC_KEY
-    - LANGFUSE_SECRET_KEY
 
 # Accessories — managed by Kamal on the same VPS
 accessories:

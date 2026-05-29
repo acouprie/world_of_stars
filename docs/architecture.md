@@ -29,9 +29,9 @@
 | Jobs asynchrones | Sidekiq | Constructions, déplacements, combats, ticks IA |
 | Temps réel | ActionCable + Turbo Streams | Push serveur → client (ressources live, alertes radar) |
 | Authentification | `rails generate authentication` | Auth maison Rails 8, code lisible et modifiable |
-| Tests | RSpec + FactoryBot + WebMock | Suite de tests complète, mocks des appels Anthropic |
-| IA produit | API Anthropic | Agents factions, narration, conseiller, support |
-| Observabilité LLM | Langfuse | Tracing de tous les appels Anthropic |
+| Tests | RSpec + FactoryBot + WebMock | Suite de tests complète, mocks des appels LLM |
+| IA produit | API LLM | Agents factions, narration, conseiller, support |
+| Observabilité LLM | Langfuse | Tracing de tous les appels LLM |
 | Mobile | Capacitor | Wrapping PWA → app stores (iOS + Android) |
 | Registry Docker | GitHub Container Registry | Gratuit, intégré GitHub Actions |
 | Hébergement | Infomaniak VPS Lite (4 vCPU / 8 GB RAM) | Linux brut, compatible Kamal, datacenter Suisse |
@@ -264,9 +264,9 @@ end
 rails generate rspec:install
 ```
 
-### Mocker les appels Anthropic
+### Mocker les appels LLM
 
-**WebMock** bloque tous les appels HTTP externes dans les tests par défaut. C'est le garde-fou : aucun test ne peut appeler l'API Anthropic (et donc coûter de l'argent ou dépendre du réseau).
+**WebMock** bloque tous les appels HTTP externes dans les tests par défaut. C'est le garde-fou : aucun test ne peut appeler l'API LLM (et donc coûter de l'argent ou dépendre du réseau).
 
 ```ruby
 # spec/support/anthropic_helpers.rb
