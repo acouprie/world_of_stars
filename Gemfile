@@ -19,6 +19,7 @@ gem "bcrypt", "~> 3.1.7"
 gem "redis", "~> 5.0"
 # Background jobs (builds, fleets, faction ticks)
 gem "sidekiq", "~> 7.0"
+gem "connection_pool", "< 3.0"
 # Rate limiting (login attempts, futures APIs)
 gem "rack-attack"
 # Windows timezone support

@@ -3,40 +3,25 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    command: ./bin/rails server -b 0.0.0.0
+    command: ./bin/dev
     volumes:
       - .:/rails
-      - bundler:/usr/local/bundle
       - node_modules:/rails/node_modules
     ports:
       - "3000:3000"
+      - "3036:3036"
     environment:
       DB_HOST: db
       DB_USER: postgres
       REDIS_URL: redis://redis:6379/0
       RAILS_ENV: development
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
-      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE:-dev_only_secret_key_base_replace_in_production}
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
-
-  vite:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    command: ./bin/vite dev
-    volumes:
-      - .:/rails
-      - bundler:/usr/local/bundle
-      - node_modules:/rails/node_modules
-    ports:
-      - "3036:3036"
-    environment:
-      RAILS_ENV: development
-      VITE_RUBY_HOST: "0.0.0.0"
 
   sidekiq:
     build:
@@ -45,12 +30,11 @@ services:
     command: bundle exec sidekiq -C config/sidekiq.yml
     volumes:
       - .:/rails
-      - bundler:/usr/local/bundle
     environment:
       DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-password}@db:5432/world_of_stars_development
       REDIS_URL: redis://redis:6379/0
       RAILS_ENV: development
-      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE:-dev_only_secret_key_base_replace_in_production}
     depends_on:
       db:
         condition: service_healthy
@@ -89,5 +73,4 @@ services:
 volumes:
   postgres_data:
   redis_data:
-  bundler:
   node_modules:

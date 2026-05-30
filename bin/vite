@@ -2,5 +2,6 @@
 # frozen_string_literal: true
 
 require "vite_ruby"
+require "dry/cli"
 
-ViteRuby::CLI::Vite.start(ARGV)
+Dry::CLI.new(ViteRuby::CLI::Vite).call(arguments: ARGV)
