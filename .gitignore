@@ -44,9 +44,8 @@
 
 # RSpec examples file
 /spec/examples.txt
-/spec/vcr_cassettes
+spec/fixtures/vcr_cassettes/*.yml
 
 # Kamal secrets (contient des vraies valeurs en prod — ne jamais commiter)
 /.kamal/secrets
 /.kamal/secrets.local
-

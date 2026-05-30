@@ -11,9 +11,11 @@ services:
     ports:
       - "3000:3000"
     environment:
-      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-password}@db:5432/world_of_stars_development
+      DB_HOST: db
+      DB_USER: postgres
       REDIS_URL: redis://redis:6379/0
       RAILS_ENV: development
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
       RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
     depends_on:
       db:
