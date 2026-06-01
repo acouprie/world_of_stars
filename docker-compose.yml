@@ -4,6 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     command: ./bin/dev
+    user: "${UID}:${GID}"
     volumes:
       - .:/rails
       - node_modules:/rails/node_modules
