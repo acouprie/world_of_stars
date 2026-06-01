@@ -30,11 +30,12 @@ puts "Done - #{Planet.count} planets in galaxy."
 
 puts "Creating Users..."
 
-User.create(
+user = User.create(
   username: "Root"
   email_address: "user@example.com",
-  password: "Password01!",
-  password_confirmation: "Password01!"
+  password: "Password1!",
+  password_confirmation: "Password1!"
 )
+Users::OnboardingService.new(user).call
 
 puts "Done - #{User.count} users in galaxy."

@@ -7,6 +7,11 @@ en:
       password_placeholder: "Password"
       submit: "Log in"
       forgot_password: "Forgot your password?"
+      login_tab: "Login"
+      register_tab: "Register"
+      username_placeholder: "Username (14 chars max)"
+      password_confirmation_placeholder: "Confirm password"
+      register_submit: "Create account"
 
   passwords:
     new:

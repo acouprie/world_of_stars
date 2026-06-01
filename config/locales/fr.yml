@@ -7,6 +7,11 @@ fr:
       password_placeholder: "Mot de passe"
       submit: "Se connecter"
       forgot_password: "Mot de passe oublié ?"
+      login_tab: "Connexion"
+      register_tab: "Inscription"
+      username_placeholder: "Nom d'utilisateur (14 car. max)"
+      password_confirmation_placeholder: "Confirmer le mot de passe"
+      register_submit: "Créer un compte"
 
   passwords:
     new:
