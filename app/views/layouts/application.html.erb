@@ -30,6 +30,11 @@
       <p id="alert" data-turbo-temporary><%= alert %></p>
     <% end %>
 
+    <nav>
+      <%= button_to t('locale_switcher.fr'), update_locale_path, params: { locale: 'fr' } %>
+      <%= button_to t('locale_switcher.en'), update_locale_path, params: { locale: 'en' } %>
+    </nav>
+
     <%= yield %>
   </body>
 </html>

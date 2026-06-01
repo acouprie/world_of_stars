@@ -1,0 +1,41 @@
+fr:
+  home:
+    index:
+      connected_as: "Connecté en tant que %{email}"
+      logout: "Se déconnecter"
+      email_placeholder: "Adresse e-mail"
+      password_placeholder: "Mot de passe"
+      submit: "Se connecter"
+      forgot_password: "Mot de passe oublié ?"
+
+  passwords:
+    new:
+      title: "Mot de passe oublié ?"
+      email_placeholder: "Entrez votre adresse e-mail"
+      submit: "Recevoir les instructions"
+    edit:
+      title: "Modifier votre mot de passe"
+      password_placeholder: "Nouveau mot de passe"
+      password_confirmation_placeholder: "Répétez le nouveau mot de passe"
+      submit: "Enregistrer"
+
+  passwords_mailer:
+    reset:
+      intro: "Vous pouvez réinitialiser votre mot de passe sur"
+      link_text: "cette page de réinitialisation"
+      expiry: "Ce lien expirera dans %{time}."
+
+  flash:
+    sessions:
+      invalid_credentials: "Adresse e-mail ou mot de passe incorrect."
+      too_many_attempts: "Trop de tentatives, réessayez dans quelques minutes."
+    passwords:
+      instructions_sent: "Instructions de réinitialisation envoyées (si un compte existe avec cette adresse)."
+      too_many_attempts: "Réessayez plus tard."
+      reset_success: "Mot de passe réinitialisé."
+      mismatch: "Les mots de passe ne correspondent pas."
+      invalid_link: "Le lien de réinitialisation est invalide ou expiré."
+
+  locale_switcher:
+    fr: "Français"
+    en: "English"

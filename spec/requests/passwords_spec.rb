@@ -21,7 +21,7 @@ RSpec.describe "Passwords", type: :request do
       it "redirects to login with notice" do
         post passwords_path, params: { email_address: user.email_address }
         expect(response).to redirect_to(new_session_path)
-        expect(flash[:notice]).to include("Password reset instructions sent")
+        expect(flash[:notice]).to eq(I18n.t("flash.passwords.instructions_sent"))
       end
     end
 
@@ -35,7 +35,7 @@ RSpec.describe "Passwords", type: :request do
       it "returns the same response as if the email existed (no info leakage)" do
         post passwords_path, params: { email_address: "nobody@example.com" }
         expect(response).to redirect_to(new_session_path)
-        expect(flash[:notice]).to include("Password reset instructions sent")
+        expect(flash[:notice]).to eq(I18n.t("flash.passwords.instructions_sent"))
       end
     end
   end
@@ -54,7 +54,7 @@ RSpec.describe "Passwords", type: :request do
       it "redirects to new_password_path with alert" do
         get edit_password_path("invalid-token")
         expect(response).to redirect_to(new_password_path)
-        expect(flash[:alert]).to eq("Password reset link is invalid or has expired.")
+        expect(flash[:alert]).to eq(I18n.t("flash.passwords.invalid_link"))
       end
     end
   end
@@ -68,7 +68,7 @@ RSpec.describe "Passwords", type: :request do
           params: { password: "NewPassword1!", password_confirmation: "NewPassword1!" }
 
         expect(response).to redirect_to(new_session_path)
-        expect(flash[:notice]).to eq("Password has been reset.")
+        expect(flash[:notice]).to eq(I18n.t("flash.passwords.reset_success"))
       end
 
       it "destroys all existing sessions" do
@@ -97,7 +97,7 @@ RSpec.describe "Passwords", type: :request do
           params: { password: "NewPassword1!", password_confirmation: "different!" }
 
         expect(response).to redirect_to(edit_password_path(token))
-        expect(flash[:alert]).to eq("Passwords did not match.")
+        expect(flash[:alert]).to eq(I18n.t("flash.passwords.mismatch"))
       end
 
       it "does not change the password" do
@@ -114,7 +114,7 @@ RSpec.describe "Passwords", type: :request do
           params: { password: "NewPassword1!", password_confirmation: "NewPassword1!" }
 
         expect(response).to redirect_to(new_password_path)
-        expect(flash[:alert]).to eq("Password reset link is invalid or has expired.")
+        expect(flash[:alert]).to eq(I18n.t("flash.passwords.invalid_link"))
       end
     end
   end

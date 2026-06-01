@@ -22,6 +22,8 @@ gem "sidekiq", "~> 7.0"
 gem "connection_pool", "< 3.0"
 # Rate limiting (login attempts, futures APIs)
 gem "rack-attack"
+# Translations for Rails built-in components (validations, time helpers, etc.)
+gem "rails-i18n"
 # Windows timezone support
 gem "tzinfo-data", platforms: %i[windows jruby]
 # Faster boot via caching

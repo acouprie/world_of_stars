@@ -1,31 +1,41 @@
-# Files in the config/locales directory are used for internationalization and
-# are automatically loaded by Rails. If you want to use locales other than
-# English, add the necessary files in this directory.
-#
-# To use the locales, use `I18n.t`:
-#
-#     I18n.t "hello"
-#
-# In views, this is aliased to just `t`:
-#
-#     <%= t("hello") %>
-#
-# To use a different locale, set it with `I18n.locale`:
-#
-#     I18n.locale = :es
-#
-# This would use the information in config/locales/es.yml.
-#
-# To learn more about the API, please read the Rails Internationalization guide
-# at https://guides.rubyonrails.org/i18n.html.
-#
-# Be aware that YAML interprets the following case-insensitive strings as
-# booleans: `true`, `false`, `on`, `off`, `yes`, `no`. Therefore, these strings
-# must be quoted to be interpreted as strings. For example:
-#
-#     en:
-#       "yes": yup
-#       enabled: "ON"
-
 en:
-  hello: "Hello world"
+  home:
+    index:
+      connected_as: "Logged in as %{email}"
+      logout: "Log out"
+      email_placeholder: "Email address"
+      password_placeholder: "Password"
+      submit: "Log in"
+      forgot_password: "Forgot your password?"
+
+  passwords:
+    new:
+      title: "Forgot your password?"
+      email_placeholder: "Enter your email address"
+      submit: "Send reset instructions"
+    edit:
+      title: "Update your password"
+      password_placeholder: "New password"
+      password_confirmation_placeholder: "Repeat new password"
+      submit: "Save"
+
+  passwords_mailer:
+    reset:
+      intro: "You can reset your password on"
+      link_text: "this password reset page"
+      expiry: "This link will expire in %{time}."
+
+  flash:
+    sessions:
+      invalid_credentials: "Invalid email address or password."
+      too_many_attempts: "Too many attempts, try again in a few minutes."
+    passwords:
+      instructions_sent: "Password reset instructions sent (if an account exists with that email address)."
+      too_many_attempts: "Try again later."
+      reset_success: "Password has been reset."
+      mismatch: "Passwords did not match."
+      invalid_link: "Password reset link is invalid or has expired."
+
+  locale_switcher:
+    fr: "Français"
+    en: "English"
