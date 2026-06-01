@@ -17,4 +17,7 @@ Rails.application.routes.draw do
   # Sidekiq web UI (production: mount behind authentication)
   require "sidekiq/web"
   mount Sidekiq::Web => "/sidekiq" if Rails.env.development?
+
+  # Game routes
+  resources :planets
 end

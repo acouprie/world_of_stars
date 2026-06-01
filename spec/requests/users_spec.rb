@@ -33,9 +33,11 @@ RSpec.describe "Users", type: :request do
         expect(user.planets.where(is_home: true).count).to eq(1)
       end
 
-      it "redirects to root after registration" do
+      it "redirects to planet url after registration" do
         post users_path, params: valid_params
-        expect(response).to redirect_to(root_url)
+        user = User.find_by(email_address: "nova@example.com")
+        planet = user.planets.first
+        expect(response).to redirect_to(planet_url(planet))
       end
     end
 

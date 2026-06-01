@@ -30,28 +30,7 @@
       <p id="alert" data-turbo-temporary><%= alert %></p>
     <% end %>
 
-    <nav class="fixed top-0 right-0 z-50 p-2">
-      <%
-        locale_flags = { 'fr' => '🇫🇷', 'en' => '🇬🇧' }
-        current_locale = I18n.locale.to_s
-      %>
-      <details class="relative inline-block">
-        <summary class="cursor-pointer list-none text-2xl p-2 rounded hover:bg-white/10 select-none">
-          <%= locale_flags[current_locale] %>
-        </summary>
-        <div class="absolute right-0 mt-1 rounded border border-white/20 shadow-xl z-50 min-w-max overflow-hidden"
-             style="background-color: var(--color-space-bg)">
-          <% locale_flags.keys.each do |locale| %>
-            <%= button_to update_locale_path, params: { locale: locale },
-                class: "flex items-center gap-3 px-4 py-2 w-full hover:bg-white/10 transition-colors cursor-pointer#{' bg-white/5' if locale == current_locale}",
-                style: "color: var(--color-primary)" do %>
-              <span><%= locale_flags[locale] %></span>
-              <span class="text-sm font-medium"><%= t("locale_switcher.#{locale}") %></span>
-            <% end %>
-          <% end %>
-        </div>
-      </details>
-    </nav>
+    <%= render "layouts/header" %>
 
     <%= yield %>
   </body>
