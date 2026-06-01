@@ -19,8 +19,8 @@
 
 @font-face {
   font-family: "Neuropol";
-  src: url("../fonts/Neuropol/neuropol.ttf") format("truetype");
-  font-weight: normal;
+  src: url("../fonts/Neuropol/neuropol x rg.ttf") format("truetype");
+  font-weight: 400 900;
   font-style: normal;
 }
 
@@ -63,7 +63,7 @@
 
 html,
 body {
-  font-family: "Neuropol", sans-serif, "Courier New", Courier, monospace;
+  font-family: "Courier New", Courier, monospace;
   background-color: var(--color-space-bg);
   color: var(--color-primary);
   min-height: 100vh;
