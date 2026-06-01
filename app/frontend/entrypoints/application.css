@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@source "../../views/**/*.html.erb";
+@source "../../views/**/*.erb";
 
 /* Game-specific base styles */
 :root {
