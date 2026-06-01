@@ -26,4 +26,15 @@ now = Time.current
   end
 end
 
-puts "Done — #{Planet.count} planets in galaxy."
+puts "Done - #{Planet.count} planets in galaxy."
+
+puts "Creating Users..."
+
+User.create(
+  username: "Root"
+  email_address: "user@example.com",
+  password: "Password01!",
+  password_confirmation: "Password01!"
+)
+
+puts "Done - #{User.count} users in galaxy."

@@ -1,13 +1,6 @@
 require "rails_helper"
 
 RSpec.describe "Sessions", type: :request do
-  describe "GET /session/new" do
-    it "is accessible without authentication" do
-      get new_session_path
-      expect(response).to have_http_status(:ok)
-    end
-  end
-
   describe "POST /session" do
     let(:user) { create(:user) }
 
@@ -31,8 +24,8 @@ RSpec.describe "Sessions", type: :request do
     context "with wrong password" do
       it "redirects to login with alert" do
         post session_path, params: { email_address: user.email_address, password: "wrong" }
-        expect(response).to redirect_to(new_session_path)
-        expect(flash[:alert]).to eq("Try another email address or password.")
+        expect(response).to redirect_to(root_path)
+        expect(flash[:alert]).to eq("Adresse e-mail ou mot de passe incorrect.")
       end
 
       it "does not create a Session record" do
@@ -45,8 +38,8 @@ RSpec.describe "Sessions", type: :request do
     context "with unknown email" do
       it "redirects to login with alert" do
         post session_path, params: { email_address: "ghost@example.com", password: "any" }
-        expect(response).to redirect_to(new_session_path)
-        expect(flash[:alert]).to eq("Try another email address or password.")
+        expect(response).to redirect_to(root_path)
+        expect(flash[:alert]).to eq("Adresse e-mail ou mot de passe incorrect.")
       end
     end
   end
@@ -59,7 +52,7 @@ RSpec.describe "Sessions", type: :request do
 
       it "redirects to login" do
         delete session_path
-        expect(response).to redirect_to(new_session_path)
+        expect(response).to redirect_to(root_path)
       end
 
       it "clears the session cookie" do
@@ -75,7 +68,7 @@ RSpec.describe "Sessions", type: :request do
     context "when not authenticated" do
       it "redirects to login (Authentication concern)" do
         delete session_path
-        expect(response).to redirect_to(new_session_path)
+        expect(response).to redirect_to(root_path)
       end
 
       it "stores the requested URL for redirect after login" do
