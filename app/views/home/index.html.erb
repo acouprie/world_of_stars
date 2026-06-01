@@ -7,97 +7,86 @@
 
 <div class="min-h-screen flex flex-col items-center justify-center px-4">
   <h1>World of Stars</h1>
+  <div class="w-full max-w-sm" data-controller="auth" data-auth-tab-value="<%= params[:tab] || 'login' %>">
 
-  <% if authenticated? %>
-    <div class="text-center space-y-4">
-      <p style="color:var(--color-text-muted)"><%= t('.connected_as', email: Current.session.user.email_address) %></p>
-      <%= button_to t('.logout'), session_path, method: :delete,
-          class: "px-6 py-2 rounded border transition-colors cursor-pointer",
-          style: "background-color:transparent;border-color:var(--color-border);color:var(--color-text-muted);hover:border-color:var(--color-primary)" %>
+    <%# Tab switcher %>
+    <div class="flex mb-6" style="border-bottom:1px solid var(--color-border)">
+      <button data-action="auth#showLogin" data-auth-target="loginTab"
+              class="flex-1 py-3 text-sm uppercase tracking-widest transition-colors cursor-pointer outline-none
+                      data-[active=true]:border-b-2"
+              style="font-family:'Orbitron',sans-serif;
+                      border-bottom-color:var(--color-primary);
+                      color:var(--color-text-muted)"
+              data-active="true">
+        <%= t('.login_tab') %>
+      </button>
+      <button data-action="auth#showRegister" data-auth-target="registerTab"
+              class="flex-1 py-3 text-sm uppercase tracking-widest transition-colors cursor-pointer outline-none
+                      data-[active=true]:border-b-2"
+              style="font-family:'Orbitron',sans-serif;
+                      border-bottom-color:var(--color-primary);
+                      color:var(--color-text-muted)"
+              data-active="false">
+        <%= t('.register_tab') %>
+      </button>
     </div>
-  <% else %>
-    <div class="w-full max-w-sm" data-controller="auth" data-auth-tab-value="<%= params[:tab] || 'login' %>">
 
-      <%# Tab switcher %>
-      <div class="flex mb-6" style="border-bottom:1px solid var(--color-border)">
-        <button data-action="auth#showLogin" data-auth-target="loginTab"
-                class="flex-1 py-3 text-sm uppercase tracking-widest transition-colors cursor-pointer outline-none
-                       data-[active=true]:border-b-2"
-                style="font-family:'Orbitron',sans-serif;
-                       border-bottom-color:var(--color-primary);
-                       color:var(--color-text-muted)"
-                data-active="true">
-          <%= t('.login_tab') %>
-        </button>
-        <button data-action="auth#showRegister" data-auth-target="registerTab"
-                class="flex-1 py-3 text-sm uppercase tracking-widest transition-colors cursor-pointer outline-none
-                       data-[active=true]:border-b-2"
-                style="font-family:'Orbitron',sans-serif;
-                       border-bottom-color:var(--color-primary);
-                       color:var(--color-text-muted)"
-                data-active="false">
-          <%= t('.register_tab') %>
-        </button>
+    <%# Login form %>
+    <div data-auth-target="loginForm">
+      <%= form_with url: session_path, class: "space-y-4" do |form| %>
+        <%= form.email_field :email_address, required: true, autofocus: true,
+            autocomplete: "username",
+            placeholder: t('.email_placeholder'),
+            value: params[:email_address],
+            class: "w-full px-4 py-3 rounded text-sm outline-none transition-colors",
+            style: "background-color:var(--color-space-bg-2);border:1px solid var(--color-border);color:var(--color-text);" %>
+        <%= form.password_field :password, required: true,
+            autocomplete: "current-password",
+            placeholder: t('.password_placeholder'),
+            maxlength: 72,
+            class: "w-full px-4 py-3 rounded text-sm outline-none transition-colors",
+            style: "background-color:var(--color-space-bg-2);border:1px solid var(--color-border);color:var(--color-text);" %>
+        <%= form.submit t('.submit'),
+            class: "w-full py-3 rounded text-sm uppercase tracking-widest cursor-pointer transition-colors",
+            style: "background-color:var(--color-primary);color:var(--color-space-bg);font-family:'Orbitron',sans-serif;font-weight:700" %>
+      <% end %>
+      <div class="mt-4 text-center">
+        <%= link_to t('.forgot_password'), new_password_path,
+            class: "text-sm",
+            style: "color:var(--color-text-subtle)" %>
       </div>
-
-      <%# Login form %>
-      <div data-auth-target="loginForm">
-        <%= form_with url: session_path, class: "space-y-4" do |form| %>
-          <%= form.email_field :email_address, required: true, autofocus: true,
-              autocomplete: "username",
-              placeholder: t('.email_placeholder'),
-              value: params[:email_address],
-              class: "w-full px-4 py-3 rounded text-sm outline-none transition-colors",
-              style: "background-color:var(--color-space-bg-2);border:1px solid var(--color-border);color:var(--color-text);" %>
-          <%= form.password_field :password, required: true,
-              autocomplete: "current-password",
-              placeholder: t('.password_placeholder'),
-              maxlength: 72,
-              class: "w-full px-4 py-3 rounded text-sm outline-none transition-colors",
-              style: "background-color:var(--color-space-bg-2);border:1px solid var(--color-border);color:var(--color-text);" %>
-          <%= form.submit t('.submit'),
-              class: "w-full py-3 rounded text-sm uppercase tracking-widest cursor-pointer transition-colors",
-              style: "background-color:var(--color-primary);color:var(--color-space-bg);font-family:'Orbitron',sans-serif;font-weight:700" %>
-        <% end %>
-        <div class="mt-4 text-center">
-          <%= link_to t('.forgot_password'), new_password_path,
-              class: "text-sm",
-              style: "color:var(--color-text-subtle)" %>
-        </div>
-      </div>
-
-      <%# Register form %>
-      <div data-auth-target="registerForm" hidden>
-        <%= form_with url: users_path, class: "space-y-4" do |form| %>
-          <%= form.email_field :email_address, required: true,
-              autocomplete: "username",
-              placeholder: t('.email_placeholder'),
-              class: "w-full px-4 py-3 rounded text-sm outline-none transition-colors",
-              style: "background-color:var(--color-space-bg-2);border:1px solid var(--color-border);color:var(--color-text);" %>
-          <%= form.text_field :username, required: true,
-              maxlength: 14,
-              autocomplete: "nickname",
-              placeholder: t('.username_placeholder'),
-              class: "w-full px-4 py-3 rounded text-sm outline-none transition-colors",
-              style: "background-color:var(--color-space-bg-2);border:1px solid var(--color-border);color:var(--color-text);" %>
-          <%= form.password_field :password, required: true,
-              autocomplete: "new-password",
-              placeholder: t('.password_placeholder'),
-              maxlength: 72,
-              class: "w-full px-4 py-3 rounded text-sm outline-none transition-colors",
-              style: "background-color:var(--color-space-bg-2);border:1px solid var(--color-border);color:var(--color-text);" %>
-          <%= form.password_field :password_confirmation, required: true,
-              autocomplete: "new-password",
-              placeholder: t('.password_confirmation_placeholder'),
-              maxlength: 72,
-              class: "w-full px-4 py-3 rounded text-sm outline-none transition-colors",
-              style: "background-color:var(--color-space-bg-2);border:1px solid var(--color-border);color:var(--color-text);" %>
-          <%= form.submit t('.register_submit'),
-              class: "w-full py-3 rounded text-sm uppercase tracking-widest cursor-pointer transition-colors",
-              style: "background-color:var(--color-secondary);color:#fff;font-family:'Orbitron',sans-serif;font-weight:700" %>
-        <% end %>
-      </div>
-
     </div>
-  <% end %>
+
+    <%# Register form %>
+    <div data-auth-target="registerForm" hidden>
+      <%= form_with url: users_path, class: "space-y-4" do |form| %>
+        <%= form.email_field :email_address, required: true,
+            autocomplete: "username",
+            placeholder: t('.email_placeholder'),
+            class: "w-full px-4 py-3 rounded text-sm outline-none transition-colors",
+            style: "background-color:var(--color-space-bg-2);border:1px solid var(--color-border);color:var(--color-text);" %>
+        <%= form.text_field :username, required: true,
+            maxlength: 14,
+            autocomplete: "nickname",
+            placeholder: t('.username_placeholder'),
+            class: "w-full px-4 py-3 rounded text-sm outline-none transition-colors",
+            style: "background-color:var(--color-space-bg-2);border:1px solid var(--color-border);color:var(--color-text);" %>
+        <%= form.password_field :password, required: true,
+            autocomplete: "new-password",
+            placeholder: t('.password_placeholder'),
+            maxlength: 72,
+            class: "w-full px-4 py-3 rounded text-sm outline-none transition-colors",
+            style: "background-color:var(--color-space-bg-2);border:1px solid var(--color-border);color:var(--color-text);" %>
+        <%= form.password_field :password_confirmation, required: true,
+            autocomplete: "new-password",
+            placeholder: t('.password_confirmation_placeholder'),
+            maxlength: 72,
+            class: "w-full px-4 py-3 rounded text-sm outline-none transition-colors",
+            style: "background-color:var(--color-space-bg-2);border:1px solid var(--color-border);color:var(--color-text);" %>
+        <%= form.submit t('.register_submit'),
+            class: "w-full py-3 rounded text-sm uppercase tracking-widest cursor-pointer transition-colors",
+            style: "background-color:var(--color-primary);color:var(--color-space-bg);font-family:'Orbitron',sans-serif;font-weight:700" %>
+      <% end %>
+    </div>
+  </div>
 </div>
