@@ -6,16 +6,21 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="application-name" content="World of Stars">
     <meta name="mobile-web-app-capable" content="yes">
+
+    <%= favicon_link_tag 'favicons/favicon.svg', rel: 'icon', type: 'image/svg+xml' %>
+    <%= favicon_link_tag 'favicons/favicon.ico', rel: 'icon', type: 'image/x-icon' %>
+    <%= favicon_link_tag 'favicons/favicon-32x32.png', rel: 'icon', sizes: '32x32', type: 'image/png' %>
+    <%= favicon_link_tag 'favicons/favicon-16x16.png', rel: 'icon', sizes: '16x16', type: 'image/png' %>
+    <%= favicon_link_tag 'favicons/apple-touch-icon.png', rel: 'apple-touch-icon', sizes: '180x180', type: 'image/png' %>
+    <%= favicon_link_tag 'favicons/android-chrome-192x192.png', rel: 'icon', sizes: '192x192', type: 'image/png' %>
+    <%= favicon_link_tag 'favicons/android-chrome-512x512.png', rel: 'icon', sizes: '512x512', type: 'image/png' %>
+
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
     <%= yield :head %>
 
     <%= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
-
-    <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icon.png">
 
     <%= vite_client_tag %>
     <%= vite_javascript_tag "application", "data-turbo-track": "reload", defer: true %>

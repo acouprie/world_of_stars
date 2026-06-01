@@ -1,0 +1,22 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="planet" cx="35%" cy="30%" r="68%">
+      <stop offset="0%"   stop-color="#A0C0FF"/>
+      <stop offset="40%"  stop-color="#5080E0"/>
+      <stop offset="100%" stop-color="#0C1860"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="60%"  stop-color="#3060D0" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#4080FF" stop-opacity="0.5"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Halo -->
+  <circle cx="32" cy="32" r="30" fill="url(#glow)"/>
+  <!-- Planète -->
+  <circle cx="32" cy="32" r="26" fill="url(#planet)"/>
+  <!-- Reflet -->
+  <ellipse cx="22" cy="22" rx="10" ry="7" fill="white" opacity="0.12" transform="rotate(-20 22 22)"/>
+  <!-- Contour -->
+  <circle cx="32" cy="32" r="26" fill="none" stroke="#80B0FF" stroke-width="1.5" opacity="0.7"/>
+</svg>
