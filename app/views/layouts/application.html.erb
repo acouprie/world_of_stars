@@ -44,7 +44,7 @@
           <% locale_flags.keys.each do |locale| %>
             <%= button_to update_locale_path, params: { locale: locale },
                 class: "flex items-center gap-3 px-4 py-2 w-full hover:bg-white/10 transition-colors cursor-pointer#{' bg-white/5' if locale == current_locale}",
-                style: "color: var(--color-star-primary)" do %>
+                style: "color: var(--color-primary)" do %>
               <span><%= locale_flags[locale] %></span>
               <span class="text-sm font-medium"><%= t("locale_switcher.#{locale}") %></span>
             <% end %>

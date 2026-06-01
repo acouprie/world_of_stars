@@ -2,17 +2,81 @@
 @source "../../views/**/*.html.erb";
 @source "../../views/**/*.erb";
 
-/* Game-specific base styles */
-:root {
-  --color-space-bg: #0a0e1a;
-  --color-star-primary: #e8d5a3;
-  --color-varek: #c0392b;
-  --color-elyrans: #2980b9;
-  --color-nexhari: #8e44ad;
+@font-face {
+  font-family: "Orbitron";
+  src: url("../fonts/Orbitron/Orbitron-VariableFont_wght.ttf")
+    format("truetype");
+  font-weight: 400 900;
+  font-style: normal;
 }
 
-html, body {
+@font-face {
+  font-family: "GraceOfEtro";
+  src: url("../fonts/GraceOfEtro/grace_of_etro.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Neuropol";
+  src: url("../fonts/Neuropol/neuropol.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Velekom";
+  src: url("../fonts/Velekom/velekom.regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Game-specific base styles */
+:root {
+  /* Fonds */
+  --color-space-bg: #0d0e12;
+  --color-space-bg-2: #14151c;
+  --color-surface: #1c1d27;
+  --color-border: #2a2b38;
+
+  /* Typographie */
+  --color-text: #e8e4d8;
+  --color-text-muted: #a09e96;
+  --color-text-subtle: #5e5d58;
+
+  /* Interface */
+  --color-primary: #c8a96e;
+  --color-secondary: #4e8faf;
+  --color-quantum: #2ec4a0;
+
+  /* Factions */
+  --color-varek: #e8622a;
+  --color-varek-dark: #a83d16;
+  --color-varek-bg: #1a0e0a;
+  --color-elyrans: #5bc4d4;
+  --color-elyrans-dark: #2e91a4;
+  --color-elyrans-bg: #080f18;
+  --color-nexhianti: #b87fe8;
+  --color-nexhianti-dark: #8448c2;
+  --color-nexhianti-bg: #0e0914;
+}
+
+html,
+body {
+  font-family: "Neuropol", sans-serif, "Courier New", Courier, monospace;
   background-color: var(--color-space-bg);
-  color: var(--color-star-primary);
+  color: var(--color-primary);
   min-height: 100vh;
+}
+
+h1 {
+  font-family: "Orbitron", sans-serif;
+  font-weight: 700;
+  font-size: 5rem;
+  text-align: center;
+  margin: 2rem 0;
+  text-shadow: 0 0 10px var(--color-primary);
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.2rem;
 }

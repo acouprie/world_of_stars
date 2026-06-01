@@ -17,32 +17,33 @@
 
 ## Stack retenue
 
-| Composant | Technologie | Rôle |
-|---|---|---|
-| Backend | Ruby on Rails 8 | Logique métier, API, rendu serveur |
-| Frontend socle | Hotwire (Turbo + Stimulus) | 80% de l'UI — pages, timers, flux serveur |
-| Build JS | Vite (`vite_rails`) | Bundler moderne, support JSX/React/Pixi.js, hot reload |
-| CSS | Tailwind CSS | Utilitaires mobile-first, bien intégré Hotwire |
-| Frontend complexe | React (islands) | Carte galaxie, composants très interactifs |
-| Carte galaxie | Pixi.js (WebGL) | Rendu performant, zoom/pan, flottes en mouvement |
-| Base de données | PostgreSQL | Données de jeu, état des agents, mémoire des factions |
-| Jobs asynchrones | Sidekiq | Constructions, déplacements, combats, ticks IA |
-| Temps réel | ActionCable + Turbo Streams | Push serveur → client (ressources live, alertes radar) |
-| Authentification | `rails generate authentication` | Auth maison Rails 8, code lisible et modifiable |
-| Tests | RSpec + FactoryBot + WebMock | Suite de tests complète, mocks des appels LLM |
-| IA produit | API LLM | Agents factions, narration, conseiller, support |
-| Observabilité LLM | Langfuse | Tracing de tous les appels LLM |
-| Mobile | Capacitor | Wrapping PWA → app stores (iOS + Android) |
-| Registry Docker | GitHub Container Registry | Gratuit, intégré GitHub Actions |
-| Hébergement | Infomaniak VPS Lite (4 vCPU / 8 GB RAM) | Linux brut, compatible Kamal, datacenter Suisse |
-| Déploiement | Docker Compose (dev) + Kamal (prod) | Déploiement Rails-natif sur VPS |
-| Domaine | worldofstars.fr | — |
+| Composant         | Technologie                             | Rôle                                                   |
+| ----------------- | --------------------------------------- | ------------------------------------------------------ |
+| Backend           | Ruby on Rails 8                         | Logique métier, API, rendu serveur                     |
+| Frontend socle    | Hotwire (Turbo + Stimulus)              | 80% de l'UI — pages, timers, flux serveur              |
+| Build JS          | Vite (`vite_rails`)                     | Bundler moderne, support JSX/React/Pixi.js, hot reload |
+| CSS               | Tailwind CSS                            | Utilitaires mobile-first, bien intégré Hotwire         |
+| Frontend complexe | React (islands)                         | Carte galaxie, composants très interactifs             |
+| Carte galaxie     | Pixi.js (WebGL)                         | Rendu performant, zoom/pan, flottes en mouvement       |
+| Base de données   | PostgreSQL                              | Données de jeu, état des agents, mémoire des factions  |
+| Jobs asynchrones  | Sidekiq                                 | Constructions, déplacements, combats, ticks IA         |
+| Temps réel        | ActionCable + Turbo Streams             | Push serveur → client (ressources live, alertes radar) |
+| Authentification  | `rails generate authentication`         | Auth maison Rails 8, code lisible et modifiable        |
+| Tests             | RSpec + FactoryBot + WebMock            | Suite de tests complète, mocks des appels LLM          |
+| IA produit        | API LLM                                 | Agents factions, narration, conseiller, support        |
+| Observabilité LLM | Langfuse                                | Tracing de tous les appels LLM                         |
+| Mobile            | Capacitor                               | Wrapping PWA → app stores (iOS + Android)              |
+| Registry Docker   | GitHub Container Registry               | Gratuit, intégré GitHub Actions                        |
+| Hébergement       | Infomaniak VPS Lite (4 vCPU / 8 GB RAM) | Linux brut, compatible Kamal, datacenter Suisse        |
+| Déploiement       | Docker Compose (dev) + Kamal (prod)     | Déploiement Rails-natif sur VPS                        |
+| Domaine           | worldofstars.fr                         | —                                                      |
 
 ---
 
 ## Architecture frontend — le modèle "islands"
 
 ### Principe
+
 Rails + Hotwire est le socle. React n'intervient que pour les composants qui en ont vraiment besoin. Les deux coexistent dans la même application Rails sans séparation API/frontend.
 
 ```
@@ -56,6 +57,7 @@ Rails (rendu serveur)
 ```
 
 ### Intégration Rails ↔ React
+
 - Via `importmap` (Rails 8 natif) ou `Vite` si le build devient complexe
 - Les islands React reçoivent leur état initial en props depuis Rails (ERB → JSON)
 - Les mises à jour live passent par ActionCable ou fetch vers des endpoints JSON dédiés
@@ -78,6 +80,7 @@ bundle exec vite install
 Le fichier `vite.config.ts` devient le point d'entrée pour tous les assets JS/CSS. Tailwind s'intègre directement dans ce pipeline.
 
 ### Points d'attention — carte galaxie (Pixi.js)
+
 - Pixi.js est un renderer WebGL : penser en sprites/textures, pas en DOM
 - Prévoir la gestion mémoire : détruire les sprites des planètes/flottes hors champ
 - Le zoom/pan doit être fluide même avec 500+ planètes → utiliser les conteneurs Pixi, pas de re-render React
@@ -89,12 +92,15 @@ Le fichier `vite.config.ts` devient le point d'entrée pour tous les assets JS/C
 ## Mobile — Capacitor
 
 ### Ce que c'est
+
 Capacitor (Ionic) transforme une PWA en application native iOS/Android. La codebase reste une seule app web ; Capacitor ajoute une couche native légère qui permet :
+
 - Distribution via App Store et Google Play
 - Accès aux APIs natives (notifications push, etc.)
 - Une WebView optimisée (WKWebView sur iOS, pas la WebView système)
 
 ### Points d'attention
+
 - **Concevoir mobile-first dès le début** — rétrofitter une UI desktop en mobile est coûteux
 - Les interactions tactiles (tap, swipe, pinch-to-zoom sur la carte) doivent être testées tôt
 - Pixi.js fonctionne bien dans Capacitor mais tester sur vrai device rapidement (émulateur insuffisant pour WebGL)
@@ -107,7 +113,7 @@ Capacitor (Ionic) transforme une PWA en application native iOS/Android. La codeb
 
 ### La posture à adopter
 
-Une seule codebase Rails. L'app mobile *est* l'app web. Le schéma complet :
+Une seule codebase Rails. L'app mobile _est_ l'app web. Le schéma complet :
 
 ```
 App Rails (PWA)
@@ -162,20 +168,20 @@ C'est le composant le plus complexe à adapter. À coder en utilisant les **Poin
 
 ```javascript
 // ✅ Pointer Events — fonctionnent sur desktop ET mobile
-app.stage.on('pointerdown', onSelectPlanet)
-app.stage.on('pointermove', onDragMap)
+app.stage.on("pointerdown", onSelectPlanet);
+app.stage.on("pointermove", onDragMap);
 
 // ❌ MouseEvents — ignorés sur mobile
-app.stage.on('click', onSelectPlanet)
+app.stage.on("click", onSelectPlanet);
 ```
 
 Deux comportements à implémenter explicitement :
 
-| Action | Desktop | Mobile |
-|---|---|---|
-| Sélectionner une planète | Click | Tap |
-| Déplacer la vue | Drag (clic maintenu) | Swipe (un doigt) |
-| Zoomer | Scroll molette | Pinch (deux doigts) |
+| Action                   | Desktop              | Mobile              |
+| ------------------------ | -------------------- | ------------------- |
+| Sélectionner une planète | Click                | Tap                 |
+| Déplacer la vue          | Drag (clic maintenu) | Swipe (un doigt)    |
+| Zoomer                   | Scroll molette       | Pinch (deux doigts) |
 
 Le pinch-to-zoom ne vient pas automatiquement — il faut l'implémenter via une librairie gesture (ex: `hammerjs`) ou à la main avec les `pointermove` events.
 
@@ -199,6 +205,7 @@ Côté Rails, prévoir un modèle `DeviceToken` dès le début pour stocker les 
 ### Contraintes de build iOS
 
 Pour soumettre sur l'App Store, il faut obligatoirement :
+
 - Un compte Apple Developer (99$/an)
 - Xcode sur macOS pour compiler le build iOS
 
@@ -229,6 +236,7 @@ Devise est une gem externe de ~10 000 lignes qui gère tout mais reste une boît
 **Ce que `rails generate authentication` inclut** : connexion/déconnexion, sessions sécurisées, réinitialisation de mot de passe par email, `has_secure_password` (bcrypt).
 
 **Ce qui n'est pas inclus** et à implémenter si nécessaire :
+
 - Confirmation email à l'inscription
 - OAuth (Google, Discord, etc.) — ajouter la gem `omniauth` le moment venu
 - Rate limiting sur les tentatives de connexion — ajouter `rack-attack`
@@ -322,16 +330,19 @@ end
 ## Gestion du temps — points d'attention critiques
 
 ### Le modèle `last_updated_at` (ressources)
+
 ```ruby
 # Calcul à la volée — élégant mais attention aux cas limites
 resources += production_rate * (Time.current - last_updated_at)
 ```
+
 - **Race condition** : deux workers Sidekiq touchant la même planète simultanément peuvent corrompre l'état
 - Solution : transactions PostgreSQL + `SELECT ... FOR UPDATE` (lock pessimiste) sur la planète avant toute écriture
 - À implémenter dès le début — rajouter des locks après coup est douloureux
 - Tester systématiquement les scénarios concurrents : flotte qui arrive + construction qui finit + raid IA au même moment
 
 ### Jobs Sidekiq — bonnes pratiques
+
 - Rendre tous les jobs **idempotents** : si un job s'exécute deux fois (retry après crash), l'état final doit être identique
 - Stocker l'heure d'arrivée prévue en base, pas seulement dans la queue Sidekiq — permet de reconstruire l'état si la queue est perdue
 - Les jobs de combat/conquête doivent vérifier que l'état n'a pas changé entre la création du job et son exécution (ex : la planète a changé de propriétaire entre-temps)
@@ -343,15 +354,18 @@ resources += production_rate * (Time.current - last_updated_at)
 ### Niveau 1 — Narration (MVP, faible complexité)
 
 **Rapports d'exploration**
+
 - Prompt : contexte de la planète (type, coordonnées, unités envoyées) + résultat mécanique (ressources trouvées, pertes) → Claude génère un rapport narratif
 - Garder le prompt court, le contexte minimal, la sortie bornée (max 200 tokens)
 - Cacher le résultat (Redis) pour éviter de régénérer si le joueur relit son rapport
 
 **Rapports de combat**
+
 - Même logique : résultat mécanique calculé d'abord, narration générée ensuite
 - La narration n'influence jamais le résultat — calculer avant d'appeler le LLM
 
 **Messages des factions**
+
 - Déclarations de guerre Varek, propositions commerciales Elyrans, alertes Nexhari
 - Utiliser un `system prompt` par faction avec sa personnalité définie
 - Prévoir une bibliothèque de quelques messages fallback si l'API est indisponible
@@ -359,6 +373,7 @@ resources += production_rate * (Time.current - last_updated_at)
 ### Niveau 2 — Conseiller impérial (feature à fort impact vitrine)
 
 Agent contextuel accessible depuis l'interface, capable de :
+
 - Analyser l'état réel de la planète du joueur (bâtiments, ressources, voisins)
 - Suggérer les prochaines actions prioritaires
 - Répondre aux questions sur les règles (RAG sur le GDD)
@@ -399,15 +414,17 @@ end
 ```
 
 #### Ordre de migration recommandé
-1. **Les Nexhari** en premier — comportement chaotique, pas de diplomatie, les erreurs sont des features
+
+1. **Les nexhianti** en premier — comportement chaotique, pas de diplomatie, les erreurs sont des features
 2. **Les Varek** ensuite — logique d'agression scriptable, bon test de la cohérence décisionnelle
 3. **Les Elyrans** en dernier — la diplomatie et la réputation nécessitent un agent plus nuancé
 
 #### Mémoire des agents (modèle PostgreSQL)
+
 ```ruby
 # À créer dès le début, pas en retard
 create_table :faction_memories do |t|
-  t.string :faction        # varek, elyrans, nexhari
+  t.string :faction        # varek, elyrans, nexhianti
   t.string :memory_type    # objective, last_decision, target_priority
   t.jsonb  :content
   t.timestamps
@@ -419,12 +436,15 @@ end
 ## Observabilité LLM — Langfuse
 
 ### Pourquoi dès le début
+
 Sans traçage, débugger un comportement de faction bizarre revient à inspecter des logs bruts. Langfuse donne :
+
 - Historique de chaque appel (prompt, réponse, tokens, coût, latence)
 - Évaluation des décisions agents sur le temps
 - Détection des dérives de comportement
 
 ### Intégration Rails
+
 ```ruby
 # Wrapper autour de chaque appel Anthropic
 class TrackedAnthropicClient
@@ -446,15 +466,16 @@ end
 
 ### Matrice modèles → usages
 
-| Usage | Modèle recommandé | Raison |
-|---|---|---|
-| Décisions simples des factions (scriptées) | claude-haiku-4-5 | Rapide, < 1¢ par décision |
-| Narration exploration/combat | claude-haiku-4-5 | Créativité suffisante, volume élevé |
-| Agents ReAct des factions | claude-sonnet-4-20250514 | Raisonnement complexe |
-| Conseiller impérial | claude-sonnet-4-20250514 | Qualité attendue par le joueur |
-| Support joueurs (RAG) | claude-haiku-4-5 | Questions/réponses factuelles |
+| Usage                                      | Modèle recommandé        | Raison                              |
+| ------------------------------------------ | ------------------------ | ----------------------------------- |
+| Décisions simples des factions (scriptées) | claude-haiku-4-5         | Rapide, < 1¢ par décision           |
+| Narration exploration/combat               | claude-haiku-4-5         | Créativité suffisante, volume élevé |
+| Agents ReAct des factions                  | claude-sonnet-4-20250514 | Raisonnement complexe               |
+| Conseiller impérial                        | claude-sonnet-4-20250514 | Qualité attendue par le joueur      |
+| Support joueurs (RAG)                      | claude-haiku-4-5         | Questions/réponses factuelles       |
 
 ### Garde-fous à implémenter dès le début
+
 - **Rate limiting par joueur** : 1 appel conseiller/minute, 1 rapport d'exploration narratif généré une seule fois (jamais reégénéré)
 - **Cache Redis** : mettre en cache les rapports narratifs générés (clé = hash des paramètres mécaniques)
 - **Décisions de faction throttlées** : une décision Varek toutes les N minutes, pas à chaque tick Sidekiq
@@ -468,7 +489,9 @@ end
 Point crucial pour la montée en compétence et la fiabilité du jeu.
 
 ### Principe
+
 Créer une suite de scénarios de test pour chaque agent de faction :
+
 ```ruby
 # Exemple d'eval pour les Varek
 VAREK_EVAL_SCENARIOS = [
@@ -487,6 +510,7 @@ VAREK_EVAL_SCENARIOS = [
 ```
 
 ### Ce qu'on mesure
+
 - **Cohérence de personnalité** : les Varek agressent-ils bien les faibles et évitent-ils les puissants ?
 - **Respect des règles** : les agents ne proposent jamais d'actions impossibles ?
 - **Stabilité** : le comportement est-il reproductible sur 10 appels avec le même contexte ?
@@ -496,16 +520,19 @@ VAREK_EVAL_SCENARIOS = [
 ## Angles morts — checklist par feature
 
 ### À vérifier à chaque nouvelle feature
+
 - [ ] Un test unitaire existe pour chaque formule ou règle métier
 - [ ] Les appels Anthropic sont stubbés avec WebMock dans les specs concernées
 - [ ] Les factories FactoryBot couvrent les nouveaux modèles
 
 ### À vérifier à chaque feature impliquant des ressources
+
 - [ ] Lock pessimiste PostgreSQL sur la planète avant toute écriture
 - [ ] Job Sidekiq idempotent (safe en cas de double exécution)
 - [ ] L'état prévu (heure d'arrivée, fin de construction) est persisté en base
 
 ### À vérifier à chaque feature impliquant un appel LLM
+
 - [ ] Rate limiting en place
 - [ ] Résultat mécanique calculé avant l'appel LLM (la narration ne change jamais le gameplay)
 - [ ] Appel tracé dans Langfuse
@@ -513,11 +540,13 @@ VAREK_EVAL_SCENARIOS = [
 - [ ] Modèle choisi est le moins cher qui convient
 
 ### À vérifier à chaque feature avec état de faction
+
 - [ ] La décision est persistée dans `faction_memories`
 - [ ] Le comportement a un scénario d'eval associé
 - [ ] Le throttling est respecté (pas d'appel à chaque tick)
 
 ### À vérifier pour les features mobile
+
 - [ ] UI testée sur viewport 375px
 - [ ] Interactions tactiles testées sur vrai device
 - [ ] Comportement WebSocket testé en arrière-plan iOS
@@ -541,7 +570,7 @@ Configuration recommandée : **4 vCPU / 8 GB RAM / 160 GB NVMe** (~20€/mois). 
 ```yaml
 # config/deploy.yml
 service: world-of-stars
-image: ghcr.io/ton-username/world-of-stars  # GitHub Container Registry
+image: ghcr.io/ton-username/world-of-stars # GitHub Container Registry
 
 servers:
   web:
@@ -581,6 +610,7 @@ accessories:
 ```
 
 **Points d'attention** :
+
 - Séparer les containers web et Sidekiq dès le début (scalabilité)
 - Prévoir un container dédié pour les agents IA si les microservices Python arrivent en phase 2
 - ActionCable nécessite un adapter Redis (déjà dans la stack)
@@ -590,23 +620,26 @@ accessories:
 ## Utilisation de l'IA dans le développement
 
 ### Claude Code — usage recommandé
+
 - Génération des migrations et modèles à partir du GDD (excellent point de départ)
 - Tests unitaires des formules d'équilibrage (combat, exploration, XP) — générer 100 scénarios de test
 - Refactoring des agents après chaque itération
 - Revue des prompts avant mise en production
 
 ### Génération de contenu de jeu
+
 - **Noms de planètes** : batch generation avec contraintes (sonorité par faction, longueur)
 - **Descriptions de missions** : générer une bibliothèque offline, stocker en base — pas de génération live pour le contenu statique
 - **Événements Nexhari** : les messages globaux d'alerte peuvent être générés à l'avance et stockés
 
 ### Documentation technique
+
 - Générer les commentaires de code complexe (formules d'équilibrage, logique agents)
 - Maintenir le GDD à jour : après chaque sprint, demander à Claude de synthétiser les décisions prises et de mettre à jour les questions ouvertes
 
 ---
 
-*Document vivant — à mettre à jour en parallèle du game_design.md*
+_Document vivant — à mettre à jour en parallèle du game_design.md_
 | Backend | Ruby on Rails 8 | Logique métier, API, rendu serveur |
 | Frontend socle | Hotwire (Turbo + Stimulus) | 80% de l'UI — pages, timers, flux serveur |
 | Frontend complexe | React (islands) | Carte galaxie, composants très interactifs |
@@ -624,6 +657,7 @@ accessories:
 ## Architecture frontend — le modèle "islands"
 
 ### Principe
+
 Rails + Hotwire est le socle. React n'intervient que pour les composants qui en ont vraiment besoin. Les deux coexistent dans la même application Rails sans séparation API/frontend.
 
 ```
@@ -637,12 +671,14 @@ Rails (rendu serveur)
 ```
 
 ### Intégration Rails ↔ React
+
 - Via `importmap` (Rails 8 natif) ou `Vite` si le build devient complexe
 - Les islands React reçoivent leur état initial en props depuis Rails (ERB → JSON)
 - Les mises à jour live passent par ActionCable ou fetch vers des endpoints JSON dédiés
 - Pas besoin d'une API REST complète — juste des endpoints ciblés pour les islands
 
 ### Points d'attention — carte galaxie (Pixi.js)
+
 - Pixi.js est un renderer WebGL : penser en sprites/textures, pas en DOM
 - Prévoir la gestion mémoire : détruire les sprites des planètes/flottes hors champ
 - Le zoom/pan doit être fluide même avec 500+ planètes → utiliser les conteneurs Pixi, pas de re-render React
@@ -654,12 +690,15 @@ Rails (rendu serveur)
 ## Mobile — Capacitor
 
 ### Ce que c'est
+
 Capacitor (Ionic) transforme une PWA en application native iOS/Android. La codebase reste une seule app web ; Capacitor ajoute une couche native légère qui permet :
+
 - Distribution via App Store et Google Play
 - Accès aux APIs natives (notifications push, etc.)
 - Une WebView optimisée (WKWebView sur iOS, pas la WebView système)
 
 ### Points d'attention
+
 - **Concevoir mobile-first dès le début** — rétrofitter une UI desktop en mobile est coûteux
 - Les interactions tactiles (tap, swipe, pinch-to-zoom sur la carte) doivent être testées tôt
 - Pixi.js fonctionne bien dans Capacitor mais tester sur vrai device rapidement (émulateur insuffisant pour WebGL)
@@ -672,7 +711,7 @@ Capacitor (Ionic) transforme une PWA en application native iOS/Android. La codeb
 
 ### La posture à adopter
 
-Une seule codebase Rails. L'app mobile *est* l'app web. Le schéma complet :
+Une seule codebase Rails. L'app mobile _est_ l'app web. Le schéma complet :
 
 ```
 App Rails (PWA)
@@ -727,20 +766,20 @@ C'est le composant le plus complexe à adapter. À coder en utilisant les **Poin
 
 ```javascript
 // ✅ Pointer Events — fonctionnent sur desktop ET mobile
-app.stage.on('pointerdown', onSelectPlanet)
-app.stage.on('pointermove', onDragMap)
+app.stage.on("pointerdown", onSelectPlanet);
+app.stage.on("pointermove", onDragMap);
 
 // ❌ MouseEvents — ignorés sur mobile
-app.stage.on('click', onSelectPlanet)
+app.stage.on("click", onSelectPlanet);
 ```
 
 Deux comportements à implémenter explicitement :
 
-| Action | Desktop | Mobile |
-|---|---|---|
-| Sélectionner une planète | Click | Tap |
-| Déplacer la vue | Drag (clic maintenu) | Swipe (un doigt) |
-| Zoomer | Scroll molette | Pinch (deux doigts) |
+| Action                   | Desktop              | Mobile              |
+| ------------------------ | -------------------- | ------------------- |
+| Sélectionner une planète | Click                | Tap                 |
+| Déplacer la vue          | Drag (clic maintenu) | Swipe (un doigt)    |
+| Zoomer                   | Scroll molette       | Pinch (deux doigts) |
 
 Le pinch-to-zoom ne vient pas automatiquement — il faut l'implémenter via une librairie gesture (ex: `hammerjs`) ou à la main avec les `pointermove` events.
 
@@ -764,6 +803,7 @@ Côté Rails, prévoir un modèle `DeviceToken` dès le début pour stocker les 
 ### Contraintes de build iOS
 
 Pour soumettre sur l'App Store, il faut obligatoirement :
+
 - Un compte Apple Developer (99$/an)
 - Xcode sur macOS pour compiler le build iOS
 
@@ -774,16 +814,19 @@ Si tu développes sous Linux ou Windows, anticiper l'accès à un Mac ou un serv
 ## Gestion du temps — points d'attention critiques
 
 ### Le modèle `last_updated_at` (ressources)
+
 ```ruby
 # Calcul à la volée — élégant mais attention aux cas limites
 resources += production_rate * (Time.current - last_updated_at)
 ```
+
 - **Race condition** : deux workers Sidekiq touchant la même planète simultanément peuvent corrompre l'état
 - Solution : transactions PostgreSQL + `SELECT ... FOR UPDATE` (lock pessimiste) sur la planète avant toute écriture
 - À implémenter dès le début — rajouter des locks après coup est douloureux
 - Tester systématiquement les scénarios concurrents : flotte qui arrive + construction qui finit + raid IA au même moment
 
 ### Jobs Sidekiq — bonnes pratiques
+
 - Rendre tous les jobs **idempotents** : si un job s'exécute deux fois (retry après crash), l'état final doit être identique
 - Stocker l'heure d'arrivée prévue en base, pas seulement dans la queue Sidekiq — permet de reconstruire l'état si la queue est perdue
 - Les jobs de combat/conquête doivent vérifier que l'état n'a pas changé entre la création du job et son exécution (ex : la planète a changé de propriétaire entre-temps)
@@ -795,15 +838,18 @@ resources += production_rate * (Time.current - last_updated_at)
 ### Niveau 1 — Narration (MVP, faible complexité)
 
 **Rapports d'exploration**
+
 - Prompt : contexte de la planète (type, coordonnées, unités envoyées) + résultat mécanique (ressources trouvées, pertes) → Claude génère un rapport narratif
 - Garder le prompt court, le contexte minimal, la sortie bornée (max 200 tokens)
 - Cacher le résultat (Redis) pour éviter de régénérer si le joueur relit son rapport
 
 **Rapports de combat**
+
 - Même logique : résultat mécanique calculé d'abord, narration générée ensuite
 - La narration n'influence jamais le résultat — calculer avant d'appeler le LLM
 
 **Messages des factions**
+
 - Déclarations de guerre Varek, propositions commerciales Elyrans, alertes Nexhari
 - Utiliser un `system prompt` par faction avec sa personnalité définie
 - Prévoir une bibliothèque de quelques messages fallback si l'API est indisponible
@@ -811,6 +857,7 @@ resources += production_rate * (Time.current - last_updated_at)
 ### Niveau 2 — Conseiller impérial (feature à fort impact vitrine)
 
 Agent contextuel accessible depuis l'interface, capable de :
+
 - Analyser l'état réel de la planète du joueur (bâtiments, ressources, voisins)
 - Suggérer les prochaines actions prioritaires
 - Répondre aux questions sur les règles (RAG sur le GDD)
@@ -851,11 +898,13 @@ end
 ```
 
 #### Ordre de migration recommandé
+
 1. **Les Nexhari** en premier — comportement chaotique, pas de diplomatie, les erreurs sont des features
 2. **Les Varek** ensuite — logique d'agression scriptable, bon test de la cohérence décisionnelle
 3. **Les Elyrans** en dernier — la diplomatie et la réputation nécessitent un agent plus nuancé
 
 #### Mémoire des agents (modèle PostgreSQL)
+
 ```ruby
 # À créer dès le début, pas en retard
 create_table :faction_memories do |t|
@@ -871,21 +920,24 @@ end
 ## Observabilité LLM — Langfuse
 
 ### Pourquoi dès le début
+
 Sans traçage, débugger un comportement de faction bizarre revient à inspecter des logs bruts. Langfuse donne :
+
 - Historique de chaque appel (prompt, réponse, tokens, coût, latence)
 - Évaluation des décisions agents sur le temps
 - Détection des dérives de comportement
 
 ### Intégration Rails
+
 ```ruby
 # Wrapper autour de chaque appel Anthropic
 class TrackedAnthropicClient
   def messages_create(params, trace_name:)
     trace = Langfuse.trace(name: trace_name)
     generation = trace.generation(input: params)
-    
+
     response = anthropic_client.messages.create(params)
-    
+
     generation.end(output: response, usage: response.usage)
     response
   end
@@ -898,15 +950,16 @@ end
 
 ### Matrice modèles → usages
 
-| Usage | Modèle recommandé | Raison |
-|---|---|---|
-| Décisions simples des factions (scriptées) | claude-haiku-4-5 | Rapide, < 1¢ par décision |
-| Narration exploration/combat | claude-haiku-4-5 | Créativité suffisante, volume élevé |
-| Agents ReAct des factions | claude-sonnet-4-20250514 | Raisonnement complexe |
-| Conseiller impérial | claude-sonnet-4-20250514 | Qualité attendue par le joueur |
-| Support joueurs (RAG) | claude-haiku-4-5 | Questions/réponses factuelles |
+| Usage                                      | Modèle recommandé        | Raison                              |
+| ------------------------------------------ | ------------------------ | ----------------------------------- |
+| Décisions simples des factions (scriptées) | claude-haiku-4-5         | Rapide, < 1¢ par décision           |
+| Narration exploration/combat               | claude-haiku-4-5         | Créativité suffisante, volume élevé |
+| Agents ReAct des factions                  | claude-sonnet-4-20250514 | Raisonnement complexe               |
+| Conseiller impérial                        | claude-sonnet-4-20250514 | Qualité attendue par le joueur      |
+| Support joueurs (RAG)                      | claude-haiku-4-5         | Questions/réponses factuelles       |
 
 ### Garde-fous à implémenter dès le début
+
 - **Rate limiting par joueur** : 1 appel conseiller/minute, 1 rapport d'exploration narratif généré une seule fois (jamais reégénéré)
 - **Cache Redis** : mettre en cache les rapports narratifs générés (clé = hash des paramètres mécaniques)
 - **Décisions de faction throttlées** : une décision Varek toutes les N minutes, pas à chaque tick Sidekiq
@@ -920,7 +973,9 @@ end
 Point crucial pour la montée en compétence et la fiabilité du jeu.
 
 ### Principe
+
 Créer une suite de scénarios de test pour chaque agent de faction :
+
 ```ruby
 # Exemple d'eval pour les Varek
 VAREK_EVAL_SCENARIOS = [
@@ -939,6 +994,7 @@ VAREK_EVAL_SCENARIOS = [
 ```
 
 ### Ce qu'on mesure
+
 - **Cohérence de personnalité** : les Varek agressent-ils bien les faibles et évitent-ils les puissants ?
 - **Respect des règles** : les agents ne proposent jamais d'actions impossibles ?
 - **Stabilité** : le comportement est-il reproductible sur 10 appels avec le même contexte ?
@@ -948,11 +1004,13 @@ VAREK_EVAL_SCENARIOS = [
 ## Angles morts — checklist par feature
 
 ### À vérifier à chaque feature impliquant des ressources
+
 - [ ] Lock pessimiste PostgreSQL sur la planète avant toute écriture
 - [ ] Job Sidekiq idempotent (safe en cas de double exécution)
 - [ ] L'état prévu (heure d'arrivée, fin de construction) est persisté en base
 
 ### À vérifier à chaque feature impliquant un appel LLM
+
 - [ ] Rate limiting en place
 - [ ] Résultat mécanique calculé avant l'appel LLM (la narration ne change jamais le gameplay)
 - [ ] Appel tracé dans Langfuse
@@ -960,11 +1018,13 @@ VAREK_EVAL_SCENARIOS = [
 - [ ] Modèle choisi est le moins cher qui convient
 
 ### À vérifier à chaque feature avec état de faction
+
 - [ ] La décision est persistée dans `faction_memories`
 - [ ] Le comportement a un scénario d'eval associé
 - [ ] Le throttling est respecté (pas d'appel à chaque tick)
 
 ### À vérifier pour les features mobile
+
 - [ ] UI testée sur viewport 375px
 - [ ] Interactions tactiles testées sur vrai device
 - [ ] Comportement WebSocket testé en arrière-plan iOS
@@ -998,6 +1058,7 @@ accessories:
 ```
 
 **Points d'attention** :
+
 - Séparer les containers web et Sidekiq dès le début (scalabilité)
 - Prévoir un container dédié pour les agents IA si les microservices Python arrivent en phase 2
 - ActionCable nécessite un adapter Redis (déjà dans la stack)
@@ -1007,20 +1068,23 @@ accessories:
 ## Utilisation de l'IA dans le développement
 
 ### Claude Code — usage recommandé
+
 - Génération des migrations et modèles à partir du GDD (excellent point de départ)
 - Tests unitaires des formules d'équilibrage (combat, exploration, XP) — générer 100 scénarios de test
 - Refactoring des agents après chaque itération
 - Revue des prompts avant mise en production
 
 ### Génération de contenu de jeu
+
 - **Noms de planètes** : batch generation avec contraintes (sonorité par faction, longueur)
 - **Descriptions de missions** : générer une bibliothèque offline, stocker en base — pas de génération live pour le contenu statique
 - **Événements Nexhari** : les messages globaux d'alerte peuvent être générés à l'avance et stockés
 
 ### Documentation technique
+
 - Générer les commentaires de code complexe (formules d'équilibrage, logique agents)
 - Maintenir le GDD à jour : après chaque sprint, demander à Claude de synthétiser les décisions prises et de mettre à jour les questions ouvertes
 
 ---
 
-*Document vivant — à mettre à jour en parallèle du game_design.md*
+_Document vivant — à mettre à jour en parallèle du game_design.md_
