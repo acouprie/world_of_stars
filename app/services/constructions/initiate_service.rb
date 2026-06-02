@@ -18,7 +18,11 @@ module Constructions
         return failure("prerequisite_missing") unless prerequisite_met?
 
         building = planet.buildings.find_or_initialize_by(building_type: @building_type)
-        building.save! if building.new_record?
+        if building.new_record?
+          occupied = planet.buildings.pluck(:slot_index).compact
+          building.slot_index = (0..11).find { |i| !occupied.include?(i) } || 0
+          building.save!
+        end
 
         target = building.level + 1
 

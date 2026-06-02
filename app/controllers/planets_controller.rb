@@ -1,11 +1,20 @@
 class PlanetsController < ApplicationController
+  before_action :set_planet
+
   def show
-    @planet = Planet.includes(:buildings, :construction_queue).find(params[:id])
   end
 
   def edit
   end
 
   def update
+  end
+
+  private
+
+  def set_planet
+    @planet = Current.user.planets
+                          .includes(:buildings, :construction_queue)
+                          .find(params[:id])
   end
 end
