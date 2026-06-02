@@ -70,3 +70,31 @@ fr:
       slot_empty: "Emplacement vide"
       no_buildings: "Aucun bâtiment disponible"
       home_badge: "BASE"
+
+  errors:
+    game_label: "WORLD OF STARS"
+    not_found:
+      title: "Secteur inconnu"
+      heading: "SECTEUR INCONNU"
+      subtitle: "// signal perdu dans le vide interstellaire //"
+      message: "Les coordonnées transmises ne correspondent à aucun système répertorié dans la base galactique. Cette planète n'a peut-être jamais existé — ou les Nexhianti sont passés par là."
+      back: "Retour à la base"
+    unprocessable:
+      title: "Transmission corrompue"
+      heading: "TRANSMISSION CORROMPUE"
+      subtitle: "// signal altéré — réémission requise //"
+      message: "La requête reçue ne peut pas être traitée. Les données ont été altérées en transit. Vérifiez vos paramètres d'émission et réessayez."
+      back: "Retour à la base"
+    internal:
+      title: "Panne généralisée"
+      heading: "PANNE DU CENTRE DE COMMANDEMENT"
+      subtitle: "// niveau rouge — réacteur instable //"
+      message: "Une anomalie inexpliquée a mis le Centre de Commandement hors ligne. L'équipe technique Elyrans est en route. Ce n'est probablement pas les Nexhianti... cette fois."
+      retry: "Réessayer"
+      home: "Retour à l'accueil"
+    bad_request:
+      title: "Signal dégradé"
+      heading: "SIGNAL DÉGRADÉ"
+      subtitle: "// transmission incompréhensible //"
+      message: "La requête reçue ne peut pas être interprétée. Votre signal semble avoir subi des interférences gravitationnelles dans le relais de transmission."
+      back: "Retour à la base"

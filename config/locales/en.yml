@@ -70,3 +70,31 @@ en:
       slot_empty: "Empty slot"
       no_buildings: "No buildings available"
       home_badge: "HOME"
+
+  errors:
+    game_label: "WORLD OF STARS"
+    not_found:
+      title: "Unknown Sector"
+      heading: "UNKNOWN SECTOR"
+      subtitle: "// signal lost in the interstellar void //"
+      message: "The transmitted coordinates do not match any system in the galactic database. This planet may never have existed — or the Nexhianti paid a visit."
+      back: "Return to base"
+    unprocessable:
+      title: "Corrupted Transmission"
+      heading: "CORRUPTED TRANSMISSION"
+      subtitle: "// altered signal — re-emission required //"
+      message: "The received request cannot be processed. Data was altered in transit. Check your transmission parameters and try again."
+      back: "Return to base"
+    internal:
+      title: "Total Failure"
+      heading: "COMMAND CENTER FAILURE"
+      subtitle: "// red alert — unstable reactor //"
+      message: "An unexplained anomaly has taken the Command Center offline. The Elyran technical team is en route. Probably not the Nexhianti this time."
+      retry: "Retry"
+      home: "Return to home"
+    bad_request:
+      title: "Degraded Signal"
+      heading: "DEGRADED SIGNAL"
+      subtitle: "// incomprehensible transmission //"
+      message: "The received request cannot be interpreted. Your signal appears to have suffered gravitational interference in the transmission relay."
+      back: "Return to base"

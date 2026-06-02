@@ -27,6 +27,8 @@ module WorldOfStars
     config.time_zone = "Paris"
     config.i18n.default_locale = :fr
 
+    config.exceptions_app = self.routes
+
     # Sidekiq as Active Job adapter
     config.active_job.queue_adapter = :sidekiq
 

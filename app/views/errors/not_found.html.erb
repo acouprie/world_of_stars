@@ -1,0 +1,33 @@
+<% content_for :title, t("errors.not_found.title") %>
+
+<div class="error-card">
+  <div class="status-bar">
+    <div class="status-indicator">
+      <span class="status-dot gold"></span>
+      RADAR_SYS — SIGNAL_LOST
+    </div>
+    <div><%= t("errors.game_label") %></div>
+  </div>
+
+  <div class="error-code gold">404</div>
+
+  <h1 class="error-heading"><%= t("errors.not_found.heading") %></h1>
+  <p class="error-subtitle"><%= t("errors.not_found.subtitle") %></p>
+
+  <div class="divider">
+    <span class="divider-glyph">◈</span>
+  </div>
+
+  <p class="error-message"><%= t("errors.not_found.message") %></p>
+
+  <div class="data-readout" aria-hidden="true">
+    <span class="k">COORDS</span>   <span class="v-err">[ ?? : ?? ]</span>
+    <span class="k">STATUS</span>   <span class="v-err">NOT_FOUND</span>
+    <span class="k">FACTION</span>  <span class="v-warn">NEXHIANTI?</span>
+    <span class="k">SIGNAL</span>   <span class="v-err">LOST</span>
+  </div>
+
+  <div class="btn-actions">
+    <a href="/" class="btn btn-gold">← <%= t("errors.not_found.back") %></a>
+  </div>
+</div>

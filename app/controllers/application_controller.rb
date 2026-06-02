@@ -4,7 +4,13 @@ class ApplicationController < ActionController::Base
 
   before_action :set_locale
 
+  rescue_from ActiveRecord::RecordNotFound, with: :not_found
+
   private
+
+  def not_found
+    render template: "errors/not_found", layout: "error", status: :not_found
+  end
 
   def set_locale
     requested = cookies[:locale]

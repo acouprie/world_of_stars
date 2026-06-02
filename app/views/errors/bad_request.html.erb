@@ -1,0 +1,33 @@
+<% content_for :title, t("errors.bad_request.title") %>
+
+<div class="error-card">
+  <div class="status-bar">
+    <div class="status-indicator">
+      <span class="status-dot blue"></span>
+      COMM_RELAY — BAD_SIGNAL
+    </div>
+    <div><%= t("errors.game_label") %></div>
+  </div>
+
+  <div class="error-code blue">400</div>
+
+  <h1 class="error-heading"><%= t("errors.bad_request.heading") %></h1>
+  <p class="error-subtitle"><%= t("errors.bad_request.subtitle") %></p>
+
+  <div class="divider">
+    <span class="divider-glyph">◈</span>
+  </div>
+
+  <p class="error-message"><%= t("errors.bad_request.message") %></p>
+
+  <div class="data-readout" aria-hidden="true">
+    <span class="k">SIGNAL</span>   <span class="v-err">DEGRADED</span>
+    <span class="k">PACKET</span>   <span class="v-err">MALFORMED</span>
+    <span class="k">CAUSE</span>    <span class="v-warn">INTERFERENCE</span>
+    <span class="k">ACTION</span>   <span class="v-info">RETRANSMIT</span>
+  </div>
+
+  <div class="btn-actions">
+    <a href="/" class="btn btn-blue">← <%= t("errors.bad_request.back") %></a>
+  </div>
+</div>
