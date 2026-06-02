@@ -31,7 +31,7 @@ puts "Done - #{Planet.count} planets in galaxy."
 puts "Creating Users..."
 
 user = User.create(
-  username: "Root"
+  username: "Root",
   email_address: "user@example.com",
   password: "Password1!",
   password_confirmation: "Password1!"

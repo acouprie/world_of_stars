@@ -2,54 +2,17 @@
 @source "../../views/**/*.html.erb";
 @source "../../views/**/*.erb";
 
-@font-face {
-  font-family: "Orbitron";
-  src: url("../fonts/Orbitron/Orbitron-VariableFont_wght.ttf")
-    format("truetype");
-  font-weight: 400 900;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "GraceOfEtro";
-  src: url("../fonts/GraceOfEtro/grace_of_etro.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Neuropol";
-  src: url("../fonts/Neuropol/neuropol x rg.ttf") format("truetype");
-  font-weight: 400 900;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Velekom";
-  src: url("../fonts/Velekom/velekom.regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-/* Game-specific base styles */
-:root {
-  /* Fonds */
+@theme {
   --color-space-bg: #0d0e12;
   --color-space-bg-2: #14151c;
   --color-surface: #1c1d27;
   --color-border: #2a2b38;
-
-  /* Typographie */
   --color-text: #e8e4d8;
   --color-text-muted: #a09e96;
   --color-text-subtle: #5e5d58;
-
-  /* Interface */
   --color-primary: #c8a96e;
   --color-secondary: #4e8faf;
   --color-quantum: #2ec4a0;
-
-  /* Factions */
   --color-varek: #e8622a;
   --color-varek-dark: #a83d16;
   --color-varek-bg: #1a0e0a;
@@ -61,8 +24,32 @@
   --color-nexhianti-bg: #0e0914;
 }
 
-html,
-body {
+@font-face {
+  font-family: "Orbitron";
+  src: url("../fonts/Orbitron/Orbitron-VariableFont_wght.ttf") format("truetype");
+  font-weight: 400 900;
+  font-style: normal;
+}
+@font-face {
+  font-family: "GraceOfEtro";
+  src: url("../fonts/GraceOfEtro/grace_of_etro.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Neuropol";
+  src: url("../fonts/Neuropol/neuropol x rg.ttf") format("truetype");
+  font-weight: 400 900;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Velekom";
+  src: url("../fonts/Velekom/velekom.regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+html, body {
   font-family: "Courier New", Courier, monospace;
   background-color: var(--color-space-bg);
   color: var(--color-primary);

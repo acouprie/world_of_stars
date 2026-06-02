@@ -1,4 +1,99 @@
 <% provide(:title, "World of Stars - " + @planet.name) %>
 
 <h1><%= @planet.name %></h1>
-<p>Find me in app/views/planets/show.html.erb</p>
+
+<aside id="resources_bar" class="sticky top-0 z-50 border-b border-border bg-space-bg-2/95 backdrop-blur-sm">
+  <div class="mx-auto flex items-center gap-1 px-4 py-2 text-sm">
+
+    <%# Énergie %>
+    <%
+      energy_pct = @planet.total_energy_produced > 0 ?
+        [(@planet.total_energy_consumed.to_f / @planet.total_energy_produced * 100).round, 100].min : 0
+      energy_bar_color = energy_pct > 90 ? "bg-red-400" : energy_pct > 70 ? "bg-amber-400" : "bg-primary"
+      energy_value_class = @planet.total_energy_consumed > @planet.total_energy_produced ? "text-red-400" : "text-primary"
+    %>
+    <div class="flex flex-1 items-center gap-2 rounded-md border border-border bg-surface px-3 py-1.5">
+      <%= image_tag "icons/energy.png", alt: "Énergie", class: "h-4 w-4 shrink-0" %>
+      <div class="flex min-w-0 flex-1 flex-col gap-1">
+        <div class="flex items-center justify-between gap-1">
+          <span class="text-xs font-medium uppercase tracking-wider text-text-muted">Énergie</span>
+          <span class="font-mono text-xs text-text">
+            <span class="<%= energy_value_class %>"><%= @planet.total_energy_consumed %></span>
+            <span class="text-text-subtle">/</span>
+            <%= @planet.total_energy_produced %>
+          </span>
+        </div>
+        <div class="h-1 w-full overflow-hidden rounded-full bg-border">
+          <div class="h-full rounded-full transition-all duration-500 <%= energy_bar_color %>" style="width: <%= energy_pct %>%"></div>
+        </div>
+      </div>
+    </div>
+
+    <%# Nourriture %>
+    <% food_pct = @planet.food_capacity > 0 ? [(@planet.food_stock.to_f / @planet.food_capacity * 100).round, 100].min : 0 %>
+    <div class="flex flex-1 items-center gap-2 rounded-md border border-border bg-surface px-3 py-1.5">
+      <%= image_tag "icons/food.png", alt: "Nourriture", class: "h-4 w-4 shrink-0" %>
+      <div class="flex min-w-0 flex-1 flex-col gap-1">
+        <div class="flex items-center justify-between gap-1">
+          <div class="flex flex-row gap-1">
+            <span class="text-xs font-medium uppercase tracking-wider text-text-muted">Nourriture</span>
+            <span class="text-[10px] text-text-subtle">+<%= number_with_delimiter((@planet.food_rate * 3600).to_i) %> /h</span>
+          </div>
+          <span class="font-mono text-xs text-text">
+            <span class="text-secondary"><%= number_with_delimiter(@planet.food_stock.to_i) %></span>
+            <span class="text-text-subtle">/</span>
+            <%= number_with_delimiter(@planet.food_capacity) %>
+          </span>
+        </div>
+        <div class="h-1 w-full overflow-hidden rounded-full bg-border">
+          <div class="h-full rounded-full bg-secondary transition-all duration-500 <%= food_pct >= 100 ? 'opacity-50' : '' %>" style="width: <%= food_pct %>%"></div>
+        </div>
+      </div>
+    </div>
+
+    <%# Métal %>
+    <% metal_pct = @planet.metal_capacity > 0 ? [(@planet.metal_stock.to_f / @planet.metal_capacity * 100).round, 100].min : 0 %>
+    <div class="flex flex-1 items-center gap-2 rounded-md border border-border bg-surface px-3 py-1.5">
+      <%= image_tag "icons/metal.png", alt: "Métal", class: "h-4 w-4 shrink-0" %>
+      <div class="flex min-w-0 flex-1 flex-col gap-1">
+        <div class="flex items-center justify-between gap-1">
+          <div class="flex flex-row gap-1">
+            <span class="text-xs font-medium uppercase tracking-wider text-text-muted">Métal</span>
+            <span class="text-[10px] text-text-subtle">+<%= number_with_delimiter((@planet.metal_rate * 3600).to_i) %> /h</span>
+          </div>
+          <span class="font-mono text-xs text-text">
+            <span class="text-secondary"><%= number_with_delimiter(@planet.metal_stock.to_i) %></span>
+            <span class="text-text-subtle">/</span>
+            <%= number_with_delimiter(@planet.metal_capacity) %>
+          </span>
+        </div>
+        <div class="h-1 w-full overflow-hidden rounded-full bg-border">
+          <div class="h-full rounded-full bg-secondary transition-all duration-500 <%= metal_pct >= 100 ? 'opacity-50' : '' %>" style="width: <%= metal_pct %>%"></div>
+        </div>
+      </div>
+    </div>
+
+    <%# Thorium %>
+    <% thorium_pct = @planet.thorium_capacity > 0 ? [(@planet.thorium_stock.to_f / @planet.thorium_capacity * 100).round, 100].min : 0 %>
+    <div class="flex flex-1 items-center gap-2 rounded-md border border-border bg-surface px-3 py-1.5">
+      <%= image_tag "icons/thorium.png", alt: "Thorium", class: "h-4 w-4 shrink-0" %>
+      <div class="flex min-w-0 flex-1 flex-col gap-1">
+        <div class="flex items-center justify-between gap-1">
+          <div class="flex flex-row gap-1">
+            <span class="text-xs font-medium uppercase tracking-wider text-text-muted">Thorium</span>
+            <span class="text-[10px] text-text-subtle">+<%= number_with_delimiter((@planet.thorium_rate * 3600).to_i) %> /h</span>
+          </div>
+          <span class="font-mono text-xs text-text">
+            <span class="text-quantum"><%= number_with_delimiter(@planet.thorium_stock.to_i) %></span>
+            <span class="text-text-subtle">/</span>
+            <%= number_with_delimiter(@planet.thorium_capacity) %>
+          </span>
+        </div>
+        <div class="h-1 w-full overflow-hidden rounded-full bg-border">
+          <div class="h-full rounded-full bg-quantum transition-all duration-500 <%= thorium_pct >= 100 ? 'opacity-50' : '' %>" style="width: <%= thorium_pct %>%"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</aside>
