@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>World of Stars — Explorateur de bâtiments</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --bg: #0d0e12;
+    --bg2: #14151c;
+    --surface: #1c1d27;
+    --border: #2a2b38;
+    --border2: #3a3b4a;
+    --text: #e8e4d8;
+    --muted: #a09e96;
+    --subtle: #5e5d58;
+    --primary: #c8a96e;
+    --secondary: #4e8faf;
+    --quantum: #2ec4a0;
+    --varek: #e8622a;
+    --energy-color: #c8a96e;
+    --prod-color: #2ec4a0;
+    --storage-color: #4e8faf;
+    --infra-color: #8b7fcc;
+    --mil-color: #e8622a;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, sans-serif; font-size: 14px; line-height: 1.5; min-height: 100vh; }
+  a { color: var(--primary); }
+
+  /* Layout */
+  .app { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+  .sidebar { background: var(--bg2); border-right: 1px solid var(--border); padding: 1.5rem 1rem; overflow-y: auto; }
+  .main { padding: 1.5rem; overflow-y: auto; }
+
+  /* Header */
+  .logo { font-size: 18px; font-weight: 600; color: var(--primary); margin-bottom: 4px; letter-spacing: 0.5px; }
+  .logo-sub { font-size: 11px; color: var(--subtle); margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 1px; }
+
+  /* Category filters */
+  .cat-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--subtle); margin-bottom: 8px; }
+  .cat-list { display: flex; flex-direction: column; gap: 3px; margin-bottom: 1.5rem; }
+  .cat-btn { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: var(--radius); border: none; background: transparent; color: var(--muted); cursor: pointer; font-size: 13px; text-align: left; transition: all .15s; width: 100%; }
+  .cat-btn:hover { background: var(--surface); color: var(--text); }
+  .cat-btn.active { background: var(--surface); color: var(--text); }
+  .cat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  /* Building list */
+  .blist { display: flex; flex-direction: column; gap: 3px; }
+  .bitem { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: var(--radius); cursor: pointer; transition: all .15s; border: 1px solid transparent; }
+  .bitem:hover { background: var(--surface); }
+  .bitem.sel { background: var(--surface); border-color: var(--border2); }
+  .bitem-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .bitem-name { font-size: 13px; color: var(--text); flex: 1; }
+  .bitem-levels { font-size: 11px; color: var(--subtle); }
+
+  /* Main content */
+  .placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; color: var(--subtle); text-align: center; gap: 12px; }
+  .placeholder-icon { font-size: 48px; opacity: 0.3; }
+
+  .detail-header { margin-bottom: 1.5rem; }
+  .detail-title { font-size: 22px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .detail-meta { font-size: 13px; color: var(--muted); display: flex; gap: 16px; flex-wrap: wrap; }
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+  .badge-energy { background: rgba(200,169,110,0.15); color: var(--primary); }
+  .badge-production { background: rgba(46,196,160,0.15); color: var(--quantum); }
+  .badge-storage { background: rgba(78,143,175,0.15); color: var(--secondary); }
+  .badge-infrastructure { background: rgba(139,127,204,0.15); color: #8b7fcc; }
+  .badge-military { background: rgba(232,98,42,0.15); color: var(--varek); }
+
+  /* Level control */
+  .level-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1rem; }
+  .level-ctrl { display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; }
+  .level-ctrl label { font-size: 12px; color: var(--muted); min-width: 55px; }
+  .level-ctrl input[type=range] { flex: 1; accent-color: var(--primary); }
+  .level-val { font-size: 13px; font-weight: 600; color: var(--primary); min-width: 40px; text-align: right; }
+
+  /* Stats grid */
+  .stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; margin-bottom: 1rem; }
+  .stat { background: var(--bg2); border-radius: var(--radius); padding: 10px 12px; }
+  .stat-label { font-size: 11px; color: var(--subtle); margin-bottom: 3px; }
+  .stat-val { font-size: 18px; font-weight: 600; color: var(--text); }
+  .stat-unit { font-size: 11px; color: var(--muted); margin-left: 2px; }
+  .stat-val.accent { color: var(--primary); }
+  .stat-val.green { color: var(--quantum); }
+  .stat-val.blue { color: var(--secondary); }
+  .stat-val.red { color: var(--varek); }
+
+  /* Chart */
+  .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1rem; }
+  .chart-title { font-size: 12px; color: var(--muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .chart-wrap { position: relative; width: 100%; height: 220px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; }
+  .lg { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
+  .lgsq { width: 8px; height: 8px; border-radius: 2px; }
+
+  /* Radar info */
+  .radar-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1rem; }
+  .radar-card h3 { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .radar-row { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--border); }
+  .radar-row:last-child { border-bottom: none; }
+  .radar-lv { font-size: 11px; font-weight: 600; color: var(--subtle); min-width: 38px; padding-top: 1px; }
+  .radar-lv.active { color: var(--primary); }
+  .radar-txt { font-size: 12px; color: var(--subtle); }
+  .radar-txt.active { color: var(--text); }
+  .radar-txt.current { color: var(--primary); font-weight: 500; }
+
+  /* Bunker */
+  .bunker-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+  /* CC requirements */
+  .cc-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1rem; }
+  .cc-card h3 { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .cc-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .cc-table td { padding: 5px 8px; border-bottom: 1px solid var(--border); color: var(--muted); }
+  .cc-table tr:last-child td { border-bottom: none; }
+  .cc-table td:first-child { color: var(--subtle); }
+  .cc-table td:last-child { color: var(--text); font-weight: 500; }
+
+  /* Note */
+  .note { background: rgba(200,169,110,0.05); border-left: 2px solid var(--primary); border-radius: 0 var(--radius) var(--radius) 0; padding: 10px 12px; font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+  /* Energy summary */
+  .energy-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1rem; }
+  .energy-card h3 { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .energy-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+  .energy-row:last-child { border-bottom: none; font-weight: 600; color: var(--primary); }
+  .energy-total-row { display: flex; justify-content: space-between; padding: 8px 0 0; margin-top: 4px; font-size: 13px; font-weight: 600; color: var(--primary); border-top: 1px solid var(--border2); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  @media (max-width: 700px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { border-right: none; border-bottom: 1px solid var(--border); }
+    .cat-list { flex-direction: row; flex-wrap: wrap; gap: 6px; }
+    .cat-btn { width: auto; padding: 5px 10px; }
+    .blist { flex-direction: row; flex-wrap: wrap; }
+    .bitem { flex: 0 1 calc(50% - 4px); }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="logo">⭐ World of Stars</div>
+    <div class="logo-sub">Explorateur de bâtiments</div>
+    <div class="cat-label">Catégories</div>
+    <div class="cat-list" id="cats"></div>
+    <div class="cat-label">Bâtiments</div>
+    <div class="blist" id="blist"></div>
+  </div>
+  <div class="main" id="main">
+    <div class="placeholder">
+      <div class="placeholder-icon">🏗️</div>
+      <div style="font-size:16px;color:var(--muted)">Sélectionne un bâtiment</div>
+      <div style="font-size:13px;color:var(--subtle)">Explore les coûts, productions et progressions</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const CAT = {
+  energy: { label: 'Énergie', color: '#c8a96e' },
+  production: { label: 'Production', color: '#2ec4a0' },
+  storage: { label: 'Stockage', color: '#4e8faf' },
+  infrastructure: { label: 'Infrastructure', color: '#8b7fcc' },
+  military: { label: 'Militaire', color: '#e8622a' }
+};
+
+const CC_REQ = {
+  solar_station: [[1,3],[3,6],[5,9],[8,12],[10,13]],
+  nuclear_plant: [[5,1],[7,5],[10,10]],
+  metal_mine: [[1,3],[2,5],[3,8],[5,12],[7,15],[10,18],[13,20]],
+  farm: [[1,3],[2,5],[3,8],[5,12],[7,15],[10,18],[13,20]],
+  thorium_mine: [[1,3],[2,5],[3,8],[5,12],[7,15],[10,18],[13,20]],
+  food_silo: [[1,3],[2,6],[4,10],[7,15],[10,20]],
+  metal_warehouse: [[1,3],[2,6],[4,10],[7,15],[10,20]],
+  thorium_warehouse: [[1,3],[2,6],[4,10],[7,15],[10,20]],
+  command_center: [],
+  research_lab: [[2,1],[4,4],[6,7],[9,10]],
+  quantum_portal: [[4,1],[6,5],[9,10]],
+  radar_satellite: [[3,1],[5,4],[8,7],[11,10]],
+  training_camp: [[1,1],[3,4],[6,8],[9,10]],
+  military_camp: [[2,1],[4,4],[7,7],[10,10]],
+  ship_factory: [[3,1],[5,5],[8,10],[11,15]],
+  bunker: [[2,1],[4,4],[7,8],[10,10]]
+};
+
+const BUILDINGS = {
+  solar_station:{name:'Station solaire',cat:'energy',levels:13,note:'Énergie accessible dès le début. +53 ⚡ par niveau. Plafond 691 ⚡ au niv 13.',data:[
+    [50,25,0,0,55,90],[75,37,0,0,108,171],[112,56,0,0,161,325],[168,84,0,0,214,617],[253,126,0,0,267,1172],[379,189,0,0,320,2228],[569,284,0,0,373,4234],[854,427,0,0,426,8045],[1281,640,0,0,479,15285],[1922,961,0,0,532,29042],[2883,1441,0,0,585,55179],[4324,2162,0,0,638,104841],[6487,3243,0,0,691,199198]]},
+  nuclear_plant:{name:'Centrale nucléaire',cat:'energy',levels:10,note:'3× plus puissante que la solar à niv équivalent. Coût ×20. Disponible CC niv 5.',data:[
+    [1200,900,0,0,119,150],[2280,1710,0,0,150,360],[4332,3249,0,0,198,617],[8230,6173,0,0,271,1103],[15638,11728,0,0,378,2030],[29713,22284,0,0,534,3789],[56455,42341,0,0,758,7132],[107264,80448,0,0,1078,13483],[203802,152852,0,0,1531,25550],[387225,290418,0,0,2167,48478]]},
+  metal_mine:{name:'Mine de métal',cat:'production',levels:20,note:'Ressource principale. Énergie +24/niveau. 15 355 métal/h au max.',data:[
+    [60,20,0,11,24,53],[105,30,0,46,57,95],[157,45,0,70,103,170],[236,67,0,94,165,306],[354,101,0,118,248,551],[531,151,0,142,358,992],[797,227,0,166,501,1785],[1196,341,0,190,687,3214],[1794,512,0,214,928,5785],[2691,768,0,238,1238,10414],[4036,1153,0,262,1634,18745],[6054,1729,0,286,2139,33740],[9082,2594,0,310,2781,60734],[13623,3892,0,334,3594,109320],[20435,5838,0,358,4622,196777],[30652,8757,0,382,5916,354198],[45978,13136,0,406,7543,637557],[68968,19705,0,430,9584,1147604],[103452,29557,0,454,12140,2065686],[155178,44336,0,478,15355,3718235]]},
+  farm:{name:'Ferme agricole',cat:'production',levels:20,note:'Nourriture. Coût auto-référentiel — construire tôt.',data:[
+    [60,50,0,22,18,53],[90,75,0,46,21,95],[135,112,0,70,51,170],[202,168,0,94,93,306],[303,253,0,118,149,551],[405,379,0,142,223,992],[683,569,0,166,322,1785],[1025,854,0,190,451,3214],[1537,1281,0,214,619,5785],[2306,1922,0,238,835,10414],[3459,2883,0,262,1114,18745],[5189,4324,0,286,1471,33740],[7784,6487,0,310,1925,60734],[11677,9730,0,334,2503,109320],[17515,14596,0,358,3235,196777],[26273,21894,0,382,4159,354198],[45978,32842,0,406,5324,637557],[68968,49263,0,430,6788,1147604],[88673,73894,0,454,8625,2065686],[133010,110841,0,478,10926,3718235]]},
+  thorium_mine:{name:'Mine de thorium',cat:'production',levels:20,note:'Ressource stratégique. Progresse plus vite que la ferme après niv 2.',data:[
+    [50,40,0,22,18,53],[75,60,0,46,43,95],[112,90,0,70,77,170],[168,135,0,94,124,306],[253,202,0,118,186,551],[379,303,0,142,268,992],[569,455,0,166,376,1785],[854,683,0,190,515,3214],[1281,1025,0,214,696,5785],[1922,1537,0,238,928,10414],[2883,2306,0,262,1225,18745],[4324,3459,0,286,1604,33740],[6487,5189,0,310,2086,60734],[9730,7784,0,334,2696,109320],[14596,11677,0,358,3466,196777],[21894,17515,0,382,4437,354198],[32842,26273,0,406,5657,637557],[49263,39410,0,430,7188,1147604],[73894,59115,0,454,9105,2065686],[110841,88673,0,478,11501,3718235]]},
+  food_silo:{name:'Silo alimentaire',cat:'storage',levels:20,note:'Capacité stockage nourriture. 8M au niveau max. Pas de consommation d\'énergie.',data:[
+    [65,65,0,0,21000,49],[97,97,0,0,28000,92],[146,146,0,0,47000,176],[219,219,0,0,84000,262],[329,329,0,0,145000,635],[493,493,0,0,236000,1207],[740,740,0,0,363000,2293],[1110,1110,0,0,532000,4358],[1665,1665,0,0,749000,8279],[2498,2498,0,0,1020000,15731],[3748,3748,0,0,1351000,29888],[5622,5622,0,0,1748000,56789],[8433,8433,0,0,2217000,107899],[12650,12650,0,0,2764000,205008],[18975,18975,0,0,3395000,389516],[28463,28463,0,0,4116000,986773],[42694,42694,0,0,4933000,1874869],[64041,64041,0,0,5852000,3562251],[96062,96062,0,0,6879000,6768277],[144094,144094,0,0,8020000,12859727]]},
+  metal_warehouse:{name:'Entrepôt métal',cat:'storage',levels:20,note:'Capacité stockage métal. 8M au niveau max.',data:[
+    [100,30,0,0,21000,49],[150,45,0,0,28000,92],[225,67,0,0,47000,176],[337,101,0,0,84000,262],[506,151,0,0,145000,635],[759,227,0,0,236000,1207],[1139,341,0,0,363000,2293],[1708,512,0,0,532000,4358],[2562,768,0,0,749000,8279],[3844,1153,0,0,1020000,15731],[5766,1729,0,0,1351000,29888],[8649,2594,0,0,1748000,56789],[12974,3892,0,0,2217000,107899],[19461,5838,0,0,2764000,205008],[29192,8757,0,0,3395000,389516],[43789,13136,0,0,4116000,986773],[65684,19705,0,0,4933000,1874869],[98526,29557,0,0,5852000,3562251],[147789,44336,0,0,6879000,6768277],[221683,66505,0,0,8020000,12859727]]},
+  thorium_warehouse:{name:'Entrepôt thorium',cat:'storage',levels:20,note:'Capacité stockage thorium. 8M au niveau max.',data:[
+    [30,100,0,0,21000,49],[45,150,0,0,28000,92],[67,225,0,0,47000,176],[101,337,0,0,84000,262],[151,506,0,0,145000,635],[227,759,0,0,236000,1207],[341,1139,0,0,363000,2293],[512,1708,0,0,532000,4358],[768,2562,0,0,749000,8279],[1153,3844,0,0,1020000,15731],[1729,5766,0,0,1351000,29888],[2594,8649,0,0,1748000,56789],[3892,12974,0,0,2217000,107899],[5838,19461,0,0,2764000,205008],[8757,29192,0,0,3395000,389516],[13136,43789,0,0,4116000,986773],[19705,65684,0,0,4933000,1874869],[29557,98526,0,0,5852000,3562251],[44336,147789,0,0,6879000,6768277],[66505,221683,0,0,8020000,12859727]]},
+  command_center:{name:'Centre de commandement',cat:'infrastructure',levels:13,note:'Prérequis universel. Niv 1 accessible (50 métal). Son niveau plafonne tous les autres bâtiments.',data:[
+    [50,25,0,0,0,90],[1260,315,0,0,0,428],[2646,661,0,0,0,812],[5556,1389,0,0,0,1543],[11668,2917,0,0,0,2932],[24504,6126,0,0,0,5571],[51549,12864,0,0,0,10585],[108865,27016,0,0,0,20112],[226937,56734,0,0,0,38213],[476568,119142,0,0,0,72605],[1000792,250168,0,0,0,137948],[2101665,525416,0,0,0,262103],[4413496,1103374,0,0,0,434276]]},
+  research_lab:{name:'Laboratoire de recherche',cat:'infrastructure',levels:10,note:'Requiert du thorium dès niv 1. Débloque l\'arbre technologique. CC niv 2 requis.',data:[
+    [300,100,250,0,0,60],[600,200,500,0,0,114],[1200,400,1000,0,0,216],[2400,800,2000,0,0,411],[4800,1600,4000,0,0,782],[8000,3200,8000,0,0,1485],[16000,6400,16000,0,0,2822],[38400,12800,32000,0,0,5363],[76800,25600,64000,0,0,10190],[153000,51200,128000,0,0,19361]]},
+  quantum_portal:{name:'Portail quantique',cat:'infrastructure',levels:10,note:'Investissement massif. Sans portail = immunité aux attaques portail. CC niv 4 requis.',data:[
+    [2500,2500,7500,33,0,750],[5000,5000,15000,68,0,1500],[10000,10000,30000,103,0,3000],[20000,20000,60000,138,0,6000],[40000,40000,120000,173,0,12000],[80000,80000,240000,208,0,24000],[160000,160000,480000,243,0,48000],[320000,320000,960000,278,0,96000],[640000,640000,1920000,313,0,192000],[1280000,1280000,3840000,348,0,348000]]},
+  radar_satellite:{name:'Satellite radar',cat:'infrastructure',levels:10,note:'0 énergie (panneaux solaires). Vision totale au niv 10 (CC niv 11 requis — objectif end game).',
+    radar:['Présence flotte en orbite','+ Pseudo du propriétaire','+ Composition orbite complète','+ Présence flotte en approche','+ Pseudo flotte en approche','+ Distance (loin/proche/imminent)','+ ~35% composition approche','+ ~65% composition approche','+ ~85% composition approche','★ Vision totale — 100%, aucun fog of war'],
+    data:[[8000,8000,16000,0,0,90],[16000,16000,32000,0,0,171],[32000,32000,64000,0,0,325],[64000,64000,128000,0,0,617],[128000,128000,256000,0,0,1172],[256000,256000,512000,0,0,2228],[512000,512000,1024000,0,0,4234],[1024000,1024000,2048000,0,0,8045],[2048000,2048000,4096000,0,0,15285],[4096000,4096000,8192000,0,0,29042]]},
+  training_camp:{name:'Camp d\'entraînement',cat:'military',levels:10,note:'Débloque les unités selon le niveau. Niv 5-8 = scientifiques, archéologues, Malp, UAV.',
+    unlocks:['Unités légères','Légères améliorées','Unités lourdes','Lourdes améliorées','Scientifiques','Archéologues','Malp','UAV','Élite (à définir)','Spéciales (à définir)'],
+    data:[[250,250,100,20,0,45],[500,500,128,35,0,86],[1000,1000,400,50,0,162],[1344,1344,800,65,0,308],[2688,4000,1024,80,0,1114],[5376,5376,2048,95,0,2030],[10752,10752,4092,110,0,2717],[21504,21504,8192,125,0,4022],[43008,43008,16384,135,0,7646],[86016,86016,32768,150,0,14521]]},
+  military_camp:{name:'Camp militaire',cat:'military',levels:10,note:'Slots de formation et vitesse de production d\'unités. CC niv 2 requis.',data:[
+    [300,200,150,30,0,45],[600,400,300,50,0,86],[1200,800,600,70,0,162],[2400,1600,1200,90,0,308],[4800,3200,2400,110,0,1114],[9600,6400,4800,130,0,2030],[19200,12800,9600,155,0,2717],[38400,25600,19200,175,0,4022],[76800,51200,38400,185,0,7646],[153600,102400,76800,200,0,14521]]},
+  ship_factory:{name:'Usine spatiale',cat:'military',levels:15,note:'Très intensive en thorium. Chaque niveau débloque des vaisseaux. CC niv 11 pour niv 15.',data:[
+    [250,100,320,50,0,60],[500,200,640,90,0,114],[1000,400,1280,130,0,216],[2000,800,2560,165,0,411],[4000,1600,5120,205,0,782],[8000,3200,10240,245,0,1485],[16000,6400,20480,285,0,2822],[32000,12800,40960,325,0,5363],[64000,25600,81920,365,0,10190],[128000,51200,163840,405,0,19361],[256000,102400,327680,445,0,36786],[512000,204000,655360,480,0,69894],[1024000,409600,1310720,520,0,132799],[2048000,819200,2621440,560,0,216317],[4096000,1638400,5242880,600,0,479404]]},
+  bunker:{name:'Bunker',cat:'military',levels:10,note:'Protection globale partagée (métal+nourriture+thorium). Ralentit en late pour garder le risque réel.',
+    bunker_res:[5000,12000,25000,50000,100000,175000,275000,375000,450000,500000],
+    bunker_sol:[50,120,250,500,1000,2000,4000,7000,12000,20000],
+    data:[[1000,1000,3000,0,0,90],[2000,2000,6000,0,0,171],[4000,4000,12000,0,0,325],[8000,8000,24000,0,0,617],[16000,16000,48000,0,0,1172],[32000,32000,96000,0,0,2228],[64000,64000,192000,0,0,4234],[128000,128000,348000,0,0,8045],[256000,256000,768000,0,0,15288],[512000,512000,1536000,0,0,29042]]}
+};
+
+function fmt(n){if(n>=1000000)return(n/1000000).toFixed(1)+'M';if(n>=1000)return(n/1000).toFixed(n>=10000?0:1)+'k';return String(n)}
+function fmtTime(s){if(s<60)return s+'s';if(s<3600)return Math.floor(s/60)+'m '+Math.round(s%60)+'s';if(s<86400)return Math.floor(s/3600)+'h '+Math.floor((s%3600)/60)+'m';const d=Math.floor(s/86400);const h=Math.floor((s%86400)/3600);return d+'j '+h+'h'}
+
+let selCat='all',selBuilding=null,selLevel=1,chartInst=null;
+
+function renderCats(){
+  document.getElementById('cats').innerHTML=`<button class="cat-btn${selCat==='all'?' active':''}" onclick="setCat('all')"><span class="cat-dot" style="background:#888"></span>Tous les bâtiments</button>`
+    +Object.entries(CAT).map(([k,v])=>`<button class="cat-btn${selCat===k?' active':''}" onclick="setCat('${k}')"><span class="cat-dot" style="background:${v.color}"></span>${v.label}</button>`).join('');
+}
+
+function setCat(c){selCat=c;renderCats();renderList()}
+
+function renderList(){
+  const keys=Object.keys(BUILDINGS).filter(k=>selCat==='all'||BUILDINGS[k].cat===selCat);
+  document.getElementById('blist').innerHTML=keys.map(k=>{
+    const b=BUILDINGS[k];
+    return`<div class="bitem${selBuilding===k?' sel':''}" onclick="select('${k}')">
+      <span class="bitem-dot" style="background:${CAT[b.cat].color}"></span>
+      <span class="bitem-name">${b.name}</span>
+      <span class="bitem-levels">${b.levels}</span>
+    </div>`;
+  }).join('');
+}
+
+function select(k){selBuilding=k;selLevel=1;renderList();renderDetail()}
+
+function renderDetail(){
+  if(!selBuilding){document.getElementById('main').innerHTML='<div class="placeholder"><div class="placeholder-icon">🏗️</div><div style="font-size:16px;color:var(--muted)">Sélectionne un bâtiment</div></div>';return}
+  const b=BUILDINGS[selBuilding];
+  const lv=selLevel-1;
+  const [metal,food,thorium,energy,prod,time]=b.data[lv];
+  const col=CAT[b.cat].color;
+  const isEnergy=b.cat==='energy';
+  const isProd=b.cat==='production';
+  const isStorage=b.cat==='storage';
+  const isBunker=selBuilding==='bunker';
+  const isRadar=selBuilding==='radar_satellite';
+  const hasPortalEnergy=selBuilding==='quantum_portal';
+  const isMilitary=b.cat==='military';
+
+  let prodStatHtml='';
+  if(isEnergy)prodStatHtml=`<div class="stat"><div class="stat-label">Production</div><div class="stat-val accent">${fmt(prod)}<span class="stat-unit">⚡</span></div></div>`;
+  else if(isProd&&prod>0)prodStatHtml=`<div class="stat"><div class="stat-label">Production</div><div class="stat-val green">${fmt(prod)}<span class="stat-unit">/h</span></div></div>`;
+  else if(isStorage)prodStatHtml=`<div class="stat"><div class="stat-label">Capacité</div><div class="stat-val blue">${fmt(prod)}</div></div>`;
+  else if(isBunker)prodStatHtml=`<div class="stat"><div class="stat-label">Ressources prot.</div><div class="stat-val green">${fmt(b.bunker_res[lv])}</div></div><div class="stat"><div class="stat-label">Soldats prot.</div><div class="stat-val blue">${fmt(b.bunker_sol[lv])}</div></div>`;
+
+  let energyStatHtml='';
+  if(energy>0)energyStatHtml=`<div class="stat"><div class="stat-label">Énergie conso.</div><div class="stat-val red">${energy}<span class="stat-unit">⚡</span></div></div>`;
+
+  let unlockHtml='';
+  if(b.unlocks){
+    unlockHtml=`<div class="cc-card"><h3>Unités débloquées</h3><table class="cc-table">${b.unlocks.map((u,i)=>`<tr><td>Niv ${i+1}</td><td>${u}</td></tr>`).join('')}</table></div>`;
+  }
+
+  let ccHtml='';
+  const req=CC_REQ[selBuilding];
+  if(req&&req.length>0){
+    ccHtml=`<div class="cc-card"><h3>Prérequis Command Center</h3><table class="cc-table">${req.map(([cc,bmax])=>`<tr><td>CC niv ${cc}</td><td>→ ${b.name.split(' ')[0]} niv ${bmax} max</td></tr>`).join('')}</table></div>`;
+  }
+
+  let radarHtml='';
+  if(isRadar){
+    radarHtml=`<div class="radar-card"><h3>Information révélée par niveau</h3>${b.radar.map((r,i)=>{
+      const cls=i<lv?'active':i===lv?'current':'';
+      return`<div class="radar-row"><span class="radar-lv ${cls}">Niv ${i+1}</span><span class="radar-txt ${cls}">${r}</span></div>`;
+    }).join('')}</div>`;
+  }
+
+  let energySummaryHtml='';
+  if(isEnergy){
+    energySummaryHtml=`<div class="energy-card"><h3>Bilan énergétique — planète tout au max</h3>
+      <div class="energy-row"><span style="color:var(--muted)">3 mines + ferme niv 20</span><span style="color:var(--varek)">−1 434 ⚡</span></div>
+      <div class="energy-row"><span style="color:var(--muted)">Portail quantique niv 10</span><span style="color:var(--varek)">−348 ⚡</span></div>
+      <div class="energy-row"><span style="color:var(--muted)">training_camp niv 10</span><span style="color:var(--varek)">−150 ⚡</span></div>
+      <div class="energy-row"><span style="color:var(--muted)">military_camp niv 10</span><span style="color:var(--varek)">−200 ⚡</span></div>
+      <div class="energy-row"><span style="color:var(--muted)">ship_factory niv 15</span><span style="color:var(--varek)">−600 ⚡</span></div>
+      <div class="energy-total-row"><span>Total requis</span><span>2 732 ⚡</span></div>
+      <div style="margin-top:10px;font-size:11px;color:var(--subtle)">Config min : 1 solar niv13 + 1 nuclear niv10 = 2 858 ⚡ (marge +126)<br>Config recommandée : 2 solar niv13 + 1 nuclear niv10 = 3 549 ⚡</div>
+    </div>`;
+  }
+
+  document.getElementById('main').innerHTML=`
+    <div class="detail-header">
+      <div class="detail-title">${b.name}</div>
+      <div class="detail-meta">
+        <span class="badge badge-${b.cat}">${CAT[b.cat].label}</span>
+        <span style="color:var(--subtle)">${b.levels} niveaux</span>
+        ${energy===0&&!isEnergy?'<span style="color:var(--subtle)">0 ⚡ consommée</span>':''}
+      </div>
+    </div>
+
+    <div class="level-card">
+      <div class="level-ctrl">
+        <label>Niveau</label>
+        <input type="range" min="1" max="${b.levels}" value="${selLevel}" step="1" oninput="setLv(this.value)">
+        <span class="level-val" id="lvout">${selLevel} / ${b.levels}</span>
+      </div>
+      <div class="stats" id="stats">
+        <div class="stat"><div class="stat-label">Métal</div><div class="stat-val" id="s-metal">${fmt(metal)}</div></div>
+        <div class="stat"><div class="stat-label">Nourriture</div><div class="stat-val" id="s-food">${fmt(food)}</div></div>
+        ${thorium>0||b.data.some(r=>r[2]>0)?`<div class="stat"><div class="stat-label">Thorium</div><div class="stat-val" id="s-thor">${fmt(thorium)}</div></div>`:''}
+        ${prodStatHtml}
+        ${energyStatHtml}
+        <div class="stat"><div class="stat-label">Durée</div><div class="stat-val" id="s-time" style="font-size:13px">${fmtTime(time)}</div></div>
+      </div>
+    </div>
+
+    ${radarHtml}
+
+    <div class="chart-card">
+      <div class="chart-title">Courbe de progression</div>
+      <div class="legend" id="legend"></div>
+      <div class="chart-wrap"><canvas id="bc" role="img" aria-label="Courbe de progression pour ${b.name}">Progression sur ${b.levels} niveaux.</canvas></div>
+    </div>
+
+    ${ccHtml}
+    ${unlockHtml}
+    ${energySummaryHtml}
+    <div class="note">${b.note}</div>
+  `;
+
+  buildLegend(b);
+  setTimeout(()=>buildChart(b,lv),50);
+}
+
+function buildLegend(b){
+  const hasThor=b.data.some(r=>r[2]>0);
+  const col=CAT[b.cat].color;
+  const isEnergy=b.cat==='energy';const isProd=b.cat==='production';const isStorage=b.cat==='storage';const isBunker=selBuilding==='bunker';
+  const hasProd=(isEnergy||isProd||isStorage||isBunker)&&(isBunker?b.bunker_res:b.data.map(r=>r[4])).some(v=>v>0);
+  let html=`<span class="lg"><span class="lgsq" style="background:#4e8faf"></span>Métal</span><span class="lg"><span class="lgsq" style="background:#2ec4a0"></span>Nourriture</span>`;
+  if(hasThor)html+=`<span class="lg"><span class="lgsq" style="background:#d4537e"></span>Thorium</span>`;
+  if(hasProd)html+=`<span class="lg"><span class="lgsq" style="background:${col}"></span>${isEnergy?'Énergie':isProd?'Production':isStorage?'Capacité':'Ressources prot.'}</span>`;
+  document.getElementById('legend').innerHTML=html;
+}
+
+function buildChart(b,activeLv){
+  if(chartInst){chartInst.destroy();chartInst=null}
+  const labels=b.data.map((_,i)=>String(i+1));
+  const metals=b.data.map(r=>r[0]);
+  const foods=b.data.map(r=>r[1]);
+  const thoriums=b.data.map(r=>r[2]);
+  const prods=selBuilding==='bunker'?b.bunker_res:b.data.map(r=>r[4]);
+  const hasThor=thoriums.some(v=>v>0);
+  const isEnergy=b.cat==='energy';const isProd=b.cat==='production';const isStorage=b.cat==='storage';const isBunker=selBuilding==='bunker';
+  const hasProd=(isEnergy||isProd||isStorage||isBunker)&&prods.some(v=>v>0);
+  const col=CAT[b.cat].color;
+
+  const datasets=[
+    {label:'Métal',data:metals,borderColor:'#4e8faf',backgroundColor:'rgba(78,143,175,0.06)',borderWidth:1.5,pointRadius:2,pointHoverRadius:4,tension:0.3},
+    {label:'Nourriture',data:foods,borderColor:'#2ec4a0',backgroundColor:'rgba(46,196,160,0.06)',borderWidth:1.5,pointRadius:2,pointHoverRadius:4,tension:0.3},
+  ];
+  if(hasThor)datasets.push({label:'Thorium',data:thoriums,borderColor:'#d4537e',backgroundColor:'rgba(212,83,126,0.06)',borderWidth:1.5,pointRadius:2,pointHoverRadius:4,tension:0.3});
+  if(hasProd)datasets.push({label:isEnergy?'Énergie':isProd?'Production':isStorage?'Capacité':'Ressources prot.',data:prods,borderColor:col,backgroundColor:'rgba(0,0,0,0)',borderWidth:2,borderDash:[5,3],pointRadius:2,pointHoverRadius:4,tension:0.3,yAxisID:'y2'});
+
+  const cvs=document.getElementById('bc');if(!cvs)return;
+  chartInst=new Chart(cvs,{
+    type:'line',
+    data:{labels,datasets},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,backgroundColor:'#1c1d27',borderColor:'#2a2b38',borderWidth:1,titleColor:'#a09e96',bodyColor:'#e8e4d8',callbacks:{label:i=>`${i.dataset.label}: ${fmt(i.raw)}`}}},
+      scales:{
+        x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#5e5d58',font:{size:10},maxTicksLimit:10}},
+        y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#5e5d58',font:{size:10},callback:v=>fmt(v)}},
+        ...(hasProd?{y2:{position:'right',grid:{drawOnChartArea:false},ticks:{color:col,font:{size:10},callback:v=>fmt(v)}}}:{})
+      }
+    }
+  });
+}
+
+function setLv(v){
+  selLevel=parseInt(v);
+  const b=BUILDINGS[selBuilding];
+  const lv=selLevel-1;
+  const [metal,food,thorium,energy,prod,time]=b.data[lv];
+  document.getElementById('lvout').textContent=`${selLevel} / ${b.levels}`;
+  const m=document.getElementById('s-metal');if(m)m.textContent=fmt(metal);
+  const f=document.getElementById('s-food');if(f)f.textContent=fmt(food);
+  const t=document.getElementById('s-thor');if(t)t.textContent=fmt(thorium);
+  const tm=document.getElementById('s-time');if(tm)tm.textContent=fmtTime(time);
+  if(selBuilding==='radar_satellite'){
+    document.querySelectorAll('.radar-lv,.radar-txt').forEach((el,i)=>{
+      const row=Math.floor(i/2);
+      el.className=el.className.replace(/ ?(active|current)/g,'');
+      if(row<lv)el.classList.add('active');
+      else if(row===lv)el.classList.add('current');
+    });
+  }
+}
+
+renderCats();renderList();
+</script>
+</body>
+</html>

@@ -1,8 +1,22 @@
 module Buildings
-  # Per-level lookup tables derived from reference game data.
-  # Fields per level: metal, food, thorium (build cost), energy_consumed (total at this level),
-  # production (energy for :energy buildings, units/hour for :production, capacity for :storage, 0 otherwise),
-  # time (construction time in seconds).
+  # Per-level lookup tables — canonical source of truth for all building costs and stats.
+  #
+  # Fields per level:
+  #   metal, food, thorium   — build cost
+  #   energy_consumed        — permanent energy draw at this level (0 for storage, radar, bunker, CC, lab)
+  #   production             — meaning varies by category:
+  #                              :energy    → ⚡ produced (Integer)
+  #                              :production → resource units/hour (Integer)
+  #                              :storage    → storage capacity (Integer)
+  #                              :military bunker → { resources: Integer, soldiers: Integer }
+  #                              all others → 0
+  #   time                   — construction/upgrade duration in seconds
+  #
+  # Categories: :energy, :production, :storage, :infrastructure, :orbital, :military
+  # The :orbital category is reserved for radar_satellite (single slot on the orbital ring).
+  #
+  # COMMAND_CENTER_REQUIREMENTS (below REGISTRY) maps each building to the minimum CC level
+  # required to unlock each of its levels.
   REGISTRY = {
     # ─── Energy ───────────────────────────────────────────────────────────────
     solar_station: {
@@ -259,18 +273,31 @@ module Buildings
       ]
     },
     radar_satellite: {
-      category: :infrastructure,
+      category: :orbital,
       requires: :command_center,
+      # No energy_consumed — runs on dedicated solar panels.
+      # Each level unlocks additional detection capabilities:
+      #   1 → fleet presence in orbit
+      #   2 → owner pseudo
+      #   3 → full orbit fleet composition
+      #   4 → incoming fleet detected
+      #   5 → incoming fleet owner pseudo
+      #   6 → approximate distance (far/close/imminent)
+      #   7 → ~35% of incoming composition revealed
+      #   8 → ~65% of incoming composition revealed
+      #   9 → ~85% of incoming composition revealed
+      #  10 → 100% full vision, no fog of war (requires CC level 11)
       levels: [
-        { metal: 8000,    food: 8000,    thorium: 16000,   energy_consumed: 0, production: 0, time: 90    },
-        { metal: 16000,   food: 16000,   thorium: 32000,   energy_consumed: 0, production: 0, time: 171   },
-        { metal: 32000,   food: 32000,   thorium: 64000,   energy_consumed: 0, production: 0, time: 325   },
-        { metal: 64000,   food: 64000,   thorium: 128000,  energy_consumed: 0, production: 0, time: 617   },
-        { metal: 128000,  food: 128000,  thorium: 256000,  energy_consumed: 0, production: 0, time: 1172  },
-        { metal: 256000,  food: 256000,  thorium: 512000,  energy_consumed: 0, production: 0, time: 2228  },
-        { metal: 512000,  food: 512000,  thorium: 1024000, energy_consumed: 0, production: 0, time: 4234  },
-        { metal: 1024000, food: 1024000, thorium: 2048000, energy_consumed: 0, production: 0, time: 8045  },
-        { metal: 2048000, food: 2048000, thorium: 4096000, energy_consumed: 0, production: 0, time: 15285 }
+        { metal: 8_000,     food: 8_000,     thorium: 16_000,    energy_consumed: 0, production: 0, time: 90     },
+        { metal: 16_000,    food: 16_000,    thorium: 32_000,    energy_consumed: 0, production: 0, time: 171    },
+        { metal: 32_000,    food: 32_000,    thorium: 64_000,    energy_consumed: 0, production: 0, time: 325    },
+        { metal: 64_000,    food: 64_000,    thorium: 128_000,   energy_consumed: 0, production: 0, time: 617    },
+        { metal: 128_000,   food: 128_000,   thorium: 256_000,   energy_consumed: 0, production: 0, time: 1_172  },
+        { metal: 256_000,   food: 256_000,   thorium: 512_000,   energy_consumed: 0, production: 0, time: 2_228  },
+        { metal: 512_000,   food: 512_000,   thorium: 1_024_000, energy_consumed: 0, production: 0, time: 4_234  },
+        { metal: 1_024_000, food: 1_024_000, thorium: 2_048_000, energy_consumed: 0, production: 0, time: 8_045  },
+        { metal: 2_048_000, food: 2_048_000, thorium: 4_096_000, energy_consumed: 0, production: 0, time: 15_285 },
+        { metal: 4_096_000, food: 4_096_000, thorium: 8_192_000, energy_consumed: 0, production: 0, time: 29_042 }
       ]
     },
 
@@ -278,75 +305,132 @@ module Buildings
     training_camp: {
       category: :military,
       requires: :command_center,
+      # energy_consumed increases by ~15 per level (20 → 150).
+      # Each level unlocks a new unit type — see COMMAND_CENTER_REQUIREMENTS for CC gates.
       levels: [
-        { metal: 250,   food: 250,   thorium: 100,   energy_consumed: 0, production: 0, time: 45    },
-        { metal: 500,   food: 500,   thorium: 128,   energy_consumed: 0, production: 0, time: 86    },
-        { metal: 1000,  food: 1000,  thorium: 400,   energy_consumed: 0, production: 0, time: 162   },
-        { metal: 1344,  food: 1344,  thorium: 800,   energy_consumed: 0, production: 0, time: 308   },
-        { metal: 2688,  food: 4000,  thorium: 1024,  energy_consumed: 0, production: 0, time: 1114  },
-        { metal: 5376,  food: 5376,  thorium: 2048,  energy_consumed: 0, production: 0, time: 2030  },
-        { metal: 10752, food: 10752, thorium: 4092,  energy_consumed: 0, production: 0, time: 2717  },
-        { metal: 21504, food: 21504, thorium: 8192,  energy_consumed: 0, production: 0, time: 4022  },
-        { metal: 43008, food: 43008, thorium: 16384, energy_consumed: 0, production: 0, time: 7646  },
-        { metal: 86016, food: 86016, thorium: 32768, energy_consumed: 0, production: 0, time: 14521 }
+        { metal: 250,   food: 250,   thorium: 100,   energy_consumed: 20,  production: 0, time: 45    },
+        { metal: 500,   food: 500,   thorium: 128,   energy_consumed: 35,  production: 0, time: 86    },
+        { metal: 1000,  food: 1000,  thorium: 400,   energy_consumed: 50,  production: 0, time: 162   },
+        { metal: 1344,  food: 1344,  thorium: 800,   energy_consumed: 65,  production: 0, time: 308   },
+        { metal: 2688,  food: 4000,  thorium: 1024,  energy_consumed: 80,  production: 0, time: 1114  },
+        { metal: 5376,  food: 5376,  thorium: 2048,  energy_consumed: 95,  production: 0, time: 2030  },
+        { metal: 10752, food: 10752, thorium: 4092,  energy_consumed: 110, production: 0, time: 2717  },
+        { metal: 21504, food: 21504, thorium: 8192,  energy_consumed: 125, production: 0, time: 4022  },
+        { metal: 43008, food: 43008, thorium: 16384, energy_consumed: 135, production: 0, time: 7646  },
+        { metal: 86016, food: 86016, thorium: 32768, energy_consumed: 150, production: 0, time: 14521 }
       ]
     },
     military_camp: {
       category: :military,
       requires: :command_center,
+      # energy_consumed increases by ~20 per level (30 → 200).
       levels: [
-        { metal: 300,   food: 200,   thorium: 150,   energy_consumed: 0, production: 0, time: 45    },
-        { metal: 600,   food: 400,   thorium: 300,   energy_consumed: 0, production: 0, time: 86    },
-        { metal: 1200,  food: 800,   thorium: 600,   energy_consumed: 0, production: 0, time: 162   },
-        { metal: 2400,  food: 1600,  thorium: 1200,  energy_consumed: 0, production: 0, time: 308   },
-        { metal: 4800,  food: 3200,  thorium: 2400,  energy_consumed: 0, production: 0, time: 1114  },
-        { metal: 9600,  food: 6400,  thorium: 4800,  energy_consumed: 0, production: 0, time: 2030  },
-        { metal: 19200, food: 12800, thorium: 9600,  energy_consumed: 0, production: 0, time: 2717  },
-        { metal: 38400, food: 25600, thorium: 19200, energy_consumed: 0, production: 0, time: 4022  },
-        { metal: 76800, food: 51200, thorium: 38400, energy_consumed: 0, production: 0, time: 7646  },
-        { metal: 153600,food: 102400,thorium: 76800, energy_consumed: 0, production: 0, time: 14521 }
+        { metal: 300,    food: 200,    thorium: 150,   energy_consumed: 30,  production: 0, time: 45    },
+        { metal: 600,    food: 400,    thorium: 300,   energy_consumed: 50,  production: 0, time: 86    },
+        { metal: 1200,   food: 800,    thorium: 600,   energy_consumed: 70,  production: 0, time: 162   },
+        { metal: 2400,   food: 1600,   thorium: 1200,  energy_consumed: 90,  production: 0, time: 308   },
+        { metal: 4800,   food: 3200,   thorium: 2400,  energy_consumed: 110, production: 0, time: 1114  },
+        { metal: 9600,   food: 6400,   thorium: 4800,  energy_consumed: 130, production: 0, time: 2030  },
+        { metal: 19200,  food: 12800,  thorium: 9600,  energy_consumed: 155, production: 0, time: 2717  },
+        { metal: 38400,  food: 25600,  thorium: 19200, energy_consumed: 175, production: 0, time: 4022  },
+        { metal: 76800,  food: 51200,  thorium: 38400, energy_consumed: 185, production: 0, time: 7646  },
+        { metal: 153600, food: 102400, thorium: 76800, energy_consumed: 200, production: 0, time: 14521 }
       ]
     },
     ship_factory: {
       category: :military,
       requires: :command_center,
+      # energy_consumed increases by ~40 per level (50 → 600).
+      # Most thorium-intensive military building by design.
       levels: [
-        { metal: 250,    food: 100,    thorium: 320,    energy_consumed: 0, production: 0, time: 60    },
-        { metal: 500,    food: 200,    thorium: 640,    energy_consumed: 0, production: 0, time: 114   },
-        { metal: 1000,   food: 400,    thorium: 1280,   energy_consumed: 0, production: 0, time: 216   },
-        { metal: 2000,   food: 800,    thorium: 2560,   energy_consumed: 0, production: 0, time: 411   },
-        { metal: 4000,   food: 1600,   thorium: 5120,   energy_consumed: 0, production: 0, time: 782   },
-        { metal: 8000,   food: 3200,   thorium: 10240,  energy_consumed: 0, production: 0, time: 1485  },
-        { metal: 16000,  food: 6400,   thorium: 20480,  energy_consumed: 0, production: 0, time: 2822  },
-        { metal: 32000,  food: 12800,  thorium: 40960,  energy_consumed: 0, production: 0, time: 5363  },
-        { metal: 64000,  food: 25600,  thorium: 81920,  energy_consumed: 0, production: 0, time: 10190 },
-        { metal: 128000, food: 51200,  thorium: 163840, energy_consumed: 0, production: 0, time: 19361 },
-        { metal: 256000, food: 102400, thorium: 327680, energy_consumed: 0, production: 0, time: 36786 },
-        { metal: 512000, food: 204000, thorium: 655360, energy_consumed: 0, production: 0, time: 69894 },
-        { metal: 1024000,food: 409600, thorium: 1310720,energy_consumed: 0, production: 0, time: 132799},
-        { metal: 2048000,food: 819200, thorium: 2621440,energy_consumed: 0, production: 0, time: 216317},
-        { metal: 4096000,food: 1638400,thorium: 5242880,energy_consumed: 0, production: 0, time: 479404}
+        { metal: 250,     food: 100,     thorium: 320,     energy_consumed: 50,  production: 0, time: 60     },
+        { metal: 500,     food: 200,     thorium: 640,     energy_consumed: 90,  production: 0, time: 114    },
+        { metal: 1000,    food: 400,     thorium: 1280,    energy_consumed: 130, production: 0, time: 216    },
+        { metal: 2000,    food: 800,     thorium: 2560,    energy_consumed: 165, production: 0, time: 411    },
+        { metal: 4000,    food: 1600,    thorium: 5120,    energy_consumed: 205, production: 0, time: 782    },
+        { metal: 8000,    food: 3200,    thorium: 10240,   energy_consumed: 245, production: 0, time: 1485   },
+        { metal: 16000,   food: 6400,    thorium: 20480,   energy_consumed: 285, production: 0, time: 2822   },
+        { metal: 32000,   food: 12800,   thorium: 40960,   energy_consumed: 325, production: 0, time: 5363   },
+        { metal: 64000,   food: 25600,   thorium: 81920,   energy_consumed: 365, production: 0, time: 10190  },
+        { metal: 128000,  food: 51200,   thorium: 163840,  energy_consumed: 405, production: 0, time: 19361  },
+        { metal: 256000,  food: 102400,  thorium: 327680,  energy_consumed: 445, production: 0, time: 36786  },
+        { metal: 512000,  food: 204000,  thorium: 655360,  energy_consumed: 480, production: 0, time: 69894  },
+        { metal: 1024000, food: 409600,  thorium: 1310720, energy_consumed: 520, production: 0, time: 132799 },
+        { metal: 2048000, food: 819200,  thorium: 2621440, energy_consumed: 560, production: 0, time: 216317 },
+        { metal: 4096000, food: 1638400, thorium: 5242880, energy_consumed: 600, production: 0, time: 479404 }
       ]
     },
     bunker: {
       category: :military,
       requires: :command_center,
+      # production is a Hash: { resources: Integer, soldiers: Integer }
+      #   resources → total shared capacity across metal + food + thorium (player allocates freely)
+      #   soldiers  → max units protected regardless of type
+      # Protection deliberately slows above level 6 so late-game risk stays meaningful.
       levels: [
-        { metal: 1000,   food: 1000,   thorium: 3000,   energy_consumed: 0, production: 0, time: 90    },
-        { metal: 2000,   food: 2000,   thorium: 6000,   energy_consumed: 0, production: 0, time: 171   },
-        { metal: 4000,   food: 4000,   thorium: 12000,  energy_consumed: 0, production: 0, time: 325   },
-        { metal: 8000,   food: 8000,   thorium: 24000,  energy_consumed: 0, production: 0, time: 617   },
-        { metal: 16000,  food: 16000,  thorium: 48000,  energy_consumed: 0, production: 0, time: 1172  },
-        { metal: 32000,  food: 32000,  thorium: 96000,  energy_consumed: 0, production: 0, time: 2228  },
-        { metal: 64000,  food: 64000,  thorium: 192000, energy_consumed: 0, production: 0, time: 4234  },
-        { metal: 128000, food: 128000, thorium: 348000, energy_consumed: 0, production: 0, time: 8045  },
-        { metal: 256000, food: 256000, thorium: 768000, energy_consumed: 0, production: 0, time: 15288 },
-        { metal: 512000, food: 512000, thorium: 1536000,energy_consumed: 0, production: 0, time: 29042 }
+        { metal: 1000,   food: 1000,   thorium: 3000,    energy_consumed: 0, production: { resources: 5_000,   soldiers: 50     }, time: 90    },
+        { metal: 2000,   food: 2000,   thorium: 6000,    energy_consumed: 0, production: { resources: 12_000,  soldiers: 120    }, time: 171   },
+        { metal: 4000,   food: 4000,   thorium: 12000,   energy_consumed: 0, production: { resources: 25_000,  soldiers: 250    }, time: 325   },
+        { metal: 8000,   food: 8000,   thorium: 24000,   energy_consumed: 0, production: { resources: 50_000,  soldiers: 500    }, time: 617   },
+        { metal: 16000,  food: 16000,  thorium: 48000,   energy_consumed: 0, production: { resources: 100_000, soldiers: 1_000  }, time: 1172  },
+        { metal: 32000,  food: 32000,  thorium: 96000,   energy_consumed: 0, production: { resources: 175_000, soldiers: 2_000  }, time: 2228  },
+        { metal: 64000,  food: 64000,  thorium: 192000,  energy_consumed: 0, production: { resources: 275_000, soldiers: 4_000  }, time: 4234  },
+        { metal: 128000, food: 128000, thorium: 348000,  energy_consumed: 0, production: { resources: 375_000, soldiers: 7_000  }, time: 8045  },
+        { metal: 256000, food: 256000, thorium: 768000,  energy_consumed: 0, production: { resources: 450_000, soldiers: 12_000 }, time: 15288 },
+        { metal: 512000, food: 512000, thorium: 1536000, energy_consumed: 0, production: { resources: 500_000, soldiers: 20_000 }, time: 29042 }
       ]
     }
   }.freeze
 
+  # Maps each building to the minimum CC level required to unlock each of its levels.
+  # Format: { building_key => { building_level => min_cc_level } }
+  #
+  # Usage:
+  #   min_cc = Buildings::COMMAND_CENTER_REQUIREMENTS[:metal_mine][5]  # => 2
+  #   Building can be upgraded to level 5 only if command_center.level >= 2
+  COMMAND_CENTER_REQUIREMENTS = {
+    solar_station:      { 1 => 1, 2 => 1, 3 => 1, 4 => 3, 5 => 3, 6 => 3, 7 => 5, 8 => 5, 9 => 5, 10 => 8, 11 => 8, 12 => 8, 13 => 10 },
+    nuclear_plant:      { 1 => 5, 2 => 5, 3 => 5, 4 => 5, 5 => 7, 6 => 7, 7 => 7, 8 => 7, 9 => 7, 10 => 10 },
+    metal_mine:         { 1 => 1, 2 => 1, 3 => 1, 4 => 2, 5 => 2, 6 => 3, 7 => 3, 8 => 3, 9 => 5, 10 => 5, 11 => 5, 12 => 5, 13 => 7, 14 => 7, 15 => 7, 16 => 10, 17 => 10, 18 => 10, 19 => 13, 20 => 13 },
+    farm:               { 1 => 1, 2 => 1, 3 => 1, 4 => 2, 5 => 2, 6 => 3, 7 => 3, 8 => 3, 9 => 5, 10 => 5, 11 => 5, 12 => 5, 13 => 7, 14 => 7, 15 => 7, 16 => 10, 17 => 10, 18 => 10, 19 => 13, 20 => 13 },
+    thorium_mine:       { 1 => 1, 2 => 1, 3 => 1, 4 => 2, 5 => 2, 6 => 3, 7 => 3, 8 => 3, 9 => 5, 10 => 5, 11 => 5, 12 => 5, 13 => 7, 14 => 7, 15 => 7, 16 => 10, 17 => 10, 18 => 10, 19 => 13, 20 => 13 },
+    food_silo:          { 1 => 1, 2 => 1, 3 => 1, 4 => 2, 5 => 2, 6 => 2, 7 => 4, 8 => 4, 9 => 4, 10 => 4, 11 => 7, 12 => 7, 13 => 7, 14 => 7, 15 => 7, 16 => 10, 17 => 10, 18 => 10, 19 => 10, 20 => 10 },
+    metal_warehouse:    { 1 => 1, 2 => 1, 3 => 1, 4 => 2, 5 => 2, 6 => 2, 7 => 4, 8 => 4, 9 => 4, 10 => 4, 11 => 7, 12 => 7, 13 => 7, 14 => 7, 15 => 7, 16 => 10, 17 => 10, 18 => 10, 19 => 10, 20 => 10 },
+    thorium_warehouse:  { 1 => 1, 2 => 1, 3 => 1, 4 => 2, 5 => 2, 6 => 2, 7 => 4, 8 => 4, 9 => 4, 10 => 4, 11 => 7, 12 => 7, 13 => 7, 14 => 7, 15 => 7, 16 => 10, 17 => 10, 18 => 10, 19 => 10, 20 => 10 },
+    command_center:     { 1 => 0 }, # no CC prerequisite — first building constructed
+    research_lab:       { 1 => 2, 2 => 2, 3 => 2, 4 => 4, 5 => 4, 6 => 4, 7 => 6, 8 => 6, 9 => 9, 10 => 9 },
+    quantum_portal:     { 1 => 4, 2 => 4, 3 => 4, 4 => 4, 5 => 6, 6 => 6, 7 => 6, 8 => 6, 9 => 9, 10 => 9 },
+    radar_satellite:    { 1 => 3, 2 => 3, 3 => 3, 4 => 5, 5 => 5, 6 => 5, 7 => 8, 8 => 8, 9 => 8, 10 => 11 },
+    training_camp:      { 1 => 1, 2 => 1, 3 => 3, 4 => 3, 5 => 3, 6 => 6, 7 => 6, 8 => 6, 9 => 9, 10 => 9 },
+    military_camp:      { 1 => 2, 2 => 2, 3 => 2, 4 => 4, 5 => 4, 6 => 4, 7 => 7, 8 => 7, 9 => 7, 10 => 10 },
+    ship_factory:       { 1 => 3, 2 => 3, 3 => 3, 4 => 3, 5 => 5, 6 => 5, 7 => 5, 8 => 8, 9 => 8, 10 => 8, 11 => 11, 12 => 11, 13 => 11, 14 => 11, 15 => 11 },
+    bunker:             { 1 => 2, 2 => 2, 3 => 2, 4 => 4, 5 => 4, 6 => 4, 7 => 7, 8 => 7, 9 => 7, 10 => 10 }
+  }.freeze
+
+  # ─── Helpers ──────────────────────────────────────────────────────────────
+
   def self.find!(type)
     REGISTRY.fetch(type.to_sym) { raise ArgumentError, "Unknown building type: #{type}" }
+  end
+
+  # Returns the minimum CC level required to build/upgrade a building to a given level.
+  def self.min_cc_level(building_type, building_level)
+    reqs = COMMAND_CENTER_REQUIREMENTS.fetch(building_type.to_sym) do
+      raise ArgumentError, "Unknown building type: #{building_type}"
+    end
+    reqs.fetch(building_level) do
+      raise ArgumentError, "Unknown level #{building_level} for #{building_type}"
+    end
+  end
+
+  # Returns true if the given CC level permits upgrading a building to the target level.
+  def self.cc_allows?(building_type, building_level, current_cc_level)
+    min_cc_level(building_type, building_level) <= current_cc_level
+  end
+
+  # Returns the max building level reachable with the given CC level.
+  def self.max_level_for_cc(building_type, current_cc_level)
+    reqs = COMMAND_CENTER_REQUIREMENTS.fetch(building_type.to_sym) { return 0 }
+    reqs.filter { |_blv, cc| cc <= current_cc_level }.keys.max || 0
   end
 end
