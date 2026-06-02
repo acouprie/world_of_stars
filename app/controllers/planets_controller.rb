@@ -1,6 +1,6 @@
 class PlanetsController < ApplicationController
   def show
-    @planet = Planet.find(params[:id])
+    @planet = Planet.includes(:buildings, :construction_queue).find(params[:id])
   end
 
   def edit

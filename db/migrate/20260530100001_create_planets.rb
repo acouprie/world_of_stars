@@ -3,6 +3,7 @@ class CreatePlanets < ActiveRecord::Migration[8.1]
     create_table :planets do |t|
       t.references :user, null: true, foreign_key: true
       t.string   :planet_type,          null: false, default: "empty"
+      t.string   :visual_type,          null: false, default: "forest"
       t.string   :name,                 null: false
       t.integer  :coord_x,              null: false
       t.integer  :coord_y,              null: false

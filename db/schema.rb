@@ -19,6 +19,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_30_100003) do
     t.datetime "created_at", null: false
     t.integer "level", default: 0, null: false
     t.bigint "planet_id", null: false
+    t.integer "slot_index", null: false
     t.datetime "updated_at", null: false
     t.index ["planet_id", "building_type"], name: "index_buildings_on_planet_id_and_building_type", unique: true
     t.index ["planet_id"], name: "index_buildings_on_planet_id"
@@ -51,6 +52,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_30_100003) do
     t.decimal "thorium_stock", precision: 15, scale: 4, default: "0.0", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id"
+    t.string "visual_type", default: "forest", null: false
     t.index ["coord_x", "coord_y"], name: "index_planets_on_coord_x_and_coord_y", unique: true
     t.index ["planet_type"], name: "index_planets_on_planet_type"
     t.index ["user_id"], name: "index_planets_on_user_id"

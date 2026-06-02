@@ -1,11 +1,13 @@
 class Planet < ApplicationRecord
-  PLANET_TYPES = %w[player ai_faction empty].freeze
+  PLANET_TYPES  = %w[player ai_faction empty].freeze
+  VISUAL_TYPES  = %w[oceanic arid volcanic glacial forest].freeze
 
   belongs_to :user, optional: true
   has_many :buildings, dependent: :destroy
   has_one  :construction_queue, dependent: :destroy
 
-  validates :planet_type, inclusion: { in: PLANET_TYPES }
+  validates :planet_type,  inclusion: { in: PLANET_TYPES }
+  validates :visual_type,  inclusion: { in: VISUAL_TYPES }
   validates :name, presence: true
   validates :coord_x, :coord_y, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :is_home, inclusion: { in: [true, false] }

@@ -44,3 +44,29 @@ fr:
   locale_switcher:
     fr: "Français"
     en: "English"
+
+  buildings:
+    types:
+      solar_station: "Station solaire"
+      nuclear_plant: "Centrale nucléaire"
+      metal_mine: "Mine de métal"
+      farm: "Ferme"
+      thorium_mine: "Mine de thorium"
+      food_silo: "Silo alimentaire"
+      metal_warehouse: "Entrepôt de métal"
+      thorium_warehouse: "Entrepôt de thorium"
+      command_center: "Centre de commandement"
+      research_lab: "Laboratoire de recherche"
+      quantum_portal: "Portail quantique"
+      radar_satellite: "Satellite radar"
+      training_camp: "Camp d'entraînement"
+      military_camp: "Camp militaire"
+      ship_factory: "Usine de vaisseaux"
+      bunker: "Bunker"
+
+  planets:
+    orbital_view:
+      slot_orbital: "Emplacement orbital"
+      slot_empty: "Emplacement vide"
+      no_buildings: "Aucun bâtiment disponible"
+      home_badge: "BASE"

@@ -22,6 +22,7 @@
 
     <%= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
 
+    <%= vite_react_refresh_tag %>
     <%= vite_client_tag %>
     <%= vite_javascript_tag "application", "data-turbo-track": "reload", defer: true %>
     <%= vite_stylesheet_tag "application", "data-turbo-track": "reload" %>
