@@ -3,7 +3,7 @@
 <h1><%= @planet.name %></h1>
 
 <aside id="resources_bar" class="sticky top-0 z-50 border-b border-border bg-space-bg-2/95 backdrop-blur-sm">
-  <div class="mx-auto flex items-center gap-1 px-4 py-2 text-sm">
+  <div class="mx-auto grid grid-cols-2 gap-5 p-5 sm:flex sm:items-center sm:px-4 sm:py-2 sm:text-sm">
 
     <%# Énergie %>
     <%
@@ -12,7 +12,7 @@
       energy_bar_color = energy_pct > 90 ? "bg-red-400" : energy_pct > 70 ? "bg-amber-400" : "bg-primary"
       energy_value_class = @planet.total_energy_consumed > @planet.total_energy_produced ? "text-red-400" : "text-primary"
     %>
-    <div class="flex flex-1 items-center gap-2 rounded-md border border-border bg-surface px-3 py-1.5">
+    <div class="flex items-center gap-2 rounded-md border border-border bg-surface px-2 py-1.5 sm:flex-1 sm:px-3">
       <%= image_tag "icons/energy.png", alt: "Énergie", class: "h-4 w-4 shrink-0" %>
       <div class="flex min-w-0 flex-1 flex-col gap-1">
         <div class="flex items-center justify-between gap-1">
@@ -31,7 +31,7 @@
 
     <%# Nourriture %>
     <% food_pct = @planet.food_capacity > 0 ? [(@planet.food_stock.to_f / @planet.food_capacity * 100).round, 100].min : 0 %>
-    <div class="flex flex-1 items-center gap-2 rounded-md border border-border bg-surface px-3 py-1.5">
+    <div class="flex items-center gap-2 rounded-md border border-border bg-surface px-2 py-1.5 sm:flex-1 sm:px-3">
       <%= image_tag "icons/food.png", alt: "Nourriture", class: "h-4 w-4 shrink-0" %>
       <div class="flex min-w-0 flex-1 flex-col gap-1">
         <div class="flex items-center justify-between gap-1">
@@ -53,7 +53,7 @@
 
     <%# Métal %>
     <% metal_pct = @planet.metal_capacity > 0 ? [(@planet.metal_stock.to_f / @planet.metal_capacity * 100).round, 100].min : 0 %>
-    <div class="flex flex-1 items-center gap-2 rounded-md border border-border bg-surface px-3 py-1.5">
+    <div class="flex items-center gap-2 rounded-md border border-border bg-surface px-2 py-1.5 sm:flex-1 sm:px-3">
       <%= image_tag "icons/metal.png", alt: "Métal", class: "h-4 w-4 shrink-0" %>
       <div class="flex min-w-0 flex-1 flex-col gap-1">
         <div class="flex items-center justify-between gap-1">
@@ -75,7 +75,7 @@
 
     <%# Thorium %>
     <% thorium_pct = @planet.thorium_capacity > 0 ? [(@planet.thorium_stock.to_f / @planet.thorium_capacity * 100).round, 100].min : 0 %>
-    <div class="flex flex-1 items-center gap-2 rounded-md border border-border bg-surface px-3 py-1.5">
+    <div class="flex items-center gap-2 rounded-md border border-border bg-surface px-2 py-1.5 sm:flex-1 sm:px-3">
       <%= image_tag "icons/thorium.png", alt: "Thorium", class: "h-4 w-4 shrink-0" %>
       <div class="flex min-w-0 flex-1 flex-col gap-1">
         <div class="flex items-center justify-between gap-1">

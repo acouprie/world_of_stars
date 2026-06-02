@@ -26,7 +26,8 @@
 
 @font-face {
   font-family: "Orbitron";
-  src: url("../fonts/Orbitron/Orbitron-VariableFont_wght.ttf") format("truetype");
+  src: url("../fonts/Orbitron/Orbitron-VariableFont_wght.ttf")
+    format("truetype");
   font-weight: 400 900;
   font-style: normal;
 }
@@ -49,7 +50,8 @@
   font-style: normal;
 }
 
-html, body {
+html,
+body {
   font-family: "Courier New", Courier, monospace;
   background-color: var(--color-space-bg);
   color: var(--color-primary);
@@ -61,7 +63,7 @@ h1 {
   font-weight: 700;
   font-size: 5rem;
   text-align: center;
-  margin: 2rem 0;
+  margin-bottom: 2rem;
   text-shadow: 0 0 10px var(--color-primary);
   color: var(--color-primary);
   text-transform: uppercase;
