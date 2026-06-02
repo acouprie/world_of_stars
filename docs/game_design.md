@@ -1,6 +1,6 @@
 # World of Stars — Document de Game Design
-> Version 0.2 — Document de référence projet  
-> Auteur : Antoine Couprie  
+> Version 0.3 — Document de référence projet
+> Auteur : Antoine Couprie
 > Statut : En cours — annexes à compléter
 
 ---
@@ -16,9 +16,10 @@
 7. [Exploration](#7-exploration)
 8. [Factions IA](#8-factions-ia)
 9. [Alliances & diplomatie](#9-alliances--diplomatie)
-10. [Architecture technique & agents IA](#10-architecture-technique--agents-ia)
-11. [Questions ouvertes & équilibrage futur](#11-questions-ouvertes--équilibrage-futur)
-12. [Annexes — À définir](#12-annexes--à-définir)
+10. [Interface — Page planète](#10-interface--page-planète)
+11. [Architecture technique & agents IA](#11-architecture-technique--agents-ia)
+12. [Questions ouvertes & équilibrage futur](#12-questions-ouvertes--équilibrage-futur)
+13. [Annexes](#13-annexes)
 
 ---
 
@@ -45,19 +46,31 @@ L'absence de factions IA dans les jeux du genre crée un vide au lancement : pas
 - La carte est visualisable en **vue galaxie** : chaque joueur voit sa planète et toutes les autres, et peut naviguer sur la carte.
 
 ### Planètes
-Trois types de planètes coexistent sur la carte :
+Trois **statuts de possession** coexistent sur la carte :
 
-| Type | Description |
+| Statut (`planet_type`) | Description |
 |---|---|
-| **Planètes joueurs** | Assignées à un joueur à l'inscription ou colonisées/conquises |
-| **Planètes IA** | Appartenant aux factions l'Empire Varek, la Confédération Elyrans ou les Nexhari |
-| **Planètes vides** | Non assignées, colonisables et explorables |
+| `player` | Assignée à un joueur à l'inscription ou colonisée/conquise |
+| `ai_faction` | Appartenant aux factions l'Empire Varek, la Confédération Elyrans ou les Nexhianti |
+| `empty` | Non assignée, colonisable et explorable |
+
+Chaque planète possède également un **type visuel** (indépendant du statut de possession) qui détermine son apparence graphique :
+
+| Type visuel | Apparence |
+|---|---|
+| `oceanic` | Monde aquatique, tons bleus profonds |
+| `arid` | Surface désertique, tons ocre et sable |
+| `volcanic` | Monde instable, tons rouge sombre et gris |
+| `glacial` | Monde gelé, tons blanc et cyan |
+| `forest` | Monde végétal, tons vert foncé et brun |
+
+Le type visuel est dérivé de façon déterministe depuis l'identifiant de la planète (`id % 5`) — chaque planète a donc toujours le même skin, sans colonne supplémentaire en base.
 
 ### Capacité maximale du serveur
 - Le nombre de planètes est **fixé à l'initialisation** du serveur.
 - Un nombre maximum de joueurs est défini en conséquence, en réservant :
   - Les planètes des factions IA (Varek et Elyrans ont des planètes fixes)
-  - Un stock minimal de planètes vides pour l'exploration et l'expansion des Nexhari
+  - Un stock minimal de planètes vides pour l'exploration et l'expansion des Nexhianti
   - Le calcul prend en compte le maximum de 3 planètes par joueur
 
 ### Déplacements
@@ -173,7 +186,7 @@ L'énergie n'est **pas un stock consommable** : c'est une **capacité installée
 ### Expansion — conquête
 - Une planète colonisée (non originelle) peut être **conquise définitivement** par un autre joueur ou une faction IA.
 - La conquête transfère la propriété de la planète avec tous ses bâtiments.
-- Les planètes IA (Varek, Elyrans, Nexhari) sont conquérables selon les mêmes règles, avec des spécificités par faction (voir section 8).
+- Les planètes IA (Varek, Elyrans, Nexhianti) sont conquérables selon les mêmes règles, avec des spécificités par faction (voir section 8).
 
 ### Protection contre les abus
 - **Range de points** : un joueur ne peut pas attaquer un joueur dont les points sont trop inférieurs aux siens. Cela protège les nouveaux joueurs sans les rendre intouchables indéfiniment.
@@ -309,7 +322,7 @@ L'énergie n'est **pas un stock consommable** : c'est une **capacité installée
 |---|---|---|---|---|
 | **Varek** | L'Empire Varek | Agressive, expansionniste | Raids fréquents, cible les joueurs faibles | Hostile par défaut, hostilité croissante avec les points du joueur |
 | **Elyrans** | La Confédération Elyrans | Neutre, technologiquement avancée | Jamais agressive sauf provocation | Neutre par défaut, réputation améliorable par le commerce |
-| **Nexhari** | Les Nexhari | Menace globale, chaotique | Expansion par vagues, phases de rétractation | Aucune diplomatie possible |
+| **Nexhianti** | Les Nexhianti | Menace globale, chaotique | Expansion par vagues, phases de rétractation | Aucune diplomatie possible |
 
 ---
 
@@ -354,17 +367,17 @@ L'énergie n'est **pas un stock consommable** : c'est une **capacité installée
 
 ---
 
-### Les Nexhari
+### Les Nexhianti
 
-**Identité** : entité collective, sans diplomatie, sans territoire permanent. S'étendent, consomment, se rétractent. Leur logique est écologique, pas politique. Aucune structure, aucun nom propre — juste les Nexhari.
+**Identité** : entité collective, sans diplomatie, sans territoire permanent. S'étendent, consomment, se rétractent. Leur logique est écologique, pas politique. Aucune structure, aucun nom propre — juste les Nexhianti.
 
 **Présence sur la carte** : pas de planètes fixes. Colonisent dynamiquement des planètes vides ou faiblement défendues lors de leurs phases d'expansion. Repartent de planètes vides lors des événements de reconstitution.
 
 **Comportement — phases cycliques** :
 1. **Phase d'expansion** : colonisent agressivement des planètes vides, attaquent les planètes isolées. Déclenchée par un seuil (ex : nombre de planètes joueurs actifs, temps écoulé depuis la dernière vague).
 2. **Phase de consolidation** : renforcent les planètes colonisées, moins d'attaques actives.
-3. **Événement global** : si les Nexhari atteignent un seuil de planètes contrôlées, un événement global est déclenché — alerte tous les joueurs et force la coopération inter-alliances pour les repousser.
-4. **Phase de rétractation** : après une défaite collective ou l'événement global résolu, les Nexhari perdent leurs planètes et se reconstituent à partir de planètes vides.
+3. **Événement global** : si les Nexhianti atteignent un seuil de planètes contrôlées, un événement global est déclenché — alerte tous les joueurs et force la coopération inter-alliances pour les repousser.
+4. **Phase de rétractation** : après une défaite collective ou l'événement global résolu, les Nexhianti perdent leurs planètes et se reconstituent à partir de planètes vides.
 
 **Diplomatie** : aucune. Réputation sans effet. Aucun échange possible.
 
@@ -376,12 +389,12 @@ L'énergie n'est **pas un stock consommable** : c'est une **capacité installée
 - Les règles de décision (qui attaquer, quand, avec quoi) sont codées en Ruby (scripts).
 - Le LLM intervient pour :
   - Choisir parmi les actions disponibles selon le contexte (état des ressources, carte, joueurs voisins)
-  - Générer les messages narratifs des factions (déclarations de guerre, propositions commerciales, alertes Nexhari)
+  - Générer les messages narratifs des factions (déclarations de guerre, propositions commerciales, alertes Nexhianti)
   - Donner de la variété et de la personnalité aux décisions sans les rendre imprévisibles au point de casser l'équilibrage
 
 **Phase 2 — Agents ReAct autonomes (évolution)**
 - Migration faction par faction vers des agents plus autonomes.
-- Candidat naturel pour la première migration : **les Nexhari** (comportement chaotique, imprévisible par design, pas de diplomatie à gérer).
+- Candidat naturel pour la première migration : **les Nexhianti** (comportement chaotique, imprévisible par design, pas de diplomatie à gérer).
 - Les agents perçoivent l'état du jeu, raisonnent et planifient de façon autonome.
 
 ---
@@ -392,7 +405,7 @@ L'énergie n'est **pas un stock consommable** : c'est une **capacité installée
 - Une **alliance** est un regroupement de joueurs avec une identité commune — équivalent des alliances dans Ogame.
 - Chaque joueur peut créer ou rejoindre une alliance, ou rester **solo** (pleinement viable mais sans les avantages du collectif).
 - Le **type** de l'alliance fait partie de son nom et est choisi librement par ses membres : Empire, Alliance, Confédération, République, Collectif, etc.
-- Les trois factions IA sont des entités permanentes de la carte avec leurs propres identités : l'Empire Varek, la Confédération Elyrans, les Nexhari.
+- Les trois factions IA sont des entités permanentes de la carte avec leurs propres identités : l'Empire Varek, la Confédération Elyrans, les Nexhianti.
 
 ### Relations entre alliances
 Les alliances humaines peuvent définir des statuts diplomatiques entre elles :
@@ -408,19 +421,72 @@ Les alliances humaines peuvent définir des statuts diplomatiques entre elles :
 
 ---
 
-## 10. Architecture technique & agents IA
+## 10. Interface — Page planète
+
+La page planète est la page principale du jeu. Le joueur y revient en permanence pour gérer ses bâtiments, surveiller ses ressources et préparer ses flottes.
+
+### Structure générale
+
+La page se compose de quatre zones :
+
+- **Barre de navigation** (en haut) : accès aux sections Planète, Galaxie, Flottes, Diplomatie, Classement
+- **Barre de ressources** (permanente) : Énergie (capacité installée/max + jauge), Métal, Nourriture, Thorium — valeurs calculées à la volée, taux de production affiché
+- **En-tête planète** : nom, coordonnées `[x : y]`, badge "Origine" si `is_home`, actions rapides (Envoyer flotte, Espionner, Coloniser)
+- **Zone centrale** : vue orbitale ou liste des bâtiments (toggle)
+- **Panneau latéral droit** : détail du bâtiment sélectionné (upgrade), file de construction, résumé des flottes, alertes
+
+### Vue orbitale (défaut desktop)
+
+La planète est représentée en SVG inline, centrée dans la zone d'affichage sur un fond étoilé. Un anneau orbital en pointillés entoure la planète pour matérialiser l'espace orbital.
+
+**Emplacements de bâtiments** : 12 emplacements fixes répartis sur la planète, dont 1 orbital (satellite radar, positionné sur l'anneau hors de la planète). Tous les emplacements sont visibles dès le début — libres ou occupés.
+
+**Placement libre** : le joueur choisit sur quel emplacement construire chaque bâtiment. Une fois posé, le bâtiment ne bouge plus. Clic sur un emplacement libre → dropdown de sélection parmi les bâtiments disponibles non encore construits.
+
+**Pins de bâtiments** : chaque bâtiment construit est représenté par un pin cliquable. L'apparence du pin évolue avec le niveau :
+
+| Niveau | Taille | Icône | Style |
+|---|---|---|---|
+| 1–2 | 28px | Outline (70% opacité) | Bordure fine |
+| 3–4 | 32px | Pleine (100%) | Bordure normale |
+| 5+ | 36px | Pleine + halo pulsé | Bordure accentuée + animation CSS |
+
+Le halo de niveau 5+ est une animation `@keyframes` CSS sur le `box-shadow` — pas de librairie externe. La couleur d'icône varie selon la catégorie du bâtiment (énergie → or, militaire → rouge, orbital → cyan, etc.). Un bâtiment en cours d'amélioration affiche une barre de progression animée sous son pin.
+
+**Clic sur un pin** → sélection du bâtiment, affichage du détail dans le panneau droit (coûts de l'upgrade suivant, ressources disponibles/manquantes colorées, durée estimée, bouton lancer).
+
+### Vue liste (mobile et préférence joueur)
+
+Toggle en haut de la zone centrale. Bâtiments groupés par catégorie (Énergie, Production, Infrastructure, Militaire, Stockage). Même interaction clic → panneau droit. Vue liste par défaut sur mobile, vue orbitale par défaut sur desktop. Le choix est mémorisé côté client.
+
+### File de construction
+
+Un seul bâtiment peut être en construction à la fois (un slot, extensible via recherche technologique). La file est visible dans le panneau droit avec le temps restant et la barre de progression (timer live via Turbo Streams).
+
+---
+
+## 11. Architecture technique & agents IA
 
 ### Stack technique
-*La stack suivante est une proposition de départ. Les choix définitifs seront arrêtés en fonction des besoins identifiés lors du développement.*
+*Stack confirmée et en cours d'implémentation.*
 
-| Composant | Technologie envisagée |
+| Composant | Technologie |
 |---|---|
-| Backend | Ruby on Rails |
-| Frontend | Hotwire / Turbo (à confirmer selon besoins d'interactivité) |
+| Backend | Ruby on Rails 8 |
+| Frontend socle | Hotwire (Turbo + Stimulus) |
+| Build JS | Vite (`vite_rails`) |
+| CSS | Tailwind CSS |
+| Frontend complexe | React (islands) |
+| Carte galaxie | Pixi.js (WebGL) |
 | Base de données | PostgreSQL |
 | Jobs asynchrones | Sidekiq |
-| IA en jeu | API LLM — microservice Python en phase 2 si nécessaire |
-| Carte galaxie | Canvas 2D (coordonnées x/y, rendu côté client) |
+| Temps réel | ActionCable + Turbo Streams |
+| Authentification | `rails generate authentication` (Rails 8 natif) |
+| IA en jeu | API Anthropic |
+| Observabilité LLM | Langfuse |
+| Mobile | Capacitor (PWA → App Store / Google Play) |
+| Déploiement | Docker Compose (dev) + Kamal (prod) |
+| Hébergement | Infomaniak VPS Lite — worldofstars.fr |
 
 ### Gestion du temps de jeu
 - **Production de ressources** : continue, calculée à la volée (`last_updated_at`)
@@ -435,7 +501,7 @@ L'IA est utilisée comme outil de développement à tous les niveaux, au-delà d
 - **Claude Code** : développement assisté, génération de code, refactoring
 - **Revue de code** : analyse et suggestions via Claude
 - **Tests automatisés** : génération de cas de test, notamment pour les formules d'équilibrage (combat, exploration)
-- **Génération de contenu** : noms de planètes, descriptions de missions d'exploration, événements narratifs Nexhari
+- **Génération de contenu** : noms de planètes, descriptions de missions d'exploration, événements narratifs Nexhianti
 - **Support joueurs** : agent capable de répondre aux questions sur les règles du jeu
 - **Équilibrage assisté** : analyse des données de jeu et suggestions d'ajustements de paramètres
 - **SEO / marketing** : génération de contenu, optimisation
@@ -443,7 +509,7 @@ L'IA est utilisée comme outil de développement à tous les niveaux, au-delà d
 
 ---
 
-## 11. Questions ouvertes & équilibrage futur
+## 12. Questions ouvertes & équilibrage futur
 
 Ces points sont intentionnellement non tranchés dans cette version du document. Ils seront résolus lors des phases de développement et de test.
 
@@ -454,7 +520,7 @@ Ces points sont intentionnellement non tranchés dans cette version du document.
 | Capacité du bunker | À équilibrer | Doit protéger sans éliminer tout le risque |
 | Modificateur alliance sur la réputation Elyrans | À définir | Principe acté, valeurs à équilibrer |
 | Seuil minimum de planètes Varek/Elyrans | À définir | Garantit la survie des factions, valeur à fixer selon la taille du serveur |
-| Seuils de déclenchement des vagues Nexhari | À définir | Basé sur nombre de planètes contrôlées ou temps |
+| Seuils de déclenchement des vagues Nexhianti | À définir | Basé sur nombre de planètes contrôlées ou temps |
 | Fenêtre de vulnérabilité | **Supprimée** | Remplacée par le système bunker |
 | Rôle de l'or et des archéologues | À creuser | Mécanique intéressante, à définir en v2 |
 | Monétisation | À définir en v2 | Hors scope pour le développement initial |
@@ -464,7 +530,7 @@ Ces points sont intentionnellement non tranchés dans cette version du document.
 
 ---
 
-## 12. Annexes — À définir
+## 13. Annexes
 
 ### Annexe A — Arbre technologique
 *À construire.*
@@ -491,6 +557,52 @@ Types connus à ce stade : unités légères, unités lourdes, scientifiques, ar
 *À construire lors des phases de test.*
 
 Inclura : coûts de construction par niveau de bâtiment, coûts de recherche technologique, coûts de production des unités et vaisseaux, taux de production des mines et champs selon le niveau.
+
+### Annexe E — Palette de couleurs & identité visuelle
+
+Direction artistique : sci-fi sombre et immersif. Interface sobre avec des accents colorés porteurs de sens (faction, statut, catégorie).
+
+```css
+:root {
+  /* Fonds */
+  --color-space-bg: #0d0e12;     /* fond principal — espace */
+  --color-space-bg-2: #14151c;   /* fond secondaire */
+  --color-surface: #1c1d27;      /* cartes, panneaux */
+  --color-border: #2a2b38;       /* bordures */
+
+  /* Typographie */
+  --color-text: #e8e4d8;         /* texte principal */
+  --color-text-muted: #a09e96;   /* texte secondaire */
+  --color-text-subtle: #5e5d58;  /* texte discret, emplacements vides */
+
+  /* Interface */
+  --color-primary: #c8a96e;      /* or/ambre — accent principal, énergie */
+  --color-secondary: #4e8faf;    /* bleu-gris — infrastructure, secondaire */
+  --color-quantum: #2ec4a0;      /* cyan-vert — portail quantique, orbital */
+
+  /* Factions */
+  --color-varek: #e8622a;        /* orange-rouge */
+  --color-varek-dark: #a83d16;
+  --color-varek-bg: #1a0e0a;
+  --color-elyrans: #5bc4d4;      /* bleu clair */
+  --color-elyrans-dark: #2e91a4;
+  --color-elyrans-bg: #080f18;
+  --color-nexhianti: #b87fe8;    /* violet */
+  --color-nexhianti-dark: #8448c2;
+  --color-nexhianti-bg: #0e0914;
+}
+```
+
+**Codage couleur des catégories de bâtiments (pins vue orbitale) :**
+
+| Catégorie | Couleur |
+|---|---|
+| Énergie | `--color-primary` (or) |
+| Production | `--color-secondary` (bleu-gris) |
+| Infrastructure | `--color-secondary` |
+| Militaire | `--color-varek` (orange-rouge) |
+| Stockage | `--color-text-muted` (gris) |
+| Orbital (satellite radar) | `--color-quantum` (cyan) |
 
 ---
 
