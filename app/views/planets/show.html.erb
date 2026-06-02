@@ -1,9 +1,7 @@
 <% provide(:title, "World of Stars - " + @planet.name) %>
 
-<h1><%= @planet.name %></h1>
-
-<aside id="resources_bar" class="sticky top-0 z-50 border-b border-border bg-space-bg-2/95 backdrop-blur-sm">
-  <div class="mx-auto grid grid-cols-2 gap-5 p-5 sm:flex sm:items-center sm:px-4 sm:py-2 sm:text-sm">
+<div id="resources_bar" class="sticky top-0 z-50 border-b border-border bg-space-bg-2/95 backdrop-blur-sm">
+  <div class="mx-auto grid grid-cols-2 gap-5 p-5 sm:flex sm:items-center sm:px-4 sm:py-2 sm:text-sm scifi-text">
 
     <%# Énergie %>
     <%
@@ -96,6 +94,18 @@
     </div>
 
   </div>
-</aside>
+</div>
+
+<div class="scifi-text flex px-5">
+  <div class="flex flex-col gap-1">
+    <div>
+    <%= @planet.name %>
+    <% if @planet.is_home %>
+      <span class="inline-flex items-center rounded-md bg-blue-950 px-2 py-1 text-xs font-medium text-blue-500 inset-ring inset-ring-blue-700/10">Origine</span>
+    <% end %>
+    </div>
+    <span>[ <%= @planet.coord_x %> : <%= @planet.coord_y %> ]
+  </div>
+</div>
 
 <%= render 'orbital_view' %>
