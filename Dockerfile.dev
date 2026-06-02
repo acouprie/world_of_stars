@@ -1,17 +1,17 @@
 FROM ruby:3.4
 
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y \
-      build-essential \
-      git \
-      libpq-dev \
-      libvips \
-      libyaml-dev \
-      pkg-config \
-      postgresql-client && \
-    curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
-    apt-get install --no-install-recommends -y nodejs && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+  apt-get install --no-install-recommends -y \
+  build-essential \
+  git \
+  libpq-dev \
+  libvips \
+  libyaml-dev \
+  pkg-config \
+  postgresql-client && \
+  curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
+  apt-get install --no-install-recommends -y nodejs && \
+  rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 RUN gem install bundler:4.0.12 foreman
 
@@ -27,4 +27,4 @@ COPY package.json package-lock.json* ./
 RUN npm install && chmod -R a+w /rails/node_modules
 
 EXPOSE 3000
-CMD ["./bin/rails", "server", "-b", "0.0.0.0"]
+CMD ["foreman", "start"]
