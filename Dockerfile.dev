@@ -13,7 +13,7 @@ RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y nodejs && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
-RUN gem install bundler:4.0.12
+RUN gem install bundler:4.0.12 foreman
 
 WORKDIR /rails
 
@@ -24,7 +24,7 @@ COPY Gemfile Gemfile.lock* ./
 RUN bundle install
 
 COPY package.json package-lock.json* ./
-RUN npm install
+RUN npm install && chmod -R a+w /rails/node_modules
 
 EXPOSE 3000
 CMD ["./bin/rails", "server", "-b", "0.0.0.0"]
