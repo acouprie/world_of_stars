@@ -1,7 +1,6 @@
 fr:
   home:
     index:
-      connected_as: "Connecté en tant que %{email}"
       logout: "Se déconnecter"
       email_placeholder: "Adresse e-mail"
       password_placeholder: "Mot de passe"

@@ -1,7 +1,6 @@
 en:
   home:
     index:
-      connected_as: "Logged in as %{email}"
       logout: "Log out"
       email_placeholder: "Email address"
       password_placeholder: "Password"
