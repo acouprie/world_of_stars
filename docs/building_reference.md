@@ -53,9 +53,9 @@ Les 15 bâtiments distincts occupent exactement 15 slots — le joueur ne choisi
 
 ### Command Center — prérequis de niveau
 
-Le niveau du CC plafonne le niveau maximum accessible pour chaque bâtiment. Un bâtiment ne peut pas dépasser le plafond autorisé par le CC, même si les ressources sont disponibles.
+Le niveau du Centre de Commandement plafonne le niveau maximum accessible pour chaque bâtiment. Un bâtiment ne peut pas dépasser le plafond autorisé par le Centre de Commandement, même si les ressources sont disponibles.
 
-| CC niv | solar | nuclear | mines/farm | stockage | research_lab | portal | radar | training | military | ship | bunker |
+| Centre de Commandement niv | solar | nuclear | mines/farm | stockage | research_lab | portal | radar | training | military | ship | bunker |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 1  | niv 3  | —      | niv 3  | niv 3  | —      | —      | —      | niv 1  | —      | —      | —      |
 | 2  | —      | —      | niv 5  | niv 6  | niv 1  | —      | —      | —      | niv 1  | —      | niv 1  |
@@ -71,10 +71,10 @@ Le niveau du CC plafonne le niveau maximum accessible pour chaque bâtiment. Un 
 | 13 | —      | —      | niv 20 | —      | —      | —      | —      | —      | —      | —      | —      |
 
 **Points de design notables :**
-- Le radar niv 10 (vision totale) et la ship_factory niv 15 (vaisseaux end game) requièrent CC niv 11 — objectifs de très long terme.
-- La nuclear_plant s'ouvre à CC niv 5 — c'est un bâtiment mid-game.
-- Le portail quantique s'ouvre à CC niv 4 — décision stratégique tôt dans la partie.
-- Le labo de recherche s'ouvre à CC niv 2 — accéder à l'arbre techno est une priorité early game.
+- Le radar niv 10 (vision totale) et la ship_factory niv 15 (vaisseaux end game) requièrent Centre de Commandement niv 11 — objectifs de très long terme.
+- La nuclear_plant s'ouvre à Centre de Commandement niv 5 — c'est un bâtiment mid-game.
+- Le portail quantique s'ouvre à Centre de Commandement niv 4 — décision stratégique tôt dans la partie.
+- Le labo de recherche s'ouvre à Centre de Commandement niv 2 — accéder à l'arbre techno est une priorité early game.
 
 ---
 
@@ -152,7 +152,7 @@ end
 | 9 | ~85% de la composition révélée |
 | **10** | **100% — vision totale, aucun fog of war** |
 
-Le niveau 10 est end game (CC niv 11 requis). C'est le seul niveau qui révèle tout sans exception.
+Le niveau 10 est end game (Centre de Commandement niv 11 requis). C'est le seul niveau qui révèle tout sans exception.
 
 ---
 
@@ -440,7 +440,7 @@ Le niveau 10 est end game (CC niv 11 requis). C'est le seul niveau qui révèle 
 | 9  | 2 048 000  | 2 048 000    | 4 096 000    | + ~85% composition approche | 4h 14m  |
 | 10 | 4 096 000  | 4 096 000    | 8 192 000    | **Vision totale — 100%, aucun fog of war** | 8h 04m  |
 
-*Niveau 10 requis : CC niv 11. C'est un objectif end game.*
+*Niveau 10 requis : Centre de Commandement niv 11. C'est un objectif end game.*
 
 ---
 
@@ -528,7 +528,7 @@ Le niveau 10 est end game (CC niv 11 requis). C'est le seul niveau qui révèle 
 - Vitesse de formation des unités dans military_camp et training_camp : slots parallèles selon le niveau à définir.
 - Coût d'utilisation du portail quantique (thorium par trajet) : toujours non tranché (voir questions ouvertes GDD).
 - Niveaux 9-10 du training_camp : unités d'élite et spéciales à définir en Annexe C du GDD.
-- Les CC requirements sont des paliers (CC niv X → bâtiment niv Y max) : à implémenter comme une table de lookup dans le modèle `Building`.
+- Les Centre de Commandement requirements sont des paliers (Centre de Commandement niv X → bâtiment niv Y max) : à implémenter comme une table de lookup dans le modèle `Building`.
 - Le radar niv 10 coûte 4M métal + 4M nourriture + 8M thorium : vérifier que ce n'est pas prohibitif au point de ne jamais être construit, ou assumer que c'est un objectif d'alliance.
 
 ---

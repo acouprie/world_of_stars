@@ -132,19 +132,19 @@ RSpec.describe Constructions::InitiateService do
   end
 
   describe "#call — level prerequisite gating" do
-    # solar_station level 4 requires CC level 3
+    # solar_station level 4 requires Command Center level 3
     before do
       create(:building, planet: planet, building_type: "command_center", level: 1)
       create(:building, planet: planet, building_type: "solar_station",  level: 3)
     end
 
-    it "blocks upgrade when CC level is below the tier threshold" do
+    it "blocks upgrade when Command Center level is below the tier threshold" do
       result = described_class.new(planet, :solar_station).call
       expect(result.success?).to be false
       expect(result.error).to eq("prerequisite_missing")
     end
 
-    it "allows upgrade once CC is at the required level" do
+    it "allows upgrade once Command Center is at the required level" do
       planet.buildings.find_by(building_type: "command_center").update!(level: 3)
       result = described_class.new(planet, :solar_station).call
       expect(result.success?).to be true

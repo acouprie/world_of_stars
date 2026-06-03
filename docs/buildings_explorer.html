@@ -111,7 +111,7 @@
   /* Bunker */
   .bunker-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
-  /* CC requirements */
+  /* Command Center requirements */
   .cc-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1rem; }
   .cc-card h3 { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
   .cc-table { width: 100%; border-collapse: collapse; font-size: 12px; }
@@ -195,7 +195,7 @@ const CC_REQ = {
 const BUILDINGS = {
   solar_station:{name:'Station solaire',cat:'energy',levels:13,note:'Énergie accessible dès le début. +53 ⚡ par niveau. Plafond 691 ⚡ au niv 13.',data:[
     [50,25,0,0,55,90],[75,37,0,0,108,171],[112,56,0,0,161,325],[168,84,0,0,214,617],[253,126,0,0,267,1172],[379,189,0,0,320,2228],[569,284,0,0,373,4234],[854,427,0,0,426,8045],[1281,640,0,0,479,15285],[1922,961,0,0,532,29042],[2883,1441,0,0,585,55179],[4324,2162,0,0,638,104841],[6487,3243,0,0,691,199198]]},
-  nuclear_plant:{name:'Centrale nucléaire',cat:'energy',levels:10,note:'3× plus puissante que la solar à niv équivalent. Coût ×20. Disponible CC niv 5.',data:[
+  nuclear_plant:{name:'Centrale nucléaire',cat:'energy',levels:10,note:'3× plus puissante que la solar à niv équivalent. Coût ×20. Disponible Centre de Commandement niv 5.',data:[
     [1200,900,0,0,119,150],[2280,1710,0,0,150,360],[4332,3249,0,0,198,617],[8230,6173,0,0,271,1103],[15638,11728,0,0,378,2030],[29713,22284,0,0,534,3789],[56455,42341,0,0,758,7132],[107264,80448,0,0,1078,13483],[203802,152852,0,0,1531,25550],[387225,290418,0,0,2167,48478]]},
   metal_mine:{name:'Mine de métal',cat:'production',levels:20,note:'Ressource principale. Énergie +24/niveau. 15 355 métal/h au max.',data:[
     [60,20,0,11,24,53],[105,30,0,46,57,95],[157,45,0,70,103,170],[236,67,0,94,165,306],[354,101,0,118,248,551],[531,151,0,142,358,992],[797,227,0,166,501,1785],[1196,341,0,190,687,3214],[1794,512,0,214,928,5785],[2691,768,0,238,1238,10414],[4036,1153,0,262,1634,18745],[6054,1729,0,286,2139,33740],[9082,2594,0,310,2781,60734],[13623,3892,0,334,3594,109320],[20435,5838,0,358,4622,196777],[30652,8757,0,382,5916,354198],[45978,13136,0,406,7543,637557],[68968,19705,0,430,9584,1147604],[103452,29557,0,454,12140,2065686],[155178,44336,0,478,15355,3718235]]},
@@ -211,19 +211,19 @@ const BUILDINGS = {
     [30,100,0,0,21000,49],[45,150,0,0,28000,92],[67,225,0,0,47000,176],[101,337,0,0,84000,262],[151,506,0,0,145000,635],[227,759,0,0,236000,1207],[341,1139,0,0,363000,2293],[512,1708,0,0,532000,4358],[768,2562,0,0,749000,8279],[1153,3844,0,0,1020000,15731],[1729,5766,0,0,1351000,29888],[2594,8649,0,0,1748000,56789],[3892,12974,0,0,2217000,107899],[5838,19461,0,0,2764000,205008],[8757,29192,0,0,3395000,389516],[13136,43789,0,0,4116000,986773],[19705,65684,0,0,4933000,1874869],[29557,98526,0,0,5852000,3562251],[44336,147789,0,0,6879000,6768277],[66505,221683,0,0,8020000,12859727]]},
   command_center:{name:'Centre de commandement',cat:'infrastructure',levels:13,note:'Prérequis universel. Niv 1 accessible (50 métal). Son niveau plafonne tous les autres bâtiments.',data:[
     [50,25,0,0,0,90],[1260,315,0,0,0,428],[2646,661,0,0,0,812],[5556,1389,0,0,0,1543],[11668,2917,0,0,0,2932],[24504,6126,0,0,0,5571],[51549,12864,0,0,0,10585],[108865,27016,0,0,0,20112],[226937,56734,0,0,0,38213],[476568,119142,0,0,0,72605],[1000792,250168,0,0,0,137948],[2101665,525416,0,0,0,262103],[4413496,1103374,0,0,0,434276]]},
-  research_lab:{name:'Laboratoire de recherche',cat:'infrastructure',levels:10,note:'Requiert du thorium dès niv 1. Débloque l\'arbre technologique. CC niv 2 requis.',data:[
+  research_lab:{name:'Laboratoire de recherche',cat:'infrastructure',levels:10,note:'Requiert du thorium dès niv 1. Débloque l\'arbre technologique. Centre de Commandement niv 2 requis.',data:[
     [300,100,250,0,0,60],[600,200,500,0,0,114],[1200,400,1000,0,0,216],[2400,800,2000,0,0,411],[4800,1600,4000,0,0,782],[8000,3200,8000,0,0,1485],[16000,6400,16000,0,0,2822],[38400,12800,32000,0,0,5363],[76800,25600,64000,0,0,10190],[153000,51200,128000,0,0,19361]]},
-  quantum_portal:{name:'Portail quantique',cat:'infrastructure',levels:10,note:'Investissement massif. Sans portail = immunité aux attaques portail. CC niv 4 requis.',data:[
+  quantum_portal:{name:'Portail quantique',cat:'infrastructure',levels:10,note:'Investissement massif. Sans portail = immunité aux attaques portail. Centre de Commandement niv 4 requis.',data:[
     [2500,2500,7500,33,0,750],[5000,5000,15000,68,0,1500],[10000,10000,30000,103,0,3000],[20000,20000,60000,138,0,6000],[40000,40000,120000,173,0,12000],[80000,80000,240000,208,0,24000],[160000,160000,480000,243,0,48000],[320000,320000,960000,278,0,96000],[640000,640000,1920000,313,0,192000],[1280000,1280000,3840000,348,0,348000]]},
-  radar_satellite:{name:'Satellite radar',cat:'infrastructure',levels:10,note:'0 énergie (panneaux solaires). Vision totale au niv 10 (CC niv 11 requis — objectif end game).',
+  radar_satellite:{name:'Satellite radar',cat:'infrastructure',levels:10,note:'0 énergie (panneaux solaires). Vision totale au niv 10 (Centre de Commandement niv 11 requis — objectif end game).',
     radar:['Présence flotte en orbite','+ Pseudo du propriétaire','+ Composition orbite complète','+ Présence flotte en approche','+ Pseudo flotte en approche','+ Distance (loin/proche/imminent)','+ ~35% composition approche','+ ~65% composition approche','+ ~85% composition approche','★ Vision totale — 100%, aucun fog of war'],
     data:[[8000,8000,16000,0,0,90],[16000,16000,32000,0,0,171],[32000,32000,64000,0,0,325],[64000,64000,128000,0,0,617],[128000,128000,256000,0,0,1172],[256000,256000,512000,0,0,2228],[512000,512000,1024000,0,0,4234],[1024000,1024000,2048000,0,0,8045],[2048000,2048000,4096000,0,0,15285],[4096000,4096000,8192000,0,0,29042]]},
   training_camp:{name:'Camp d\'entraînement',cat:'military',levels:10,note:'Débloque les unités selon le niveau. Niv 5-8 = scientifiques, archéologues, Malp, UAV.',
     unlocks:['Unités légères','Légères améliorées','Unités lourdes','Lourdes améliorées','Scientifiques','Archéologues','Malp','UAV','Élite (à définir)','Spéciales (à définir)'],
     data:[[250,250,100,20,0,45],[500,500,128,35,0,86],[1000,1000,400,50,0,162],[1344,1344,800,65,0,308],[2688,4000,1024,80,0,1114],[5376,5376,2048,95,0,2030],[10752,10752,4092,110,0,2717],[21504,21504,8192,125,0,4022],[43008,43008,16384,135,0,7646],[86016,86016,32768,150,0,14521]]},
-  military_camp:{name:'Camp militaire',cat:'military',levels:10,note:'Slots de formation et vitesse de production d\'unités. CC niv 2 requis.',data:[
+  military_camp:{name:'Camp militaire',cat:'military',levels:10,note:'Slots de formation et vitesse de production d\'unités. Centre de Commandement niv 2 requis.',data:[
     [300,200,150,30,0,45],[600,400,300,50,0,86],[1200,800,600,70,0,162],[2400,1600,1200,90,0,308],[4800,3200,2400,110,0,1114],[9600,6400,4800,130,0,2030],[19200,12800,9600,155,0,2717],[38400,25600,19200,175,0,4022],[76800,51200,38400,185,0,7646],[153600,102400,76800,200,0,14521]]},
-  ship_factory:{name:'Usine spatiale',cat:'military',levels:15,note:'Très intensive en thorium. Chaque niveau débloque des vaisseaux. CC niv 11 pour niv 15.',data:[
+  ship_factory:{name:'Usine spatiale',cat:'military',levels:15,note:'Très intensive en thorium. Chaque niveau débloque des vaisseaux. Centre de Commandement niv 11 pour niv 15.',data:[
     [250,100,320,50,0,60],[500,200,640,90,0,114],[1000,400,1280,130,0,216],[2000,800,2560,165,0,411],[4000,1600,5120,205,0,782],[8000,3200,10240,245,0,1485],[16000,6400,20480,285,0,2822],[32000,12800,40960,325,0,5363],[64000,25600,81920,365,0,10190],[128000,51200,163840,405,0,19361],[256000,102400,327680,445,0,36786],[512000,204000,655360,480,0,69894],[1024000,409600,1310720,520,0,132799],[2048000,819200,2621440,560,0,216317],[4096000,1638400,5242880,600,0,479404]]},
   bunker:{name:'Bunker',cat:'military',levels:10,note:'Protection globale partagée (métal+nourriture+thorium). Ralentit en late pour garder le risque réel.',
     bunker_res:[5000,12000,25000,50000,100000,175000,275000,375000,450000,500000],
@@ -288,7 +288,7 @@ function renderDetail(){
   let ccHtml='';
   const req=CC_REQ[selBuilding];
   if(req&&req.length>0){
-    ccHtml=`<div class="cc-card"><h3>Prérequis Centre de commandement</h3><table class="cc-table">${req.map(([cc,bmax])=>`<tr><td>CC niv ${cc}</td><td>→ ${b.name.split(' ')[0]} niv ${bmax} max</td></tr>`).join('')}</table></div>`;
+    ccHtml=`<div class="cc-card"><h3>Prérequis Centre de commandement</h3><table class="cc-table">${req.map(([cc,bmax])=>`<tr><td>Centre de Commandement niv ${cc}</td><td>→ ${b.name.split(' ')[0]} niv ${bmax} max</td></tr>`).join('')}</table></div>`;
   }
 
   let radarHtml='';

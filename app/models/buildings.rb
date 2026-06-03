@@ -3,7 +3,7 @@ module Buildings
   #
   # Fields per level:
   #   metal, food, thorium   — build cost
-  #   energy_consumed        — permanent energy draw at this level (0 for storage, radar, bunker, CC, lab)
+  #   energy_consumed        — permanent energy draw at this level (0 for storage, radar, bunker, Command Center, lab)
   #   production             — meaning varies by category:
   #                              :energy    → ⚡ produced (Integer)
   #                              :production → resource units/hour (Integer)
@@ -15,7 +15,7 @@ module Buildings
   # Categories: :energy, :production, :storage, :infrastructure, :orbital, :military
   # The :orbital category is reserved for radar_satellite (single slot on the orbital ring).
   #
-  # LEVEL_PREREQUISITES (below REGISTRY) maps each building to the CC (or other) level
+  # LEVEL_PREREQUISITES (below REGISTRY) maps each building to the Command Center (or other) level
   # required to unlock each tier of levels.
   REGISTRY = {
     # ─── Energy ───────────────────────────────────────────────────────────────
@@ -298,7 +298,7 @@ module Buildings
       #   7 → ~35% of incoming composition revealed
       #   8 → ~65% of incoming composition revealed
       #   9 → ~85% of incoming composition revealed
-      #  10 → 100% full vision, no fog of war (requires CC level 11)
+      #  10 → 100% full vision, no fog of war (requires Command Center level 11)
       levels: [
         { metal: 8_000,     food: 8_000,     thorium: 16_000,    energy_consumed: 0, production: 0, time: 90     },
         { metal: 16_000,    food: 16_000,    thorium: 32_000,    energy_consumed: 0, production: 0, time: 171    },
@@ -443,8 +443,8 @@ module Buildings
   end
 
   # Converts LEVEL_PREREQUISITES into a flat { building_level => cc_level } map per building,
-  # suitable for the buildings-explorer JS controller (which only renders CC prerequisites).
-  # Non-CC prerequisites (other buildings, future technologies) are intentionally ignored here —
+  # suitable for the buildings-explorer JS controller (which only renders Command Center prerequisites).
+  # Non-Command Center prerequisites (other buildings, future technologies) are intentionally ignored here —
   # they will need their own display mechanism when implemented.
   def self.cc_requirements
     LEVEL_PREREQUISITES.each_with_object({}) do |(building, thresholds), result|
@@ -453,7 +453,7 @@ module Buildings
       flat = {}
       sorted.each_with_index do |(min_level, prereq), i|
         cc_level = prereq[:command_center]
-        next unless cc_level  # skip thresholds that have no CC prerequisite
+        next unless cc_level  # skip thresholds that have no Command Center prerequisite
         next_min = sorted[i + 1]&.first || (max_level + 1)
         (min_level...next_min).each { |l| flat[l] = cc_level }
       end

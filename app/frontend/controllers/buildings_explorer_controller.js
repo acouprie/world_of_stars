@@ -132,6 +132,10 @@ export default class extends Controller {
     return this.buildingNamesValue[key] || key
   }
 
+  getCommandCenterName() {
+    return this.getBuildingName('command_center')
+  }
+
   getProductionValue(buildingKey, level) {
     // For energy buildings, return production value
     if (['solar_station', 'nuclear_plant'].includes(buildingKey)) {
@@ -321,7 +325,7 @@ export default class extends Controller {
     const req = this.CC_REQ[this.selBuilding]
     if (req && req.length > 0) {
       const buildingName = b.name.split(' ')[0]
-      ccHtml = `<div class="cc-card"><h3>${this.t('cc_requirements', 'Prérequis Centre de Commandement')}</h3><table class="cc-table">${req.map(([cc, bmax]) => `<tr><td>CC niv ${cc}</td><td>→ ${buildingName} niv ${bmax} max</td></tr>`).join('')}</table></div>`
+      ccHtml = `<div class="cc-card"><h3>${this.t('cc_requirements', 'Prérequis Centre de Commandement')}</h3><table class="cc-table">${req.map(([cc, bmax]) => `<tr><td>${this.getCommandCenterName()} niv ${cc}</td><td>→ ${buildingName} niv ${bmax} max</td></tr>`).join('')}</table></div>`
     }
 
     let radarHtml = ''

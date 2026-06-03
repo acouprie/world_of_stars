@@ -184,13 +184,13 @@ RSpec.describe Planet, type: :model do
       expect(planet.available_building_types).not_to include(:solar_station)
     end
 
-    it "does not include nuclear_plant when CC is only level 1 (requires CC level 5)" do
+    it "does not include nuclear_plant when Command Center is only level 1 (requires Command Center level 5)" do
       create(:building, planet: planet, building_type: "command_center", level: 1)
       planet.buildings.reload
       expect(planet.available_building_types).not_to include(:nuclear_plant)
     end
 
-    it "unlocks nuclear_plant once CC reaches level 5" do
+    it "unlocks nuclear_plant once Command Center reaches level 5" do
       create(:building, planet: planet, building_type: "command_center", level: 5)
       planet.buildings.reload
       expect(planet.available_building_types).to include(:nuclear_plant)
