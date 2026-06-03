@@ -20,7 +20,7 @@ now = Time.current
     Planet.find_or_create_by!(coord_x: x, coord_y: y) do |p|
       p.name                 = generate_planet_name(x, y)
       p.planet_type          = "empty"
-      p.visual_type          = Planet::VISUAL_TYPES[(x + y) % Planet::VISUAL_TYPES.size]
+      p.biome                = Planet::BIOMES[(x + y) % Planet::BIOMES.size]
       p.is_home              = false
       p.resources_updated_at = now
     end

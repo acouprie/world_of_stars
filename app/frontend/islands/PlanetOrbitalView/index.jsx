@@ -489,7 +489,7 @@ export default function PlanetOrbitalView({
       >
         {/* SVG planet layer */}
         <div style={{ position: 'absolute', inset: 0 }}>
-          <PlanetSVG visualType={planet.visual_type} pid={planet.id || 0} />
+          <PlanetSVG visualType={planet.biome} pid={planet.id || 0} />
         </div>
 
         {/* Building pins */}

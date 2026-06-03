@@ -43,7 +43,7 @@ module PlanetsHelper
         name:        planet.name,
         coords:      "[#{planet.coord_x} : #{planet.coord_y}]",
         is_home:     planet.is_home,
-        visual_type: planet.visual_type,
+        biome: planet.biome,
       },
       buildings:               buildings_data,
       slots:                   slots_data,
