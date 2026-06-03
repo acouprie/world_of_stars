@@ -27,4 +27,7 @@ Rails.application.routes.draw do
   resources :planets do
     resources :buildings, only: [:new, :create]
   end
+
+  # Documentation routes
+  get '/documentation/bâtiments', to: 'documentation#buildings', as: :buildings_documentation
 end
