@@ -288,7 +288,7 @@ function renderDetail(){
   let ccHtml='';
   const req=CC_REQ[selBuilding];
   if(req&&req.length>0){
-    ccHtml=`<div class="cc-card"><h3>Prérequis Command Center</h3><table class="cc-table">${req.map(([cc,bmax])=>`<tr><td>CC niv ${cc}</td><td>→ ${b.name.split(' ')[0]} niv ${bmax} max</td></tr>`).join('')}</table></div>`;
+    ccHtml=`<div class="cc-card"><h3>Prérequis Centre de commandement</h3><table class="cc-table">${req.map(([cc,bmax])=>`<tr><td>CC niv ${cc}</td><td>→ ${b.name.split(' ')[0]} niv ${bmax} max</td></tr>`).join('')}</table></div>`;
   }
 
   let radarHtml='';

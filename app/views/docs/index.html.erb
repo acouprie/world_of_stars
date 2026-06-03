@@ -1,0 +1,221 @@
+<% content_for :title, t("docs.index.title") %>
+
+<div class="docs-app">
+  <div class="docs-sidebar">
+    <div class="docs-logo">⭐ World of Stars</div>
+    <div class="docs-logo-sub"><%= t("docs.index.title").split("—").first.strip %></div>
+
+    <div class="docs-nav-label"><%= t("docs.index.nav.available") %></div>
+    <nav class="docs-nav">
+      <%= link_to docs_buildings_path, class: "docs-nav-item active" do %>
+        <span class="docs-nav-icon" style="background: rgba(200,169,110,0.15); color: #c8a96e;">🏗️</span>
+        <span class="docs-nav-text"><%= t("docs.index.nav.buildings") %></span>
+        <span class="docs-nav-badge available"><%= t("docs.index.status.available") %></span>
+      <% end %>
+    </nav>
+
+    <div class="docs-nav-label" style="margin-top: 1.5rem;"><%= t("docs.index.nav.coming_soon") %></div>
+    <nav class="docs-nav">
+      <div class="docs-nav-item disabled">
+        <span class="docs-nav-icon" style="background: rgba(46,196,160,0.08); color: #2ec4a0;">⚗️</span>
+        <span class="docs-nav-text"><%= t("docs.index.nav.resources") %></span>
+        <span class="docs-nav-badge soon"><%= t("docs.index.status.soon") %></span>
+      </div>
+      <div class="docs-nav-item disabled">
+        <span class="docs-nav-icon" style="background: rgba(232,98,42,0.08); color: #e8622a;">⚔️</span>
+        <span class="docs-nav-text"><%= t("docs.index.nav.combat") %></span>
+        <span class="docs-nav-badge soon"><%= t("docs.index.status.soon") %></span>
+      </div>
+      <div class="docs-nav-item disabled">
+        <span class="docs-nav-icon" style="background: rgba(78,143,175,0.08); color: #4e8faf;">🔭</span>
+        <span class="docs-nav-text"><%= t("docs.index.nav.exploration") %></span>
+        <span class="docs-nav-badge soon"><%= t("docs.index.status.soon") %></span>
+      </div>
+      <div class="docs-nav-item disabled">
+        <span class="docs-nav-icon" style="background: rgba(184,127,232,0.08); color: #b87fe8;">🤖</span>
+        <span class="docs-nav-text"><%= t("docs.index.nav.ai_factions") %></span>
+        <span class="docs-nav-badge soon"><%= t("docs.index.status.soon") %></span>
+      </div>
+      <div class="docs-nav-item disabled">
+        <span class="docs-nav-icon" style="background: rgba(91,196,212,0.08); color: #5bc4d4;">🤝</span>
+        <span class="docs-nav-text"><%= t("docs.index.nav.alliances") %></span>
+        <span class="docs-nav-badge soon"><%= t("docs.index.status.soon") %></span>
+      </div>
+    </nav>
+  </div>
+
+  <div class="docs-main">
+    <div class="docs-hero">
+      <div class="docs-hero-label"><%= t("docs.index.hero.label") %></div>
+      <h1 class="docs-hero-title"><%= t("docs.index.hero.title") %></h1>
+      <p class="docs-hero-desc"><%= t("docs.index.hero.description") %></p>
+    </div>
+
+    <div class="docs-grid">
+      <%# Available %>
+      <%= link_to docs_buildings_path, class: "docs-card available" do %>
+        <div class="docs-card-header">
+          <div class="docs-card-icon" style="background: rgba(200,169,110,0.12); color: #c8a96e;">🏗️</div>
+          <span class="docs-card-status available"><%= t("docs.index.status.available") %></span>
+        </div>
+        <h2 class="docs-card-title"><%= t("docs.index.cards.buildings.title") %></h2>
+        <p class="docs-card-desc"><%= t("docs.index.cards.buildings.description") %></p>
+        <div class="docs-card-tags">
+          <span class="docs-tag" style="color:#c8a96e;"><%= t("documentation.buildings_explorer.category_labels.energy") %></span>
+          <span class="docs-tag" style="color:#2ec4a0;"><%= t("documentation.buildings_explorer.category_labels.production") %></span>
+          <span class="docs-tag" style="color:#e8622a;"><%= t("documentation.buildings_explorer.category_labels.military") %></span>
+          <span class="docs-tag" style="color:#8b7fcc;"><%= t("documentation.buildings_explorer.category_labels.infrastructure") %></span>
+        </div>
+        <div class="docs-card-cta"><%= t("docs.index.cards.buildings.cta") %></div>
+      <% end %>
+
+      <%# Coming soon %>
+      <div class="docs-card soon">
+        <div class="docs-card-header">
+          <div class="docs-card-icon" style="background: rgba(46,196,160,0.08); color: #2ec4a0;">⚗️</div>
+          <span class="docs-card-status soon"><%= t("docs.index.status.soon") %></span>
+        </div>
+        <h2 class="docs-card-title"><%= t("docs.index.cards.resources.title") %></h2>
+        <p class="docs-card-desc"><%= t("docs.index.cards.resources.description") %></p>
+        <div class="docs-card-tags">
+          <span class="docs-tag"><%= t("resources.energy") %></span>
+          <span class="docs-tag"><%= t("resources.metal") %></span>
+          <span class="docs-tag"><%= t("resources.food") %></span>
+          <span class="docs-tag"><%= t("resources.thorium") %></span>
+        </div>
+      </div>
+
+      <div class="docs-card soon">
+        <div class="docs-card-header">
+          <div class="docs-card-icon" style="background: rgba(232,98,42,0.08); color: #e8622a;">⚔️</div>
+          <span class="docs-card-status soon"><%= t("docs.index.status.soon") %></span>
+        </div>
+        <h2 class="docs-card-title"><%= t("docs.index.cards.combat.title") %></h2>
+        <p class="docs-card-desc"><%= t("docs.index.cards.combat.description") %></p>
+        <div class="docs-card-tags">
+          <span class="docs-tag">XP</span>
+          <span class="docs-tag">Malp</span>
+          <span class="docs-tag">UAV</span>
+        </div>
+      </div>
+
+      <div class="docs-card soon">
+        <div class="docs-card-header">
+          <div class="docs-card-icon" style="background: rgba(78,143,175,0.08); color: #4e8faf;">🔭</div>
+          <span class="docs-card-status soon"><%= t("docs.index.status.soon") %></span>
+        </div>
+        <h2 class="docs-card-title"><%= t("docs.index.cards.exploration.title") %></h2>
+        <p class="docs-card-desc"><%= t("docs.index.cards.exploration.description") %></p>
+        <div class="docs-card-tags">
+          <span class="docs-tag"><%= t("documentation.buildings_explorer.training_camp_unlocks")[4] %></span>
+          <span class="docs-tag"><%= t("documentation.buildings_explorer.training_camp_unlocks")[5] %></span>
+          <span class="docs-tag">XP</span>
+        </div>
+      </div>
+
+      <div class="docs-card soon">
+        <div class="docs-card-header">
+          <div class="docs-card-icon" style="background: rgba(184,127,232,0.08); color: #b87fe8;">🤖</div>
+          <span class="docs-card-status soon"><%= t("docs.index.status.soon") %></span>
+        </div>
+        <h2 class="docs-card-title"><%= t("docs.index.cards.ai_factions.title") %></h2>
+        <p class="docs-card-desc"><%= t("docs.index.cards.ai_factions.description") %></p>
+        <div class="docs-card-tags">
+          <span class="docs-tag" style="color:#e8622a;">Varek</span>
+          <span class="docs-tag" style="color:#5bc4d4;">Elyrans</span>
+          <span class="docs-tag" style="color:#b87fe8;">Nexhianti</span>
+        </div>
+      </div>
+
+      <div class="docs-card soon">
+        <div class="docs-card-header">
+          <div class="docs-card-icon" style="background: rgba(91,196,212,0.08); color: #5bc4d4;">🤝</div>
+          <span class="docs-card-status soon"><%= t("docs.index.status.soon") %></span>
+        </div>
+        <h2 class="docs-card-title"><%= t("docs.index.cards.alliances.title") %></h2>
+        <p class="docs-card-desc"><%= t("docs.index.cards.alliances.description") %></p>
+        <div class="docs-card-tags">
+          <span class="docs-tag"><%= t("docs.index.nav.alliances") %></span>
+          <span class="docs-tag">Elyrans</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  :root {
+    --bg:      #0d0e12;
+    --bg2:     #14151c;
+    --surface: #1c1d27;
+    --border:  #2a2b38;
+    --border2: #3a3b4a;
+    --text:    #e8e4d8;
+    --muted:   #a09e96;
+    --subtle:  #5e5d58;
+    --primary: #c8a96e;
+    --radius:  8px;
+    --radius-lg: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, sans-serif; font-size: 14px; line-height: 1.5; min-height: 100vh; }
+  a { text-decoration: none; color: inherit; }
+
+  .docs-app { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+
+  /* Sidebar */
+  .docs-sidebar { background: var(--bg2); border-right: 1px solid var(--border); padding: 1.75rem 1rem; display: flex; flex-direction: column; }
+  .docs-logo { font-size: 17px; font-weight: 600; color: var(--primary); margin-bottom: 3px; letter-spacing: 0.5px; }
+  .docs-logo-sub { font-size: 11px; color: var(--subtle); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2rem; }
+  .docs-nav-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--subtle); margin-bottom: 8px; padding: 0 8px; }
+  .docs-nav { display: flex; flex-direction: column; gap: 2px; }
+  .docs-nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: var(--radius); cursor: pointer; transition: background .15s; border: 1px solid transparent; }
+  .docs-nav-item.active { background: var(--surface); border-color: var(--border2); }
+  .docs-nav-item:not(.disabled):hover { background: var(--surface); }
+  .docs-nav-item.disabled { opacity: 0.45; cursor: default; }
+  .docs-nav-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+  .docs-nav-text { font-size: 13px; flex: 1; color: var(--text); }
+  .docs-nav-badge { font-size: 10px; padding: 1px 6px; border-radius: 10px; font-weight: 500; white-space: nowrap; }
+  .docs-nav-badge.available { background: rgba(200,169,110,0.15); color: var(--primary); }
+  .docs-nav-badge.soon { background: var(--surface); color: var(--subtle); }
+
+  /* Main */
+  .docs-main { padding: 2rem 2.5rem; overflow-y: auto; }
+
+  /* Hero */
+  .docs-hero { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+  .docs-hero-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--primary); margin-bottom: 10px; }
+  .docs-hero-title { font-size: 32px; font-weight: 700; color: var(--text); margin-bottom: 12px; letter-spacing: -0.5px; }
+  .docs-hero-desc { font-size: 15px; color: var(--muted); max-width: 600px; line-height: 1.7; }
+
+  /* Grid */
+  .docs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+
+  /* Cards */
+  .docs-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; display: flex; flex-direction: column; gap: 10px; transition: border-color .2s, transform .2s; }
+  .docs-card.available { border-color: rgba(200,169,110,0.2); }
+  .docs-card.available:hover { border-color: rgba(200,169,110,0.5); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+  .docs-card.soon { opacity: 0.55; }
+  .docs-card-header { display: flex; align-items: center; justify-content: space-between; }
+  .docs-card-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+  .docs-card-status { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; padding: 3px 8px; border-radius: 20px; }
+  .docs-card-status.available { background: rgba(200,169,110,0.12); color: var(--primary); }
+  .docs-card-status.soon { background: var(--bg2); color: var(--subtle); }
+  .docs-card-title { font-size: 16px; font-weight: 600; color: var(--text); }
+  .docs-card-desc { font-size: 13px; color: var(--muted); line-height: 1.65; flex: 1; }
+  .docs-card-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .docs-tag { font-size: 11px; color: var(--subtle); background: var(--bg2); padding: 2px 8px; border-radius: 20px; }
+  .docs-card-cta { font-size: 13px; font-weight: 500; color: var(--primary); margin-top: 4px; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  @media (max-width: 700px) {
+    .docs-app { grid-template-columns: 1fr; }
+    .docs-sidebar { border-right: none; border-bottom: 1px solid var(--border); padding: 1.25rem 1rem; }
+    .docs-main { padding: 1.25rem; }
+    .docs-grid { grid-template-columns: 1fr; }
+  }
+</style>

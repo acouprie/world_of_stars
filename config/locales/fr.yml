@@ -53,6 +53,51 @@ fr:
       insufficient_resources: "Ressources insuffisantes"
       insufficient_energy: "Énergie insuffisante"
 
+  layouts:
+    header:
+      documentation: "Documentation"
+      home_planet: "Ma planète"
+
+  docs:
+    index:
+      title: "Documentation — World of Stars"
+      nav:
+        available: "Disponible"
+        coming_soon: "À venir"
+        buildings: "Bâtiments"
+        resources: "Ressources"
+        combat: "Combat & espionnage"
+        exploration: "Exploration"
+        ai_factions: "Factions IA"
+        alliances: "Alliances"
+      hero:
+        label: "Documentation de jeu"
+        title: "World of Stars"
+        description: "Un jeu de stratégie spatial par navigateur, asynchrone. Gérez vos planètes, développez votre empire, affrontez les factions IA et forgez des alliances."
+      status:
+        available: "Disponible"
+        soon: "Bientôt"
+      cards:
+        buildings:
+          title: "Bâtiments"
+          description: "Explorer les 15 bâtiments disponibles : production d'énergie, mines, stockage, infrastructure et militaire. Consultez les coûts par niveau et les prérequis."
+          cta: "Consulter →"
+        resources:
+          title: "Ressources & économie"
+          description: "Fonctionnement de l'énergie (capacité installée) et production continue de Métal, Nourriture et Thorium. Formules, stockage et bunker."
+        combat:
+          title: "Combat & espionnage"
+          description: "Résolution des combats, système d'XP, multiplicateurs, unités d'espionnage (Malp, UAV) et niveaux de visibilité selon les informations récoltées."
+        exploration:
+          title: "Exploration"
+          description: "Missions sur planètes vides, unités d'exploration, calcul du risque pour scientifiques et archéologues, points de technologie et niveaux d'exploration."
+        ai_factions:
+          title: "Factions IA"
+          description: "L'Empire Varek, la Confédération Elyrans et les Nexhianti : comportements, diplomatie, système de réputation et mécaniques de survie des factions."
+        alliances:
+          title: "Alliances & diplomatie"
+          description: "Créer ou rejoindre une alliance, statuts diplomatiques (non-agression, alliance, guerre) et modificateur de réputation collective auprès des Elyrans."
+
   locale_switcher:
     fr: "Français"
     en: "English"
@@ -109,7 +154,7 @@ fr:
         resources_protected: "Ressources prot."
         soldiers_protected: "Soldats prot."
       chart_title: "Courbe de progression"
-      cc_requirements: "Prérequis Command Center"
+      cc_requirements: "Prérequis Centre de Commandement"
       radar_info: "Information révélée par niveau"
       units_unlocked: "Unités débloquées"
       energy_balance: "Bilan énergétique — planète tout au max"

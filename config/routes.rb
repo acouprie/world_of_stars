@@ -29,5 +29,6 @@ Rails.application.routes.draw do
   end
 
   # Documentation routes
-  get '/documentation/bâtiments', to: 'documentation#buildings', as: :buildings_documentation
+  get "docs",           to: "docs#index",     as: :docs
+  get "docs/buildings", to: "docs#buildings", as: :docs_buildings
 end

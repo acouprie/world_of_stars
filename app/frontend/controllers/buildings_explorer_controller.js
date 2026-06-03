@@ -14,7 +14,6 @@ export default class extends Controller {
     // Initialize state
     this.selCat = 'all'
     this.selBuilding = null
-    this.selLevel = 1
     this.chartInst = null
 
     // Get translations helper
@@ -51,7 +50,6 @@ export default class extends Controller {
   }
 
   disconnect() {
-    // Clean up chart instance
     if (this.chartInst) {
       this.chartInst.destroy()
       this.chartInst = null
@@ -198,34 +196,62 @@ export default class extends Controller {
     return d + 'j ' + h + 'h'
   }
 
-  setLv(event) {
-    const v = event.target.value
-    this.selLevel = parseInt(v)
-    const b = this.BUILDINGS[this.selBuilding]
-    const lv = this.selLevel - 1
-    const [metal, food, thorium, energy, prod, time] = b.data[lv]
+  buildComparisonTable(b) {
+    const isEnergy = b.cat === 'energy'
+    const isProd = b.cat === 'production'
+    const isStorage = b.cat === 'storage'
+    const isBunker = this.selBuilding === 'bunker'
+    const hasThor = b.data.some(r => r[2] > 0)
+    const hasEnergyCost = b.data.some(r => r[3] > 0)
+    const hasProd = isEnergy || isProd || isStorage || isBunker
 
-    const levelValEl = document.getElementById('lvout')
-    if (levelValEl) levelValEl.textContent = `${this.selLevel} / ${b.levels}`
+    let prodLabel = ''
+    let prodClass = 'prod-col'
+    if (isEnergy) { prodLabel = this.t('stats.production', 'Énergie') + ' ⚡'; prodClass = 'prod-col energy' }
+    else if (isProd) { prodLabel = this.t('stats.production', 'Production') + '/h' }
+    else if (isStorage) { prodLabel = this.t('stats.capacity', 'Capacité'); prodClass = 'prod-col storage' }
+    else if (isBunker) { prodLabel = this.t('stats.resources_protected', 'Ressources prot.') }
 
-    const m = document.getElementById('s-metal')
-    if (m) m.textContent = this.fmt(metal)
-    const f = document.getElementById('s-food')
-    if (f) f.textContent = this.fmt(food)
-    const t = document.getElementById('s-thor')
-    if (t) t.textContent = this.fmt(thorium)
-    const tm = document.getElementById('s-time')
-    if (tm) tm.textContent = this.fmtTime(time)
+    const headers = [
+      `<th class="lv-col">${this.t('stats.level', 'Niv')}</th>`,
+      `<th>${this.t('stats.metal', 'Métal')}</th>`,
+      `<th>${this.t('stats.food', 'Nourriture')}</th>`,
+      hasThor ? `<th>${this.t('stats.thorium', 'Thorium')}</th>` : '',
+      hasProd ? `<th>${prodLabel}</th>` : '',
+      hasEnergyCost ? `<th class="energy-col">${this.t('stats.energy_consumed', 'Énergie')}</th>` : '',
+      `<th>${this.t('stats.duration', 'Durée')}</th>`
+    ].join('')
 
-    // Update radar info if applicable
-    if (this.selBuilding === 'radar_satellite') {
-      this.mainTarget.querySelectorAll('.radar-lv,.radar-txt').forEach((el, i) => {
-        const row = Math.floor(i / 2)
-        el.className = el.className.replace(/ ?(active|current)/g, '')
-        if (row < lv) el.classList.add('active')
-        else if (row === lv) el.classList.add('current')
-      })
-    }
+    const rows = b.data.map((row, i) => {
+      const [metal, food, thorium, energy, prod, time] = row
+      const prevRow = i > 0 ? b.data[i - 1] : null
+      const prodVal = isBunker ? b.bunker_res[i] : prod
+
+      const deltaHtml = (cur, prev) => {
+        if (!prev || cur === prev) return ''
+        const diff = cur - prev
+        const sign = diff > 0 ? '+' : ''
+        return `<span class="delta">${sign}${this.fmt(diff)}</span>`
+      }
+
+      return `<tr>
+        <td class="lv-num">${i + 1}</td>
+        <td>${this.fmt(metal)}${prevRow ? deltaHtml(metal, prevRow[0]) : ''}</td>
+        <td>${this.fmt(food)}${prevRow ? deltaHtml(food, prevRow[1]) : ''}</td>
+        ${hasThor ? `<td class="${thorium === 0 ? 'zero' : ''}">${thorium === 0 ? '—' : this.fmt(thorium) + (prevRow ? deltaHtml(thorium, prevRow[2]) : '')}</td>` : ''}
+        ${hasProd ? `<td class="${prodClass}">${this.fmt(prodVal)}${prevRow ? deltaHtml(prodVal, isBunker ? b.bunker_res[i - 1] : prevRow[4]) : ''}</td>` : ''}
+        ${hasEnergyCost ? `<td class="${energy === 0 ? 'zero energy-col' : 'energy-col'}">${energy === 0 ? '—' : energy}</td>` : ''}
+        <td class="time-col">${this.fmtTime(time)}</td>
+      </tr>`
+    }).join('')
+
+    return `<div class="table-card">
+      <h3>${this.t('all_levels', 'Tous les niveaux')}</h3>
+      <table class="cmp-table">
+        <thead><tr>${headers}</tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`
   }
 
   renderCats() {
@@ -280,32 +306,11 @@ export default class extends Controller {
     }
 
     const b = this.BUILDINGS[this.selBuilding]
-    const lv = this.selLevel - 1
-    const [metal, food, thorium, energy, prod, time] = b.data[lv]
     const col = this.CAT[b.cat].color
     const isEnergy = b.cat === 'energy'
-    const isProd = b.cat === 'production'
-    const isStorage = b.cat === 'storage'
-    const isBunker = this.selBuilding === 'bunker'
     const isRadar = this.selBuilding === 'radar_satellite'
-    const hasPortalEnergy = this.selBuilding === 'quantum_portal'
-    const isMilitary = b.cat === 'military'
-
-    let prodStatHtml = ''
-    if (isEnergy) {
-      prodStatHtml = `<div class="stat"><div class="stat-label">${this.t('stats.production', 'Production')}</div><div class="stat-val accent">${this.fmt(prod)}<span class="stat-unit">⚡</span></div></div>`
-    } else if (isProd && prod > 0) {
-      prodStatHtml = `<div class="stat"><div class="stat-label">${this.t('stats.production', 'Production')}</div><div class="stat-val green">${this.fmt(prod)}<span class="stat-unit">/h</span></div></div>`
-    } else if (isStorage) {
-      prodStatHtml = `<div class="stat"><div class="stat-label">${this.t('stats.capacity', 'Capacité')}</div><div class="stat-val blue">${this.fmt(prod)}</div></div>`
-    } else if (isBunker) {
-      prodStatHtml = `<div class="stat"><div class="stat-label">${this.t('stats.resources_protected', 'Ressources prot.')}</div><div class="stat-val green">${this.fmt(b.bunker_res[lv])}</div></div><div class="stat"><div class="stat-label">${this.t('stats.soldiers_protected', 'Soldats prot.')}</div><div class="stat-val blue">${this.fmt(b.bunker_sol[lv])}</div></div>`
-    }
-
-    let energyStatHtml = ''
-    if (energy > 0) {
-      energyStatHtml = `<div class="stat"><div class="stat-label">${this.t('stats.energy_consumed', 'Énergie conso.')}</div><div class="stat-val red">${energy}<span class="stat-unit">⚡</span></div></div>`
-    }
+    const isBunker = this.selBuilding === 'bunker'
+    const hasEnergyCost = b.data.some(r => r[3] > 0)
 
     let unlockHtml = ''
     if (b.unlocks) {
@@ -316,14 +321,13 @@ export default class extends Controller {
     const req = this.CC_REQ[this.selBuilding]
     if (req && req.length > 0) {
       const buildingName = b.name.split(' ')[0]
-      ccHtml = `<div class="cc-card"><h3>${this.t('cc_requirements', 'Prérequis Command Center')}</h3><table class="cc-table">${req.map(([cc, bmax]) => `<tr><td>CC niv ${cc}</td><td>→ ${buildingName} niv ${bmax} max</td></tr>`).join('')}</table></div>`
+      ccHtml = `<div class="cc-card"><h3>${this.t('cc_requirements', 'Prérequis Centre de Commandement')}</h3><table class="cc-table">${req.map(([cc, bmax]) => `<tr><td>CC niv ${cc}</td><td>→ ${buildingName} niv ${bmax} max</td></tr>`).join('')}</table></div>`
     }
 
     let radarHtml = ''
     if (isRadar) {
       radarHtml = `<div class="radar-card"><h3>${this.t('radar_info', 'Information révélée par niveau')}</h3>${b.radar.map((r, i) => {
-        const cls = i < lv ? 'active' : i === lv ? 'current' : ''
-        return `<div class="radar-row"><span class="radar-lv ${cls}">Niv ${i + 1}</span><span class="radar-txt ${cls}">${r}</span></div>`
+        return `<div class="radar-row"><span class="radar-lv active">Niv ${i + 1}</span><span class="radar-txt active">${r}</span></div>`
       }).join('')}</div>`
     }
 
@@ -340,36 +344,17 @@ export default class extends Controller {
     </div>`
     }
 
-    const hasThor = b.data.some(r => r[2] > 0)
-
     this.mainTarget.innerHTML = `
       <div class="detail-header">
         <div class="detail-title">${b.name}</div>
         <div class="detail-meta">
           <span class="badge badge-${b.cat}">${this.CAT[b.cat].label}</span>
           <span style="color:var(--subtle)">${b.levels} ${this.t('stats.level', 'niveaux')}</span>
-          ${energy === 0 && !isEnergy ? `<span style="color:var(--subtle)">${this.t('no_energy_consumed', '0 ⚡ consommée')}</span>` : ''}
+          ${!hasEnergyCost && !isEnergy ? `<span style="color:var(--subtle)">${this.t('no_energy_consumed', '0 ⚡ consommée')}</span>` : ''}
         </div>
       </div>
 
-      <div class="level-card">
-        <div class="level-ctrl">
-          <label>${this.t('stats.level', 'Niveau')}</label>
-          <input type="range" min="1" max="${b.levels}" value="${this.selLevel}" step="1"
-                 data-action="input->buildings-explorer#setLv">
-          <span class="level-val" id="lvout">${this.selLevel} / ${b.levels}</span>
-        </div>
-        <div class="stats" id="stats">
-          <div class="stat"><div class="stat-label">${this.t('stats.metal', 'Métal')}</div><div class="stat-val" id="s-metal">${this.fmt(metal)}</div></div>
-          <div class="stat"><div class="stat-label">${this.t('stats.food', 'Nourriture')}</div><div class="stat-val" id="s-food">${this.fmt(food)}</div></div>
-          ${hasThor ? `<div class="stat"><div class="stat-label">${this.t('stats.thorium', 'Thorium')}</div><div class="stat-val" id="s-thor">${this.fmt(thorium)}</div></div>` : ''}
-          ${prodStatHtml}
-          ${energyStatHtml}
-          <div class="stat"><div class="stat-label">${this.t('stats.duration', 'Durée')}</div><div class="stat-val" id="s-time" style="font-size:13px">${this.fmtTime(time)}</div></div>
-        </div>
-      </div>
-
-      ${radarHtml}
+      ${this.buildComparisonTable(b)}
 
       <div class="chart-card">
         <div class="chart-title">${this.t('chart_title', 'Courbe de progression')}</div>
@@ -377,6 +362,7 @@ export default class extends Controller {
         <div class="chart-wrap"><canvas id="bc" role="img" aria-label="Courbe de progression pour ${b.name}">Progression sur ${b.levels} niveaux.</canvas></div>
       </div>
 
+      ${radarHtml}
       ${ccHtml}
       ${unlockHtml}
       ${energySummaryHtml}
@@ -384,7 +370,7 @@ export default class extends Controller {
     `
 
     this.buildLegend(b)
-    setTimeout(() => this.buildChart(b, lv), 50)
+    setTimeout(() => this.buildChart(b), 50)
   }
 
   buildLegend(b) {
@@ -403,7 +389,7 @@ export default class extends Controller {
     document.getElementById('legend').innerHTML = html
   }
 
-  buildChart(b, activeLv) {
+  buildChart(b) {
     if (this.chartInst) {
       this.chartInst.destroy()
       this.chartInst = null
@@ -502,7 +488,6 @@ export default class extends Controller {
   select(event) {
     const k = event.params.building || event.currentTarget.dataset.buildingsExplorerBuildingParam
     this.selBuilding = k
-    this.selLevel = 1
     this.renderList()
     this.renderDetail()
   }

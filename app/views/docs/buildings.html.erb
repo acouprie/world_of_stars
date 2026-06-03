@@ -6,7 +6,7 @@
 
 <div class="app" data-controller="buildings-explorer"
      data-buildings-explorer-buildings-value='<%= Buildings::REGISTRY.to_json %>'
-     data-buildings-explorer-cc-req-value='<%= Buildings::COMMAND_CENTER_REQUIREMENTS.to_json %>'
+     data-buildings-explorer-cc-req-value='<%= Buildings.cc_requirements.to_json %>'
      data-buildings-explorer-locale-value='<%= I18n.locale %>'
      data-buildings-explorer-translations-value='<%= t("documentation.buildings_explorer").to_json %>'
      data-buildings-explorer-building-names-value='<%= t("buildings.types").to_json %>'>
@@ -96,23 +96,23 @@
   .badge-military { background: rgba(232,98,42,0.15); color: var(--varek); }
   .badge-orbital { background: rgba(46,196,160,0.15); color: var(--quantum); }
 
-  /* Level control */
-  .level-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1rem; }
-  .level-ctrl { display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; }
-  .level-ctrl label { font-size: 12px; color: var(--muted); min-width: 55px; }
-  .level-ctrl input[type=range] { flex: 1; accent-color: var(--primary); }
-  .level-val { font-size: 13px; font-weight: 600; color: var(--primary); min-width: 40px; text-align: right; }
-
-  /* Stats grid */
-  .stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; margin-bottom: 1rem; }
-  .stat { background: var(--bg2); border-radius: var(--radius); padding: 10px 12px; }
-  .stat-label { font-size: 11px; color: var(--subtle); margin-bottom: 3px; }
-  .stat-val { font-size: 18px; font-weight: 600; color: var(--text); }
-  .stat-unit { font-size: 11px; color: var(--muted); margin-left: 2px; }
-  .stat-val.accent { color: var(--primary); }
-  .stat-val.green { color: var(--quantum); }
-  .stat-val.blue { color: var(--secondary); }
-  .stat-val.red { color: var(--varek); }
+  /* Comparison table */
+  .table-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1rem; overflow-x: auto; }
+  .table-card h3 { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+  .cmp-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .cmp-table th { text-align: left; padding: 6px 10px; color: var(--subtle); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border2); white-space: nowrap; }
+  .cmp-table th.lv-col { color: var(--primary); }
+  .cmp-table td { padding: 7px 10px; border-bottom: 1px solid var(--border); color: var(--text); white-space: nowrap; }
+  .cmp-table tr:last-child td { border-bottom: none; }
+  .cmp-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .cmp-table td.lv-num { font-weight: 600; color: var(--primary); font-size: 11px; }
+  .cmp-table td.time-col { color: var(--muted); }
+  .cmp-table td.prod-col { color: var(--quantum); }
+  .cmp-table td.prod-col.energy { color: var(--primary); }
+  .cmp-table td.prod-col.storage { color: var(--secondary); }
+  .cmp-table td.energy-col { color: var(--varek); }
+  .cmp-table td.zero { color: var(--subtle); }
+  .delta { font-size: 10px; color: var(--subtle); margin-left: 4px; }
 
   /* Chart */
   .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1rem; }

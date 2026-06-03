@@ -53,6 +53,51 @@ en:
       insufficient_resources: "Insufficient resources"
       insufficient_energy: "Insufficient energy"
 
+  layouts:
+    header:
+      documentation: "Documentation"
+      home_planet: "My planet"
+
+  docs:
+    index:
+      title: "Documentation — World of Stars"
+      nav:
+        available: "Available"
+        coming_soon: "Coming soon"
+        buildings: "Buildings"
+        resources: "Resources"
+        combat: "Combat & espionage"
+        exploration: "Exploration"
+        ai_factions: "AI Factions"
+        alliances: "Alliances"
+      hero:
+        label: "Game documentation"
+        title: "World of Stars"
+        description: "An asynchronous browser-based space strategy game. Manage your planets, develop your empire, face AI factions, and forge alliances."
+      status:
+        available: "Available"
+        soon: "Soon"
+      cards:
+        buildings:
+          title: "Buildings"
+          description: "Explore the 15 available buildings: energy production, mines, storage, infrastructure and military. View per-level costs and prerequisites."
+          cta: "Explore →"
+        resources:
+          title: "Resources & Economy"
+          description: "How energy works (installed capacity) and continuous production of Metal, Food and Thorium. Formulas, storage and bunker."
+        combat:
+          title: "Combat & Espionage"
+          description: "Combat resolution, XP system, multipliers, spy units (Malp, UAV) and visibility levels based on gathered intelligence."
+        exploration:
+          title: "Exploration"
+          description: "Missions on empty planets, exploration units, risk calculation for scientists and archaeologists, technology points and exploration levels."
+        ai_factions:
+          title: "AI Factions"
+          description: "The Varek Empire, the Elyran Confederation and the Nexhianti: behaviors, diplomacy, reputation system and faction survival mechanics."
+        alliances:
+          title: "Alliances & Diplomacy"
+          description: "Create or join an alliance, diplomatic statuses (non-aggression, alliance, war) and collective reputation modifier with the Elyrans."
+
   locale_switcher:
     fr: "Français"
     en: "English"

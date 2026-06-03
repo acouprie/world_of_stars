@@ -306,7 +306,7 @@ module Buildings
       category: :military,
       requires: { command_center: 1 },
       # energy_consumed increases by ~15 per level (20 → 150).
-      # Each level unlocks a new unit type — see COMMAND_CENTER_REQUIREMENTS for CC gates.
+      # Each level unlocks a new unit type
       levels: [
         { metal: 250,   food: 250,   thorium: 100,   energy_consumed: 20,  production: 0, time: 45    },
         { metal: 500,   food: 500,   thorium: 128,   energy_consumed: 35,  production: 0, time: 86    },
@@ -424,5 +424,24 @@ module Buildings
     return {} unless thresholds
     key = thresholds.keys.select { |l| l <= building_level }.max
     key ? thresholds[key] : {}
+  end
+
+  # Converts LEVEL_PREREQUISITES into a flat { building_level => cc_level } map per building,
+  # suitable for the buildings-explorer JS controller (which only renders CC prerequisites).
+  # Non-CC prerequisites (other buildings, future technologies) are intentionally ignored here —
+  # they will need their own display mechanism when implemented.
+  def self.cc_requirements
+    LEVEL_PREREQUISITES.each_with_object({}) do |(building, thresholds), result|
+      max_level = REGISTRY.dig(building, :levels)&.length || 0
+      sorted = thresholds.sort_by { |level, _| level }
+      flat = {}
+      sorted.each_with_index do |(min_level, prereq), i|
+        cc_level = prereq[:command_center]
+        next unless cc_level  # skip thresholds that have no CC prerequisite
+        next_min = sorted[i + 1]&.first || (max_level + 1)
+        (min_level...next_min).each { |l| flat[l] = cc_level }
+      end
+      result[building] = flat unless flat.empty?
+    end
   end
 end
