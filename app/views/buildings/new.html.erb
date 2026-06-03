@@ -1,0 +1,76 @@
+<%= turbo_frame_tag "building-panel" do %>
+  <% if @buildings_data.empty? %>
+    <div class="flex flex-col items-center justify-center gap-2 py-12 text-center scifi-text">
+      <span class="text-2xl opacity-30">⊘</span>
+      <span class="text-[12px] text-text-subtle"><%= t("buildings.new.empty") %></span>
+    </div>
+  <% else %>
+    <div class="scifi-text flex flex-col gap-2">
+      <p class="text-[11px] uppercase tracking-wider text-text-muted pb-1"><%= t("buildings.new.title") %></p>
+
+      <% @buildings_data.each do |b| %>
+        <div class="rounded border border-border bg-space-bg-2 p-3 flex flex-col gap-2">
+
+          <%# Name + level %>
+          <div class="flex flex-col gap-0.5">
+            <span class="text-[13px] font-medium text-text"><%= building_name(b[:type]) %></span>
+            <span class="text-[11px] text-text-muted"><%= t("buildings.new.level") %></span>
+          </div>
+
+          <div class="border-t border-border"></div>
+
+          <%# Costs %>
+          <% has_costs = b[:cost][:food].to_i > 0 || b[:cost][:metal].to_i > 0 || b[:cost][:thorium].to_i > 0 %>
+          <% if has_costs %>
+            <div class="flex flex-wrap gap-x-3 gap-y-1 text-[12px]">
+              <% if b[:cost][:food].to_i > 0 %>
+                <span class="flex items-center gap-1">
+                  <%= image_tag "icons/food.png", alt: t("resources.food"), class: "h-3 w-3" %>
+                  <span class="<%= b[:can_food] ? 'text-quantum' : 'text-varek' %>"><%= number_with_delimiter(b[:cost][:food]) %></span>
+                </span>
+              <% end %>
+              <% if b[:cost][:metal].to_i > 0 %>
+                <span class="flex items-center gap-1">
+                  <%= image_tag "icons/metal.png", alt: t("resources.metal"), class: "h-3 w-3" %>
+                  <span class="<%= b[:can_metal] ? 'text-quantum' : 'text-varek' %>"><%= number_with_delimiter(b[:cost][:metal]) %></span>
+                </span>
+              <% end %>
+              <% if b[:cost][:thorium].to_i > 0 %>
+                <span class="flex items-center gap-1">
+                  <%= image_tag "icons/thorium.png", alt: t("resources.thorium"), class: "h-3 w-3" %>
+                  <span class="<%= b[:can_thorium] ? 'text-quantum' : 'text-varek' %>"><%= number_with_delimiter(b[:cost][:thorium]) %></span>
+                </span>
+              <% end %>
+            </div>
+          <% end %>
+
+          <%# Energy %>
+          <% if b[:energy_delta] > 0 %>
+            <div class="flex items-center gap-1 text-[12px]">
+              <%= image_tag "icons/energy.png", alt: t("resources.energy"), class: "h-3 w-3" %>
+              <span class="<%= b[:can_energy] ? 'text-quantum' : 'text-varek' %>">+<%= b[:energy_delta] %> GW</span>
+              <span class="text-text-subtle"><%= t("buildings.new.energy_required") %></span>
+            </div>
+          <% end %>
+
+          <%# Duration %>
+          <div class="flex items-center gap-1 text-[11px] text-text-muted">
+            <span class="opacity-60">⏱</span>
+            <span><%= format_duration(b[:duration]) %></span>
+          </div>
+
+          <%# Button %>
+          <%= form_with url: planet_buildings_path(@planet), method: :post do |f| %>
+            <%= f.hidden_field :building_type, value: b[:type] %>
+            <%= f.hidden_field :slot_index,    value: @slot_index %>
+            <%= f.submit t("buildings.new.build"),
+                  class: "mt-1 w-full rounded border px-3 py-1.5 text-[12px] font-medium transition-opacity " +
+                         (b[:can_afford] ? "border-primary text-primary cursor-pointer hover:bg-primary/10" : "border-border text-text-subtle opacity-40 cursor-not-allowed"),
+                  disabled: !b[:can_afford] %>
+          <% end %>
+
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>

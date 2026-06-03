@@ -159,6 +159,44 @@ RSpec.describe Planet, type: :model do
     end
   end
 
+  describe "#available_building_types" do
+    let(:planet) { create(:planet, :player) }
+
+    it "returns only command_center when no buildings exist" do
+      planet.buildings.load
+      expect(planet.available_building_types).to eq([ :command_center ])
+    end
+
+    it "excludes command_center once it is built" do
+      create(:building, planet: planet, building_type: "command_center", level: 1)
+      planet.buildings.reload
+      expect(planet.available_building_types).not_to include(:command_center)
+    end
+
+    it "unlocks buildings that require command_center level 1 once it is built" do
+      create(:building, planet: planet, building_type: "command_center", level: 1)
+      planet.buildings.reload
+      expect(planet.available_building_types).to include(:solar_station, :metal_mine, :farm)
+    end
+
+    it "does not include a building whose prerequisite is not yet met" do
+      planet.buildings.load
+      expect(planet.available_building_types).not_to include(:solar_station)
+    end
+
+    it "does not include nuclear_plant when CC is only level 1 (requires CC level 5)" do
+      create(:building, planet: planet, building_type: "command_center", level: 1)
+      planet.buildings.reload
+      expect(planet.available_building_types).not_to include(:nuclear_plant)
+    end
+
+    it "unlocks nuclear_plant once CC reaches level 5" do
+      create(:building, planet: planet, building_type: "command_center", level: 5)
+      planet.buildings.reload
+      expect(planet.available_building_types).to include(:nuclear_plant)
+    end
+  end
+
   describe "production rates" do
     let(:planet) { create(:planet, :player) }
 

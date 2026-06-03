@@ -30,6 +30,12 @@ en:
       link_text: "this password reset page"
       expiry: "This link will expire in %{time}."
 
+  resources:
+    food: "Food"
+    metal: "Metal"
+    thorium: "Thorium"
+    energy: "Energy"
+
   flash:
     sessions:
       invalid_credentials: "Invalid email address or password."
@@ -40,12 +46,24 @@ en:
       reset_success: "Password has been reset."
       mismatch: "Passwords did not match."
       invalid_link: "Password reset link is invalid or has expired."
+    buildings:
+      created: "Construction started"
+      already_building: "A construction is already in progress"
+      prerequisite_missing: "Prerequisites not met"
+      insufficient_resources: "Insufficient resources"
+      insufficient_energy: "Insufficient energy"
 
   locale_switcher:
     fr: "Français"
     en: "English"
 
   buildings:
+    new:
+      title: "Build a building"
+      empty: "No buildings available"
+      level: "Level 1"
+      energy_required: "required"
+      build: "Build"
     types:
       solar_station: "Solar Station"
       nuclear_plant: "Nuclear Plant"
@@ -65,6 +83,8 @@ en:
       bunker: "Bunker"
 
   planets:
+    show:
+      select_slot: "Select a slot"
     orbital_view:
       slot_orbital: "Orbital slot"
       slot_empty: "Empty slot"

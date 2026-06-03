@@ -16,7 +16,8 @@ module PlanetsHelper
 
   def orbital_view_props(planet)
     buildings = planet.buildings.where("level >= 1")
-    active_cq  = planet.construction_queue
+    cq        = planet.construction_queue
+    active_cq = cq&.pending? ? cq : nil
     occupied   = buildings.pluck(:slot_index).compact
 
     buildings_data = buildings.map do |b|
@@ -32,8 +33,6 @@ module PlanetsHelper
       }
     end
 
-    existing_types = buildings.pluck(:building_type)
-
     slots_data = SLOT_POSITIONS
       .reject { |s| occupied.include?(s[:slot_index]) }
       .map    { |s| { slot_index: s[:slot_index], position_x: s[:position_x], position_y: s[:position_y], is_orbital: s[:is_orbital] } }
@@ -48,7 +47,7 @@ module PlanetsHelper
       },
       buildings:               buildings_data,
       slots:                   slots_data,
-      available_building_types: Buildings::REGISTRY.keys.map(&:to_s) - existing_types,
+      available_building_types: planet.available_building_types.map(&:to_s),
       i18n: {
         slot_orbital: I18n.t("planets.orbital_view.slot_orbital"),
         slot_empty:   I18n.t("planets.orbital_view.slot_empty"),

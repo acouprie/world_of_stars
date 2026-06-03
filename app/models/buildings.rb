@@ -15,13 +15,13 @@ module Buildings
   # Categories: :energy, :production, :storage, :infrastructure, :orbital, :military
   # The :orbital category is reserved for radar_satellite (single slot on the orbital ring).
   #
-  # COMMAND_CENTER_REQUIREMENTS (below REGISTRY) maps each building to the minimum CC level
-  # required to unlock each of its levels.
+  # LEVEL_PREREQUISITES (below REGISTRY) maps each building to the CC (or other) level
+  # required to unlock each tier of levels.
   REGISTRY = {
     # ─── Energy ───────────────────────────────────────────────────────────────
     solar_station: {
       category: :energy,
-      requires: :command_center,
+      requires: { command_center: 1 },
       energy_producer: true,
       levels: [
         { metal: 50,    food: 25,    thorium: 0, energy_consumed: 0, production: 55,   time: 90     },
@@ -41,7 +41,7 @@ module Buildings
     },
     nuclear_plant: {
       category: :energy,
-      requires: :command_center,
+      requires: { command_center: 5 },
       energy_producer: true,
       levels: [
         { metal: 1200,   food: 900,    thorium: 0, energy_consumed: 0, production: 119,  time: 150   },
@@ -60,7 +60,7 @@ module Buildings
     # ─── Production ───────────────────────────────────────────────────────────
     metal_mine: {
       category: :production,
-      requires: :command_center,
+      requires: { command_center: 1 },
       levels: [
         { metal: 60,     food: 20,    thorium: 0, energy_consumed: 11,  production: 24,    time: 53      },
         { metal: 105,    food: 30,    thorium: 0, energy_consumed: 46,  production: 57,    time: 95      },
@@ -86,7 +86,7 @@ module Buildings
     },
     farm: {
       category: :production,
-      requires: :command_center,
+      requires: { command_center: 1 },
       levels: [
         { metal: 60,     food: 50,    thorium: 0, energy_consumed: 22,  production: 18,    time: 53      },
         { metal: 90,     food: 75,    thorium: 0, energy_consumed: 46,  production: 21,    time: 95      },
@@ -112,7 +112,7 @@ module Buildings
     },
     thorium_mine: {
       category: :production,
-      requires: :command_center,
+      requires: { command_center: 1 },
       levels: [
         { metal: 50,     food: 40,    thorium: 0, energy_consumed: 22,  production: 18,   time: 53      },
         { metal: 75,     food: 60,    thorium: 0, energy_consumed: 46,  production: 43,   time: 95      },
@@ -141,7 +141,7 @@ module Buildings
     # production field = storage capacity at this level
     food_silo: {
       category: :storage,
-      requires: :command_center,
+      requires: { command_center: 1 },
       levels: [
         { metal: 65,    food: 65,    thorium: 0, energy_consumed: 0, production: 21_000,    time: 49       },
         { metal: 97,    food: 97,    thorium: 0, energy_consumed: 0, production: 28_000,    time: 92       },
@@ -167,7 +167,7 @@ module Buildings
     },
     metal_warehouse: {
       category: :storage,
-      requires: :command_center,
+      requires: { command_center: 1 },
       levels: [
         { metal: 100,   food: 30,    thorium: 0, energy_consumed: 0, production: 21_000,    time: 49       },
         { metal: 150,   food: 45,    thorium: 0, energy_consumed: 0, production: 28_000,    time: 92       },
@@ -193,7 +193,7 @@ module Buildings
     },
     thorium_warehouse: {
       category: :storage,
-      requires: :command_center,
+      requires: { command_center: 1 },
       levels: [
         { metal: 30,    food: 100,   thorium: 0, energy_consumed: 0, production: 21_000,    time: 49       },
         { metal: 45,    food: 150,   thorium: 0, energy_consumed: 0, production: 28_000,    time: 92       },
@@ -242,7 +242,7 @@ module Buildings
     },
     research_lab: {
       category: :infrastructure,
-      requires: :command_center,
+      requires: { command_center: 2 },
       levels: [
         { metal: 300,    food: 100,   thorium: 250,    energy_consumed: 0, production: 0, time: 60    },
         { metal: 600,    food: 200,   thorium: 500,    energy_consumed: 0, production: 0, time: 114   },
@@ -258,7 +258,7 @@ module Buildings
     },
     quantum_portal: {
       category: :infrastructure,
-      requires: :command_center,
+      requires: { command_center: 4 },
       levels: [
         { metal: 2500,    food: 2500,    thorium: 7500,    energy_consumed: 33,  production: 0, time: 750    },
         { metal: 5000,    food: 5000,    thorium: 15000,   energy_consumed: 68,  production: 0, time: 1500   },
@@ -274,7 +274,7 @@ module Buildings
     },
     radar_satellite: {
       category: :orbital,
-      requires: :command_center,
+      requires: { command_center: 3 },
       # No energy_consumed — runs on dedicated solar panels.
       # Each level unlocks additional detection capabilities:
       #   1 → fleet presence in orbit
@@ -304,7 +304,7 @@ module Buildings
     # ─── Military ─────────────────────────────────────────────────────────────
     training_camp: {
       category: :military,
-      requires: :command_center,
+      requires: { command_center: 1 },
       # energy_consumed increases by ~15 per level (20 → 150).
       # Each level unlocks a new unit type — see COMMAND_CENTER_REQUIREMENTS for CC gates.
       levels: [
@@ -322,7 +322,7 @@ module Buildings
     },
     military_camp: {
       category: :military,
-      requires: :command_center,
+      requires: { command_center: 2 },
       # energy_consumed increases by ~20 per level (30 → 200).
       levels: [
         { metal: 300,    food: 200,    thorium: 150,   energy_consumed: 30,  production: 0, time: 45    },
@@ -339,7 +339,7 @@ module Buildings
     },
     ship_factory: {
       category: :military,
-      requires: :command_center,
+      requires: { command_center: 3 },
       # energy_consumed increases by ~40 per level (50 → 600).
       # Most thorium-intensive military building by design.
       levels: [
@@ -362,7 +362,7 @@ module Buildings
     },
     bunker: {
       category: :military,
-      requires: :command_center,
+      requires: { command_center: 2 },
       # production is a Hash: { resources: Integer, soldiers: Integer }
       #   resources → total shared capacity across metal + food + thorium (player allocates freely)
       #   soldiers  → max units protected regardless of type
@@ -382,29 +382,32 @@ module Buildings
     }
   }.freeze
 
-  # Maps each building to the minimum CC level required to unlock each of its levels.
-  # Format: { building_key => { building_level => min_cc_level } }
+  # Maps each building to the prerequisites required per level tier, in a compact threshold format.
+  # Format: { building_key => { min_building_level => { prereq_type => min_prereq_level } } }
   #
-  # Usage:
-  #   min_cc = Buildings::COMMAND_CENTER_REQUIREMENTS[:metal_mine][5]  # => 2
-  #   Building can be upgraded to level 5 only if command_center.level >= 2
-  COMMAND_CENTER_REQUIREMENTS = {
-    solar_station:      { 1 => 1, 2 => 1, 3 => 1, 4 => 3, 5 => 3, 6 => 3, 7 => 5, 8 => 5, 9 => 5, 10 => 8, 11 => 8, 12 => 8, 13 => 10 },
-    nuclear_plant:      { 1 => 5, 2 => 5, 3 => 5, 4 => 5, 5 => 7, 6 => 7, 7 => 7, 8 => 7, 9 => 7, 10 => 10 },
-    metal_mine:         { 1 => 1, 2 => 1, 3 => 1, 4 => 2, 5 => 2, 6 => 3, 7 => 3, 8 => 3, 9 => 5, 10 => 5, 11 => 5, 12 => 5, 13 => 7, 14 => 7, 15 => 7, 16 => 10, 17 => 10, 18 => 10, 19 => 13, 20 => 13 },
-    farm:               { 1 => 1, 2 => 1, 3 => 1, 4 => 2, 5 => 2, 6 => 3, 7 => 3, 8 => 3, 9 => 5, 10 => 5, 11 => 5, 12 => 5, 13 => 7, 14 => 7, 15 => 7, 16 => 10, 17 => 10, 18 => 10, 19 => 13, 20 => 13 },
-    thorium_mine:       { 1 => 1, 2 => 1, 3 => 1, 4 => 2, 5 => 2, 6 => 3, 7 => 3, 8 => 3, 9 => 5, 10 => 5, 11 => 5, 12 => 5, 13 => 7, 14 => 7, 15 => 7, 16 => 10, 17 => 10, 18 => 10, 19 => 13, 20 => 13 },
-    food_silo:          { 1 => 1, 2 => 1, 3 => 1, 4 => 2, 5 => 2, 6 => 2, 7 => 4, 8 => 4, 9 => 4, 10 => 4, 11 => 7, 12 => 7, 13 => 7, 14 => 7, 15 => 7, 16 => 10, 17 => 10, 18 => 10, 19 => 10, 20 => 10 },
-    metal_warehouse:    { 1 => 1, 2 => 1, 3 => 1, 4 => 2, 5 => 2, 6 => 2, 7 => 4, 8 => 4, 9 => 4, 10 => 4, 11 => 7, 12 => 7, 13 => 7, 14 => 7, 15 => 7, 16 => 10, 17 => 10, 18 => 10, 19 => 10, 20 => 10 },
-    thorium_warehouse:  { 1 => 1, 2 => 1, 3 => 1, 4 => 2, 5 => 2, 6 => 2, 7 => 4, 8 => 4, 9 => 4, 10 => 4, 11 => 7, 12 => 7, 13 => 7, 14 => 7, 15 => 7, 16 => 10, 17 => 10, 18 => 10, 19 => 10, 20 => 10 },
-    command_center:     { 1 => 0 }, # no CC prerequisite — first building constructed
-    research_lab:       { 1 => 2, 2 => 2, 3 => 2, 4 => 4, 5 => 4, 6 => 4, 7 => 6, 8 => 6, 9 => 9, 10 => 9 },
-    quantum_portal:     { 1 => 4, 2 => 4, 3 => 4, 4 => 4, 5 => 6, 6 => 6, 7 => 6, 8 => 6, 9 => 9, 10 => 9 },
-    radar_satellite:    { 1 => 3, 2 => 3, 3 => 3, 4 => 5, 5 => 5, 6 => 5, 7 => 8, 8 => 8, 9 => 8, 10 => 11 },
-    training_camp:      { 1 => 1, 2 => 1, 3 => 3, 4 => 3, 5 => 3, 6 => 6, 7 => 6, 8 => 6, 9 => 9, 10 => 9 },
-    military_camp:      { 1 => 2, 2 => 2, 3 => 2, 4 => 4, 5 => 4, 6 => 4, 7 => 7, 8 => 7, 9 => 7, 10 => 10 },
-    ship_factory:       { 1 => 3, 2 => 3, 3 => 3, 4 => 3, 5 => 5, 6 => 5, 7 => 5, 8 => 8, 9 => 8, 10 => 8, 11 => 11, 12 => 11, 13 => 11, 14 => 11, 15 => 11 },
-    bunker:             { 1 => 2, 2 => 2, 3 => 2, 4 => 4, 5 => 4, 6 => 4, 7 => 7, 8 => 7, 9 => 7, 10 => 10 }
+  # For a target level N, find the highest key ≤ N — those are the active prerequisites.
+  # Extensible: add other building types or future technology keys alongside :command_center.
+  #
+  # Example:
+  #   Buildings.prerequisites_for(:solar_station, 4)  # => { command_center: 3 }
+  #   Buildings.prerequisites_for(:ship_factory, 7)   # => { command_center: 5 }
+  LEVEL_PREREQUISITES = {
+    solar_station:     { 1 => { command_center: 1 }, 4 => { command_center: 3 }, 7 => { command_center: 5 }, 10 => { command_center: 8 }, 13 => { command_center: 10 } },
+    nuclear_plant:     { 1 => { command_center: 5 }, 5 => { command_center: 7 }, 10 => { command_center: 10 } },
+    metal_mine:        { 1 => { command_center: 1 }, 4 => { command_center: 2 }, 6 => { command_center: 3 }, 9 => { command_center: 5 }, 13 => { command_center: 7 }, 16 => { command_center: 10 }, 19 => { command_center: 13 } },
+    farm:              { 1 => { command_center: 1 }, 4 => { command_center: 2 }, 6 => { command_center: 3 }, 9 => { command_center: 5 }, 13 => { command_center: 7 }, 16 => { command_center: 10 }, 19 => { command_center: 13 } },
+    thorium_mine:      { 1 => { command_center: 1 }, 4 => { command_center: 2 }, 6 => { command_center: 3 }, 9 => { command_center: 5 }, 13 => { command_center: 7 }, 16 => { command_center: 10 }, 19 => { command_center: 13 } },
+    food_silo:         { 1 => { command_center: 1 }, 4 => { command_center: 2 }, 7 => { command_center: 4 }, 11 => { command_center: 7 }, 16 => { command_center: 10 } },
+    metal_warehouse:   { 1 => { command_center: 1 }, 4 => { command_center: 2 }, 7 => { command_center: 4 }, 11 => { command_center: 7 }, 16 => { command_center: 10 } },
+    thorium_warehouse: { 1 => { command_center: 1 }, 4 => { command_center: 2 }, 7 => { command_center: 4 }, 11 => { command_center: 7 }, 16 => { command_center: 10 } },
+    research_lab:      { 1 => { command_center: 2 }, 4 => { command_center: 4 }, 7 => { command_center: 6 }, 9 => { command_center: 9 } },
+    quantum_portal:    { 1 => { command_center: 4 }, 5 => { command_center: 6 }, 9 => { command_center: 9 } },
+    radar_satellite:   { 1 => { command_center: 3 }, 4 => { command_center: 5 }, 7 => { command_center: 8 }, 10 => { command_center: 11 } },
+    training_camp:     { 1 => { command_center: 1 }, 3 => { command_center: 3 }, 6 => { command_center: 6 }, 9 => { command_center: 9 } },
+    military_camp:     { 1 => { command_center: 2 }, 4 => { command_center: 4 }, 7 => { command_center: 7 }, 10 => { command_center: 10 } },
+    ship_factory:      { 1 => { command_center: 3 }, 5 => { command_center: 5 }, 8 => { command_center: 8 }, 11 => { command_center: 11 } },
+    bunker:            { 1 => { command_center: 2 }, 4 => { command_center: 4 }, 7 => { command_center: 7 }, 10 => { command_center: 10 } },
+    # command_center has no prerequisites — absent from this table
   }.freeze
 
   # ─── Helpers ──────────────────────────────────────────────────────────────
@@ -413,24 +416,13 @@ module Buildings
     REGISTRY.fetch(type.to_sym) { raise ArgumentError, "Unknown building type: #{type}" }
   end
 
-  # Returns the minimum CC level required to build/upgrade a building to a given level.
-  def self.min_cc_level(building_type, building_level)
-    reqs = COMMAND_CENTER_REQUIREMENTS.fetch(building_type.to_sym) do
-      raise ArgumentError, "Unknown building type: #{building_type}"
-    end
-    reqs.fetch(building_level) do
-      raise ArgumentError, "Unknown level #{building_level} for #{building_type}"
-    end
-  end
-
-  # Returns true if the given CC level permits upgrading a building to the target level.
-  def self.cc_allows?(building_type, building_level, current_cc_level)
-    min_cc_level(building_type, building_level) <= current_cc_level
-  end
-
-  # Returns the max building level reachable with the given CC level.
-  def self.max_level_for_cc(building_type, current_cc_level)
-    reqs = COMMAND_CENTER_REQUIREMENTS.fetch(building_type.to_sym) { return 0 }
-    reqs.filter { |_blv, cc| cc <= current_cc_level }.keys.max || 0
+  # Returns the prerequisites hash for upgrading a building to the given level.
+  # Uses threshold lookup: finds the highest tier key ≤ building_level.
+  # Returns {} for command_center or any building with no defined prerequisites.
+  def self.prerequisites_for(building_type, building_level)
+    thresholds = LEVEL_PREREQUISITES[building_type.to_sym]
+    return {} unless thresholds
+    key = thresholds.keys.select { |l| l <= building_level }.max
+    key ? thresholds[key] : {}
   end
 end

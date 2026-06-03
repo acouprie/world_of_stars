@@ -27,6 +27,7 @@
 | Hébergement       | Infomaniak VPS Lite (4 vCPU / 8 GB RAM) | Linux brut, compatible Kamal, datacenter Suisse        |
 | Déploiement       | Docker Compose (dev) + Kamal (prod)     | Déploiement Rails-natif sur VPS                        |
 | Domaine           | worldofstars.fr                         | —                                                      |
+| Traduction        | i18n                                    | Traduction des textes dans plusieurs langues           |
 
 ---
 
@@ -53,6 +54,11 @@ Rails (rendu serveur)
 - Les islands React reçoivent leur état initial en props depuis Rails (ERB → JSON)
 - Les mises à jour live passent par ActionCable ou fetch vers des endpoints JSON dédiés
 - Pas besoin d'une API REST complète — juste des endpoints ciblés pour les islands
+
+### i18n
+
+Utilisation de la gem i18n de Rails pour les textes statiques. Les islands React reçoivent les traductions nécessaires en props (ex: labels, messages d'erreur). Pas de solution de traduction JS dédiée — on reste dans le modèle "Rails rend tout".
+L'application est disponible en français et en anglais dès le lancement, avec possibilité d'ajouter d'autres langues plus tard.
 
 ### Vite — pourquoi pas importmap
 
@@ -656,6 +662,5 @@ _Document vivant — à mettre à jour en parallèle du game_design.md_
 | Déploiement | Docker Compose (dev) + Kamal (prod) | Déploiement Rails-natif sur VPS |
 
 ---
-
 
 _Document vivant — à mettre à jour en parallèle du game_design.md_

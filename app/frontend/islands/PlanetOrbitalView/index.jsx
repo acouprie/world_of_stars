@@ -357,10 +357,11 @@ function BuildingPin({ building, selected, onSelect, i18n }) {
 
 // ─── Slot Pin (empty) ─────────────────────────────────────────────────────────
 
-function SlotPin({ slot, isOpen, onOpen, onClose, availableTypes, onSelect, i18n }) {
+function SlotPin({ slot, isOpen, onOpen, onClose, i18n }) {
   const isOrbital  = slot.is_orbital
-  const baseColor  = isOrbital ? 'var(--color-quantum)' : 'var(--color-text)'
-  const dropAbove  = slot.position_y > 0.55
+  const activeColor = isOrbital ? 'var(--color-quantum)' : 'var(--color-primary)'
+  const baseColor   = isOrbital ? 'var(--color-quantum)' : 'var(--color-text)'
+  const color       = isOpen ? activeColor : baseColor
 
   return (
     <div
@@ -375,7 +376,7 @@ function SlotPin({ slot, isOpen, onOpen, onClose, availableTypes, onSelect, i18n
         display:   'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        zIndex:    isOpen ? 20 : 1,
+        zIndex:    1,
       }}
     >
       <div
@@ -389,69 +390,21 @@ function SlotPin({ slot, isOpen, onOpen, onClose, availableTypes, onSelect, i18n
           width:        '28px',
           height:       '28px',
           borderRadius: '50%',
-          border:       `1px solid ${baseColor}`,
-          background:   'transparent',
+          border:       `1px solid ${color}`,
+          background:   isOpen ? `${activeColor}22` : 'transparent',
           display:      'flex',
           alignItems:   'center',
           justifyContent: 'center',
-          color:        baseColor,
+          color,
           fontSize:     '18px',
-          opacity:      isOrbital ? 0.75 : 0.45,
+          opacity:      isOpen ? 1 : (isOrbital ? 0.75 : 0.45),
           fontFamily:   'monospace',
           cursor:       'pointer',
+          transition:   'opacity 0.15s, background 0.15s',
         }}
       >
         +
       </div>
-
-      {isOpen && (
-        <div style={{
-          position:   'absolute',
-          ...(dropAbove ? { bottom: '36px' } : { top: '36px' }),
-          left:       '50%',
-          transform:  'translateX(-50%)',
-          background: 'var(--color-surface)',
-          border:     '1px solid var(--color-border)',
-          borderRadius: '6px',
-          padding:    '4px 0',
-          zIndex:     100,
-          minWidth:   '172px',
-          boxShadow:  '0 4px 20px rgba(0,0,0,0.6)',
-        }}>
-          {availableTypes.length === 0 ? (
-            <div style={{ padding: '8px 12px', color: 'var(--color-text-subtle)', fontSize: '12px', fontFamily: 'monospace' }}>
-              {i18n?.no_buildings ?? 'No buildings available'}
-            </div>
-          ) : availableTypes.map(type => {
-            const m = BUILDING_META[type] || { label: type, icon: '?', category: 'infrastructure' }
-            return (
-              <div
-                key={type}
-                className="pov-drop-item"
-                role="button"
-                tabIndex={0}
-                onClick={() => onSelect(type)}
-                onKeyDown={e => e.key === 'Enter' && onSelect(type)}
-                style={{
-                  padding:    '6px 12px',
-                  color:      'var(--color-text)',
-                  fontSize:   '13px',
-                  fontFamily: 'monospace',
-                  whiteSpace: 'nowrap',
-                  display:    'flex',
-                  alignItems: 'center',
-                  gap:        '8px',
-                }}
-              >
-                <span style={{ color: CATEGORY_COLORS[m.category] || 'var(--color-text-muted)', fontSize: '14px' }}>
-                  {m.icon}
-                </span>
-                {i18n?.building_labels?.[type] ?? m.label}
-              </div>
-            )
-          })}
-        </div>
-      )}
     </div>
   )
 }
@@ -531,22 +484,17 @@ export default function PlanetOrbitalView({
             key={s.slot_index}
             slot={s}
             isOpen={openSlot === s.slot_index}
-            onOpen={() => { setSelectedId(null); setOpenSlot(s.slot_index) }}
+            onOpen={() => {
+              setSelectedId(null)
+              setOpenSlot(s.slot_index)
+              document.dispatchEvent(
+                new CustomEvent('planet:slot-open', { bubbles: true, detail: { slot_index: s.slot_index } })
+              )
+            }}
             onClose={() => setOpenSlot(null)}
-            availableTypes={available_building_types}
-            onSelect={type => handleSlotSelect(s.slot_index, type)}
             i18n={i18n}
           />
         ))}
-
-        {/* Transparent backdrop to close open dropdown on outside click */}
-        {openSlot !== null && (
-          <div
-            aria-hidden="true"
-            style={{ position: 'absolute', inset: 0, zIndex: 15 }}
-            onClick={() => setOpenSlot(null)}
-          />
-        )}
       </div>
     </div>
   )

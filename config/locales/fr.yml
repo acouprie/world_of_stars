@@ -30,6 +30,12 @@ fr:
       link_text: "cette page de réinitialisation"
       expiry: "Ce lien expirera dans %{time}."
 
+  resources:
+    food: "Nourriture"
+    metal: "Métal"
+    thorium: "Thorium"
+    energy: "Énergie"
+
   flash:
     sessions:
       invalid_credentials: "Adresse e-mail ou mot de passe incorrect."
@@ -40,12 +46,24 @@ fr:
       reset_success: "Mot de passe réinitialisé."
       mismatch: "Les mots de passe ne correspondent pas."
       invalid_link: "Le lien de réinitialisation est invalide ou expiré."
+    buildings:
+      created: "Construction lancée"
+      already_building: "Une construction est déjà en cours"
+      prerequisite_missing: "Prérequis non rempli"
+      insufficient_resources: "Ressources insuffisantes"
+      insufficient_energy: "Énergie insuffisante"
 
   locale_switcher:
     fr: "Français"
     en: "English"
 
   buildings:
+    new:
+      title: "Construire un bâtiment"
+      empty: "Aucun bâtiment disponible"
+      level: "Niveau 1"
+      energy_required: "requis"
+      build: "Construire"
     types:
       solar_station: "Station solaire"
       nuclear_plant: "Centrale nucléaire"
@@ -65,6 +83,8 @@ fr:
       bunker: "Bunker"
 
   planets:
+    show:
+      select_slot: "Sélectionnez un emplacement"
     orbital_view:
       slot_orbital: "Emplacement orbital"
       slot_empty: "Emplacement vide"

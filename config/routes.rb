@@ -24,5 +24,7 @@ Rails.application.routes.draw do
   mount Sidekiq::Web => "/sidekiq" if Rails.env.development?
 
   # Game routes
-  resources :planets
+  resources :planets do
+    resources :buildings, only: [:new, :create]
+  end
 end

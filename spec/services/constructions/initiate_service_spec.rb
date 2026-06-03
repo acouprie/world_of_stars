@@ -130,4 +130,54 @@ RSpec.describe Constructions::InitiateService do
       expect(result.error).to include("Unknown building type")
     end
   end
+
+  describe "#call — level prerequisite gating" do
+    # solar_station level 4 requires CC level 3
+    before do
+      create(:building, planet: planet, building_type: "command_center", level: 1)
+      create(:building, planet: planet, building_type: "solar_station",  level: 3)
+    end
+
+    it "blocks upgrade when CC level is below the tier threshold" do
+      result = described_class.new(planet, :solar_station).call
+      expect(result.success?).to be false
+      expect(result.error).to eq("prerequisite_missing")
+    end
+
+    it "allows upgrade once CC is at the required level" do
+      planet.buildings.find_by(building_type: "command_center").update!(level: 3)
+      result = described_class.new(planet, :solar_station).call
+      expect(result.success?).to be true
+    end
+  end
+
+  describe "#call — slot_index:" do
+    it "places the building on the requested slot when it is free" do
+      described_class.new(planet, :command_center, slot_index: 5).call
+      expect(planet.buildings.find_by(building_type: "command_center").slot_index).to eq(5)
+    end
+
+    it "picks an available slot automatically when the requested one is occupied" do
+      create(:building, planet: planet, building_type: "solar_station", slot_index: 5, level: 1)
+      create(:building, planet: planet, building_type: "command_center", level: 1, slot_index: 0)
+      # Upgrade command_center — request slot 5 which is taken by solar_station
+      described_class.new(planet, :command_center, slot_index: 5).call
+      # The building already exists at slot 0 and is not moved (new_record? is false)
+      expect(planet.buildings.find_by(building_type: "command_center").slot_index).to eq(0)
+    end
+  end
+
+  describe "#call — second construction after a completed queue" do
+    it "succeeds without UniqueViolation when the previous queue is completed" do
+      # First construction
+      described_class.new(planet, :command_center).call
+      # Simulate job completing: mark queue as completed
+      planet.reload.construction_queue.update!(status: "completed")
+      planet.buildings.find_by(building_type: "command_center").update!(level: 1)
+      # Second construction — reuses the existing queue row
+      result = described_class.new(planet, :solar_station).call
+      expect(result.success?).to be true
+      expect(planet.reload.construction_queue.status).to eq("pending")
+    end
+  end
 end

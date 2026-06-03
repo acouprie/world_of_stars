@@ -2,9 +2,10 @@ module Constructions
   class InitiateService
     Result = Struct.new(:success?, :error, :queue, keyword_init: true)
 
-    def initialize(planet, building_type)
+    def initialize(planet, building_type, slot_index: nil)
       @planet        = planet
       @building_type = building_type.to_s
+      @slot_index    = slot_index
     end
 
     def call
@@ -20,7 +21,8 @@ module Constructions
         building = planet.buildings.find_or_initialize_by(building_type: @building_type)
         if building.new_record?
           occupied = planet.buildings.pluck(:slot_index).compact
-          building.slot_index = (0..11).find { |i| !occupied.include?(i) } || 0
+          chosen = @slot_index if @slot_index && !occupied.include?(@slot_index)
+          building.slot_index = chosen || (0..11).find { |i| !occupied.include?(i) } || 0
           building.save!
         end
 
@@ -39,13 +41,16 @@ module Constructions
 
         duration     = Buildings::Calculator.construction_time(@building_type, target)
         now          = Time.current
-        queue = planet.create_construction_queue!(
+        cq = ConstructionQueue.find_or_initialize_by(planet_id: planet.id)
+        cq.assign_attributes(
           building:     building,
           target_level: target,
           status:       "pending",
           started_at:   now,
           completes_at: now + duration.seconds
         )
+        cq.save!
+        queue = cq
 
         planet.save!
 
@@ -66,8 +71,18 @@ module Constructions
     attr_reader :planet
 
     def prerequisite_met?
-      return true if @building_type == "command_center"
-      planet.buildings.any? { |b| b.building_type == "command_center" && b.level >= 1 }
+      built_levels = planet.buildings.each_with_object({}) do |b, h|
+        h[b.building_type.to_sym] = b.level
+      end
+      config = Buildings::REGISTRY[@building_type.to_sym]
+      return false unless (config[:requires] || {}).all? { |req_type, req_level|
+        built_levels.fetch(req_type, 0) >= req_level
+      }
+      building = planet.buildings.find_by(building_type: @building_type)
+      target_level = (building&.level || 0) + 1
+      Buildings.prerequisites_for(@building_type, target_level).all? { |req_type, req_level|
+        built_levels.fetch(req_type, 0) >= req_level
+      }
     end
 
     def can_afford?(cost)

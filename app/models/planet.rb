@@ -55,6 +55,18 @@ class Planet < ApplicationRecord
     Buildings::Calculator.production_rate(:thorium_mine, b&.level || 0)
   end
 
+  def available_building_types
+    built_levels = buildings.where("level >= 1").each_with_object({}) do |b, h|
+      h[b.building_type.to_sym] = b.level
+    end
+    Buildings::REGISTRY.select do |type, config|
+      next false if built_levels.key?(type)
+      (config[:requires] || {}).all? { |req_type, req_level|
+        built_levels.fetch(req_type, 0) >= req_level
+      }
+    end.keys
+  end
+
   # Must be called inside a with_lock block.
   def calculate_resources!(now: Time.current)
     elapsed = (now - resources_updated_at).to_f
