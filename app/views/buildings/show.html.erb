@@ -1,0 +1,77 @@
+<%= turbo_frame_tag "building-panel" do %>
+  <div class="scifi-text flex flex-col gap-3">
+
+    <div class="flex items-start justify-between gap-2">
+      <div class="flex flex-col gap-0.5">
+        <div class="flex items-center gap-2">
+          <span class="text-xl leading-none <%= building_category_color_class(@building.building_type) %>"><%= building_icon(@building.building_type) %></span>
+          <span class="text-[13px] font-medium text-text"><%= building_name(@building.building_type) %></span>
+          <span class="rounded border px-1.5 py-0.5 text-[9px] font-medium <%= building_category_badge_classes(@building.building_type) %>">Nv. <%= @building.level %></span>
+        </div>
+        <span class="text-[10px] text-text-subtle pl-7"><%= @building.config[:description] %></span>
+      </div>
+      <button class="shrink-0 text-text-subtle hover:text-text transition-colors text-sm leading-none px-1 py-0.5"
+              data-action="click->building-panel#close">✕</button>
+    </div>
+
+    <div class="border-t border-border"></div>
+
+    <% if @upgrade %>
+      <p class="text-[11px] uppercase tracking-wider text-text-muted">Amélioration → Nv. <%= @upgrade[:target_level] %></p>
+
+      <div class="rounded border border-border bg-space-bg-2 p-3 flex flex-col gap-2">
+        <% cost = @upgrade[:cost] %>
+        <% has_costs = cost[:food].to_i > 0 || cost[:metal].to_i > 0 || cost[:thorium].to_i > 0 %>
+        <% if has_costs %>
+          <div class="flex flex-wrap gap-x-3 gap-y-1 text-[12px]">
+            <% if cost[:food].to_i > 0 %>
+              <span class="flex items-center gap-1">
+                <%= image_tag "icons/food.png", alt: t("resources.food"), class: "h-3 w-3" %>
+                <span class="<%= @upgrade[:can_food] ? 'text-quantum' : 'text-varek' %>"><%= number_with_delimiter(cost[:food]) %></span>
+              </span>
+            <% end %>
+            <% if cost[:metal].to_i > 0 %>
+              <span class="flex items-center gap-1">
+                <%= image_tag "icons/metal.png", alt: t("resources.metal"), class: "h-3 w-3" %>
+                <span class="<%= @upgrade[:can_metal] ? 'text-quantum' : 'text-varek' %>"><%= number_with_delimiter(cost[:metal]) %></span>
+              </span>
+            <% end %>
+            <% if cost[:thorium].to_i > 0 %>
+              <span class="flex items-center gap-1">
+                <%= image_tag "icons/thorium.png", alt: t("resources.thorium"), class: "h-3 w-3" %>
+                <span class="<%= @upgrade[:can_thorium] ? 'text-quantum' : 'text-varek' %>"><%= number_with_delimiter(cost[:thorium]) %></span>
+              </span>
+            <% end %>
+          </div>
+        <% end %>
+
+        <% if @upgrade[:energy_delta] > 0 %>
+          <div class="flex items-center gap-1 text-[12px]">
+            <%= image_tag "icons/energy.png", alt: t("resources.energy"), class: "h-3 w-3" %>
+            <span class="<%= @upgrade[:can_energy] ? 'text-quantum' : 'text-varek' %>">+<%= @upgrade[:energy_delta].to_i %> GW</span>
+            <span class="text-text-subtle"><%= t("buildings.new.energy_required") %></span>
+          </div>
+        <% end %>
+
+        <div class="flex items-center gap-1 text-[11px] text-text-muted">
+          <span class="opacity-60">⏱</span>
+          <span><%= format_duration(@upgrade[:duration]) %></span>
+        </div>
+
+        <%= form_with url: planet_buildings_path(@planet), method: :post do |f| %>
+          <%= f.hidden_field :building_type, value: @building.building_type %>
+          <%= f.submit "Améliorer",
+                class: "mt-1 w-full rounded border px-3 py-1.5 text-[12px] font-medium transition-opacity " +
+                       (@upgrade[:can_afford] ? "border-primary text-primary cursor-pointer hover:bg-primary/10" : "border-border text-text-subtle opacity-40 cursor-not-allowed"),
+                disabled: !@upgrade[:can_afford] %>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="flex flex-col items-center justify-center gap-2 py-8 text-center">
+        <span class="text-2xl opacity-30">⊛</span>
+        <span class="text-[11px] text-text-subtle">Niveau maximum atteint</span>
+      </div>
+    <% end %>
+
+  </div>
+<% end %>

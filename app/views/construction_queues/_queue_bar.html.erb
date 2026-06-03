@@ -1,0 +1,28 @@
+<% queue = @planet.construction_queue %>
+<% if queue&.pending? %>
+  <%
+    elapsed = [Time.current - queue.started_at, 0].max
+    total   = (queue.completes_at - queue.started_at).to_f
+    pct     = total > 0 ? [(elapsed.to_f / total * 100).round, 100].min : 0
+  %>
+  <div id="queue-bar">
+    <span class="scifi-text text-[10px] uppercase tracking-wider text-text-muted whitespace-nowrap">File</span>
+    <span class="text-[12px] text-text whitespace-nowrap">
+      <%= building_name(queue.building.building_type) %> Nv <%= queue.target_level %>
+    </span>
+    <div class="flex-1 h-1 rounded-full overflow-hidden min-w-[40px]" style="background: var(--color-border);">
+      <div class="h-full rounded-full" style="width: <%= pct %>%; background: var(--color-primary);"></div>
+    </div>
+    <span data-controller="queue-timer"
+          data-queue-timer-completes-at-value="<%= queue.completes_at.iso8601 %>">
+      <span data-queue-timer-target="display"
+            class="font-mono text-[12px] text-text whitespace-nowrap"></span>
+    </span>
+    <span class="text-[10px] text-text-subtle whitespace-nowrap">1 slot</span>
+  </div>
+<% else %>
+  <div id="queue-bar">
+    <span class="scifi-text text-[10px] uppercase tracking-wider text-text-muted">File</span>
+    <span class="text-[11px] text-text-subtle">Aucune construction en cours</span>
+  </div>
+<% end %>

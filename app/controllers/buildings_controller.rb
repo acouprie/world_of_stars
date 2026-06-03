@@ -1,6 +1,40 @@
 class BuildingsController < ApplicationController
   before_action :set_planet
 
+  def show
+    @building = @planet.buildings.find(params[:id])
+    type      = @building.building_type
+    max       = Buildings::Calculator.max_level(type)
+
+    if @building.level < max
+      target       = @building.level + 1
+      cost         = Buildings::Calculator.cost(type, target)
+      curr_energy  = Buildings::Calculator.energy_consumed(type, @building.level)
+      next_energy  = Buildings::Calculator.energy_consumed(type, target)
+      energy_delta = next_energy - curr_energy
+      duration     = Buildings::Calculator.construction_time(type, target)
+
+      can_metal   = @planet.metal_stock.to_f   >= cost[:metal].to_f
+      can_food    = @planet.food_stock.to_f    >= cost[:food].to_f
+      can_thorium = @planet.thorium_stock.to_f >= cost[:thorium].to_f
+      can_energy  = @planet.net_energy         >= energy_delta
+
+      @upgrade = {
+        target_level: target,
+        cost:         cost,
+        energy_delta: energy_delta,
+        duration:     duration,
+        can_afford:   can_metal && can_food && can_thorium && can_energy,
+        can_metal:    can_metal,
+        can_food:     can_food,
+        can_thorium:  can_thorium,
+        can_energy:   can_energy,
+      }
+    end
+
+    render layout: false
+  end
+
   def new
     @slot_index = params[:slot_index].to_i
 

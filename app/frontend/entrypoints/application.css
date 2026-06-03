@@ -75,3 +75,40 @@ h1 {
   color: var(--color-primary);
   letter-spacing: 0.2rem;
 }
+
+#building-panel-aside {
+  display: none;
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  width: 25rem;
+  max-height: calc(100% - 2rem);
+  z-index: 10;
+  overflow-y: auto;
+  background: var(--color-surface);
+  border-left: 1px solid var(--color-border);
+  padding: 0.75rem;
+}
+
+#building-panel-aside[data-open] {
+  display: block;
+  animation: slide-in-right 0.2s ease-out;
+}
+
+@keyframes slide-in-right {
+  from { transform: translateX(100%) translateY(-50%); opacity: 0; }
+  to   { transform: translateX(0)    translateY(-50%); opacity: 1; }
+}
+
+#queue-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 36px;
+  padding: 0 1rem;
+  background: var(--color-space-bg-2);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  overflow: hidden;
+}

@@ -25,7 +25,7 @@ Rails.application.routes.draw do
 
   # Game routes
   resources :planets do
-    resources :buildings, only: [:new, :create]
+    resources :buildings, only: [:new, :create, :show]
   end
 
   # Documentation routes

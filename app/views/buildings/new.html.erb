@@ -1,4 +1,8 @@
 <%= turbo_frame_tag "building-panel" do %>
+  <div class="flex justify-end mb-2">
+    <button class="text-text-subtle hover:text-text transition-colors text-sm leading-none px-1 py-0.5"
+            data-action="click->building-panel#close">✕</button>
+  </div>
   <% if @buildings_data.empty? %>
     <div class="flex flex-col items-center justify-center gap-2 py-12 text-center scifi-text">
       <span class="text-2xl opacity-30">⊘</span>

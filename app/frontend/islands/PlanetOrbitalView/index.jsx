@@ -436,6 +436,12 @@ export default function PlanetOrbitalView({
 
   useEffect(() => { ensureStyles() }, [])
 
+  useEffect(() => {
+    const handler = () => { setOpenSlot(null); setSelectedId(null) }
+    document.addEventListener("planet:panel-closed", handler)
+    return () => document.removeEventListener("planet:panel-closed", handler)
+  }, [])
+
   const containerRef = useRef(null)
   const [containerSize, setContainerSize] = useState(480)
 

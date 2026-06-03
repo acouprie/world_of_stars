@@ -14,7 +14,7 @@ class PlanetsController < ApplicationController
 
   def set_planet
     @planet = Current.user.planets
-                          .includes(:buildings, :construction_queue)
+                          .includes(:buildings, construction_queue: :building)
                           .find(params[:id])
   end
 end
