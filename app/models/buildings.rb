@@ -21,6 +21,7 @@ module Buildings
     # ─── Energy ───────────────────────────────────────────────────────────────
     solar_station: {
       category: :energy,
+      description: "Convertit l'énergie solaire",
       requires: { command_center: 1 },
       energy_producer: true,
       levels: [
@@ -41,6 +42,7 @@ module Buildings
     },
     nuclear_plant: {
       category: :energy,
+      description: "Centrale à fission nucléaire",
       requires: { command_center: 5 },
       energy_producer: true,
       levels: [
@@ -60,6 +62,7 @@ module Buildings
     # ─── Production ───────────────────────────────────────────────────────────
     metal_mine: {
       category: :production,
+      description: "Extraction de minerai métallique",
       requires: { command_center: 1 },
       levels: [
         { metal: 60,     food: 20,    thorium: 0, energy_consumed: 11,  production: 24,    time: 53      },
@@ -86,6 +89,7 @@ module Buildings
     },
     farm: {
       category: :production,
+      description: "Cultures alimentaires planétaires",
       requires: { command_center: 1 },
       levels: [
         { metal: 60,     food: 50,    thorium: 0, energy_consumed: 22,  production: 18,    time: 53      },
@@ -112,6 +116,7 @@ module Buildings
     },
     thorium_mine: {
       category: :production,
+      description: "Extraction de thorium radioactif",
       requires: { command_center: 1 },
       levels: [
         { metal: 50,     food: 40,    thorium: 0, energy_consumed: 22,  production: 18,   time: 53      },
@@ -141,6 +146,7 @@ module Buildings
     # production field = storage capacity at this level
     food_silo: {
       category: :storage,
+      description: "Stockage de la production alimentaire",
       requires: { command_center: 1 },
       levels: [
         { metal: 65,    food: 65,    thorium: 0, energy_consumed: 0, production: 21_000,    time: 49       },
@@ -167,6 +173,7 @@ module Buildings
     },
     metal_warehouse: {
       category: :storage,
+      description: "Entrepôt de métal brut",
       requires: { command_center: 1 },
       levels: [
         { metal: 100,   food: 30,    thorium: 0, energy_consumed: 0, production: 21_000,    time: 49       },
@@ -193,6 +200,7 @@ module Buildings
     },
     thorium_warehouse: {
       category: :storage,
+      description: "Réservoir de thorium liquide",
       requires: { command_center: 1 },
       levels: [
         { metal: 30,    food: 100,   thorium: 0, energy_consumed: 0, production: 21_000,    time: 49       },
@@ -223,6 +231,7 @@ module Buildings
     # Levels 2-13 follow HEADQUARTER ratios without thorium.
     command_center: {
       category: :infrastructure,
+      description: "Gère les opérations planétaires",
       requires: nil,
       levels: [
         { metal: 50,      food: 25,      thorium: 0, energy_consumed: 0, production: 0, time: 90     },
@@ -242,6 +251,7 @@ module Buildings
     },
     research_lab: {
       category: :infrastructure,
+      description: "Développe de nouvelles technologies",
       requires: { command_center: 2 },
       levels: [
         { metal: 300,    food: 100,   thorium: 250,    energy_consumed: 0, production: 0, time: 60    },
@@ -258,6 +268,7 @@ module Buildings
     },
     quantum_portal: {
       category: :infrastructure,
+      description: "Téléportation quantique interstellaire",
       requires: { command_center: 4 },
       levels: [
         { metal: 2500,    food: 2500,    thorium: 7500,    energy_consumed: 33,  production: 0, time: 750    },
@@ -274,6 +285,7 @@ module Buildings
     },
     radar_satellite: {
       category: :orbital,
+      description: "Détection et surveillance orbitale",
       requires: { command_center: 3 },
       # No energy_consumed — runs on dedicated solar panels.
       # Each level unlocks additional detection capabilities:
@@ -304,6 +316,7 @@ module Buildings
     # ─── Military ─────────────────────────────────────────────────────────────
     training_camp: {
       category: :military,
+      description: "Entraîne les unités de combat",
       requires: { command_center: 1 },
       # energy_consumed increases by ~15 per level (20 → 150).
       # Each level unlocks a new unit type
@@ -322,6 +335,7 @@ module Buildings
     },
     military_camp: {
       category: :military,
+      description: "Caserne pour les troupes terrestres",
       requires: { command_center: 2 },
       # energy_consumed increases by ~20 per level (30 → 200).
       levels: [
@@ -339,6 +353,7 @@ module Buildings
     },
     ship_factory: {
       category: :military,
+      description: "Construction de vaisseaux spatiaux",
       requires: { command_center: 3 },
       # energy_consumed increases by ~40 per level (50 → 600).
       # Most thorium-intensive military building by design.
@@ -362,6 +377,7 @@ module Buildings
     },
     bunker: {
       category: :military,
+      description: "Abri de protection des ressources",
       requires: { command_center: 2 },
       # production is a Hash: { resources: Integer, soldiers: Integer }
       #   resources → total shared capacity across metal + food + thorium (player allocates freely)

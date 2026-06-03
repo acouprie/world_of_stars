@@ -1,0 +1,67 @@
+<%
+  built_buildings = @planet.buildings.select { |b| b.level > 0 }
+  all_categories = %i[energy production storage infrastructure orbital military]
+  visible_categories = all_categories.select { |c|
+    built_buildings.any? { |b| b.config&.dig(:category) == c }
+  }
+%>
+
+<% if built_buildings.any? %>
+  <section class="border-t border-border px-4 py-4 scifi-text"
+           data-controller="building-list">
+
+    <div class="mb-3 flex items-center gap-2">
+      <span class="text-xs font-medium uppercase tracking-wider text-text-muted">
+        <%= t("planets.show.buildings_list.title") %>
+      </span>
+      <span class="text-xs text-text-subtle">(<%= built_buildings.size %>)</span>
+    </div>
+
+    <div class="mb-3 flex flex-wrap gap-1">
+      <button class="rounded border border-border px-2 py-0.5 text-[10px] uppercase tracking-wider text-text-muted transition-colors hover:border-primary hover:text-primary data-[active=true]:border-primary data-[active=true]:bg-primary/10 data-[active=true]:text-primary"
+              data-building-list-target="tab"
+              data-building-list-category-param="all"
+              data-action="click->building-list#setFilter">
+        <%= t("planets.show.buildings_list.filter_all") %>
+      </button>
+
+      <% visible_categories.each do |category| %>
+        <button class="rounded border border-border px-2 py-0.5 text-[10px] uppercase tracking-wider text-text-muted transition-colors hover:border-primary hover:text-primary data-[active=true]:border-primary data-[active=true]:bg-primary/10 data-[active=true]:text-primary"
+                data-building-list-target="tab"
+                data-building-list-category-param="<%= category %>"
+                data-action="click->building-list#setFilter">
+          <%= t("documentation.buildings_explorer.category_labels.#{category}") %>
+        </button>
+      <% end %>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+      <% built_buildings.each do |building| %>
+        <%
+          category = building.config&.dig(:category)&.to_s || ""
+          color_class = building_category_color_class(building.building_type)
+          badge_classes = building_category_badge_classes(building.building_type)
+          icon = building_icon(building.building_type)
+          name = building_name(building.building_type)
+          production_info = building_production_info(building)
+          description = production_info || building.config[:description]
+        %>
+        <div class="flex flex-col gap-1.5 rounded border border-border bg-surface p-2.5"
+             data-building-list-target="card"
+             data-category="<%= category %>">
+          <div class="flex items-start justify-between gap-1">
+            <span class="text-xl leading-none <%= color_class %>"><%= icon %></span>
+            <span class="rounded border px-1.5 py-0.5 text-[9px] font-medium <%= badge_classes %>">
+              <%= t("planets.show.buildings_list.level_badge", level: building.level) %>
+            </span>
+          </div>
+          <span class="text-[10px] font-bold leading-tight text-text"><%= name %></span>
+          <% if description.present? %>
+            <span class="text-[9px] leading-tight text-text-subtle"><%= description %></span>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+  </section>
+<% end %>

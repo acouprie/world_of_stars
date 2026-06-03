@@ -36,4 +36,167 @@ RSpec.describe BuildingsHelper, type: :helper do
       expect(helper.format_duration(7500)).to eq("2 h 5 min")
     end
   end
+
+  describe "#building_icon" do
+    it "returns the icon for a known building type (string)" do
+      expect(helper.building_icon("solar_station")).to eq("☀")
+    end
+
+    it "returns the icon for a known building type (symbol)" do
+      expect(helper.building_icon(:military_camp)).to eq("✦")
+    end
+
+    it "returns '?' for an unknown type" do
+      expect(helper.building_icon("laser_cannon")).to eq("?")
+    end
+
+    it "returns icons for all registered building types" do
+      Buildings::REGISTRY.each_key do |type|
+        expect(helper.building_icon(type)).not_to eq("?"), "Missing icon for #{type}"
+      end
+    end
+  end
+
+  describe "#building_category_color_class" do
+    it "returns text-primary for energy buildings" do
+      expect(helper.building_category_color_class("solar_station")).to eq("text-primary")
+      expect(helper.building_category_color_class("nuclear_plant")).to eq("text-primary")
+    end
+
+    it "returns text-secondary for production buildings" do
+      expect(helper.building_category_color_class("metal_mine")).to eq("text-secondary")
+      expect(helper.building_category_color_class("farm")).to eq("text-secondary")
+    end
+
+    it "returns text-secondary for infrastructure buildings" do
+      expect(helper.building_category_color_class("command_center")).to eq("text-secondary")
+      expect(helper.building_category_color_class("research_lab")).to eq("text-secondary")
+    end
+
+    it "returns text-quantum for orbital buildings" do
+      expect(helper.building_category_color_class("radar_satellite")).to eq("text-quantum")
+    end
+
+    it "returns text-varek for military buildings" do
+      expect(helper.building_category_color_class("bunker")).to eq("text-varek")
+      expect(helper.building_category_color_class("ship_factory")).to eq("text-varek")
+    end
+
+    it "returns text-text-muted for storage buildings" do
+      expect(helper.building_category_color_class("food_silo")).to eq("text-text-muted")
+    end
+
+    it "falls back to text-text-muted for unknown types" do
+      expect(helper.building_category_color_class("laser_cannon")).to eq("text-text-muted")
+    end
+  end
+
+  describe "#building_category_badge_classes" do
+    it "returns primary badge classes for energy buildings" do
+      classes = helper.building_category_badge_classes("solar_station")
+      expect(classes).to include("text-primary")
+    end
+
+    it "returns varek badge classes for military buildings" do
+      classes = helper.building_category_badge_classes("training_camp")
+      expect(classes).to include("text-varek")
+    end
+
+    it "returns quantum badge classes for orbital buildings" do
+      classes = helper.building_category_badge_classes("radar_satellite")
+      expect(classes).to include("text-quantum")
+    end
+
+    it "returns neutral classes for storage buildings" do
+      classes = helper.building_category_badge_classes("food_silo")
+      expect(classes).to include("text-text-muted")
+    end
+
+    it "falls back to neutral classes for unknown types" do
+      classes = helper.building_category_badge_classes("laser_cannon")
+      expect(classes).to include("text-text-muted")
+    end
+  end
+
+  describe "#building_production_info" do
+    subject(:info) { helper.building_production_info(building) }
+
+    context "with an energy building" do
+      let(:building) { build(:building, building_type: "solar_station", level: 1) }
+
+      it "returns the energy output" do
+        expect(info).to include("+55")
+        expect(info).to include(I18n.t("resources.energy").downcase)
+      end
+
+      it "does not include '/h'" do
+        expect(info).not_to include("/h")
+      end
+    end
+
+    context "with a production building (metal mine)" do
+      let(:building) { build(:building, building_type: "metal_mine", level: 1) }
+
+      it "returns the production rate with '/h'" do
+        expect(info).to include("+24")
+        expect(info).to include(I18n.t("resources.metal").downcase)
+        expect(info).to include("/h")
+      end
+    end
+
+    context "with a production building (farm)" do
+      let(:building) { build(:building, building_type: "farm", level: 2) }
+
+      it "returns the production rate for the correct level" do
+        expect(info).to include("+21")
+        expect(info).to include(I18n.t("resources.food").downcase)
+      end
+    end
+
+    context "with a storage building" do
+      let(:building) { build(:building, building_type: "food_silo", level: 1) }
+
+      it "returns the storage capacity" do
+        expect(info).to include("21")
+        expect(info).to include(I18n.t("resources.food").downcase)
+      end
+
+      it "does not include '/h'" do
+        expect(info).not_to include("/h")
+      end
+    end
+
+    context "with a bunker" do
+      let(:building) { build(:building, building_type: "bunker", level: 1) }
+
+      it "returns resources and soldiers capacity" do
+        expect(info).to include("5")
+        expect(info).to include("50")
+      end
+    end
+
+    context "with an infrastructure building" do
+      let(:building) { build(:building, building_type: "command_center", level: 1) }
+
+      it "returns nil" do
+        expect(info).to be_nil
+      end
+    end
+
+    context "with a non-bunker military building" do
+      let(:building) { build(:building, building_type: "training_camp", level: 1) }
+
+      it "returns nil" do
+        expect(info).to be_nil
+      end
+    end
+
+    context "with a level 0 building" do
+      let(:building) { build(:building, building_type: "solar_station", level: 0) }
+
+      it "returns nil" do
+        expect(info).to be_nil
+      end
+    end
+  end
 end

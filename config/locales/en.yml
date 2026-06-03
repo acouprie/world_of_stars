@@ -211,6 +211,14 @@ en:
   planets:
     show:
       select_slot: "Select a slot"
+      buildings_list:
+        title: "Constructed buildings"
+        filter_all: "All"
+        level_badge: "Lv %{level}"
+        energy_output: "+%{value} %{resource}"
+        production_rate: "+%{value} %{resource}/h"
+        storage_capacity: "Capacity: %{value} %{resource}"
+        bunker_capacity: "Capacity: %{resources} resources and %{soldiers} soldiers"
     orbital_view:
       slot_orbital: "Orbital slot"
       slot_empty: "Empty slot"

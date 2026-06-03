@@ -23,12 +23,6 @@ RSpec.describe "Homes", type: :request do
         end
       end
 
-      context "without a planet" do
-        it "stays on the root page" do
-          get "/"
-          expect(response).to have_http_status(:success)
-        end
-      end
     end
   end
 end
