@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 // ─── Metadata ─────────────────────────────────────────────────────────────────
 
@@ -257,13 +257,16 @@ function PlanetSVG({ visualType, pid }) {
 
 // ─── Building Pin ─────────────────────────────────────────────────────────────
 
-function BuildingPin({ building, selected, onSelect, i18n }) {
+function BuildingPin({ building, selected, onSelect, i18n, containerSize }) {
   const meta  = BUILDING_META[building.building_type] || { label: building.building_type, category: 'infrastructure', icon: '?' }
   const cat   = building.is_orbital ? 'orbital' : meta.category
   const color = CATEGORY_COLORS[cat] || 'var(--color-text-muted)'
 
   const lvl      = building.level
-  const pinSize  = lvl >= 5 ? 36 : lvl >= 3 ? 32 : 28
+  const BASE = containerSize * 0.075
+  const pinSize = lvl >= 5 ? BASE * 1.3
+                : lvl >= 3 ? BASE * 1.15
+                :             BASE
   const isOutline = lvl <= 2
   const isPulsing = lvl >= 5
   const borderW  = lvl >= 5 ? 2 : lvl >= 3 ? 1.5 : 1
@@ -313,20 +316,29 @@ function BuildingPin({ building, selected, onSelect, i18n }) {
         style={{
           width:        `${pinSize}px`,
           height:       `${pinSize}px`,
+          minWidth:     `${pinSize}px`,
+          minHeight:    `${pinSize}px`,
           borderRadius: '50%',
-          background:   isOutline ? 'transparent' : 'var(--color-surface)',
+          background:   '#1c1d27',
           border:       `${borderW}px solid ${color}`,
-          opacity:      isOutline ? 0.7 : 1,
-          display:      'flex',
-          alignItems:   'center',
+          display:        'flex',
           justifyContent: 'center',
+          alignItems:     'center',
           color,
-          fontSize:     `${Math.round(pinSize * 0.44)}px`,
+          fontSize:   `${Math.round(pinSize)}px`,
           boxShadow:    selected ? `0 0 8px ${color}` : 'none',
           fontFamily:   'monospace',
+          flexShrink:   0,
+          overflow:     'hidden',
         }}
       >
-        {meta.icon}
+        <span style={{
+          display:    'block',
+          lineHeight: '1',
+          transform:  'translateY(-0.1em)',
+        }}>
+          {meta.icon}
+        </span>
       </div>
 
       {building.in_progress && (
@@ -337,7 +349,7 @@ function BuildingPin({ building, selected, onSelect, i18n }) {
           transform:  'translateX(-50%)',
           width:      `${pinSize + 4}px`,
           height:     '3px',
-          background: 'var(--color-border)',
+          background: '#2a1f0e',
           borderRadius: '2px',
           overflow:   'hidden',
         }}>
@@ -391,7 +403,7 @@ function SlotPin({ slot, isOpen, onOpen, onClose, i18n }) {
           height:       '28px',
           borderRadius: '50%',
           border:       `1px solid ${color}`,
-          background:   isOpen ? `${activeColor}22` : 'transparent',
+          background:   'var(--color-space-bg-2)',
           display:      'flex',
           alignItems:   'center',
           justifyContent: 'center',
@@ -423,6 +435,19 @@ export default function PlanetOrbitalView({
   const [openSlot, setOpenSlot]     = useState(null)
 
   useEffect(() => { ensureStyles() }, [])
+
+  const containerRef = useRef(null)
+  const [containerSize, setContainerSize] = useState(480)
+
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const ro = new ResizeObserver(([entry]) => {
+      setContainerSize(entry.contentRect.width)
+    })
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
 
   function handleBuildingSelect(buildingId) {
     setSelectedId(buildingId)
@@ -475,6 +500,7 @@ export default function PlanetOrbitalView({
             selected={selectedId === b.id}
             onSelect={handleBuildingSelect}
             i18n={i18n}
+            containerSize={containerSize}
           />
         ))}
 
