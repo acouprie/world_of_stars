@@ -47,6 +47,7 @@ en:
       invalid_link: "Password reset link is invalid or has expired."
     buildings:
       created: "Construction started"
+      completed: "Building constructed"
       already_building: "A construction is already in progress"
       prerequisite_missing: "Prerequisites not met"
       insufficient_resources: "Insufficient resources"

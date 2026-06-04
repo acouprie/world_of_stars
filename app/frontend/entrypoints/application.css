@@ -101,6 +101,50 @@ h1 {
   to   { transform: translateX(0)    translateY(-50%); opacity: 1; }
 }
 
+#flash-messages {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.flash-notice,
+.flash-alert {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.75rem;
+  padding: 0.5rem 0.875rem;
+  border-radius: 4px;
+  pointer-events: auto;
+  animation: flash-dismiss 0.3s 4s ease-in forwards;
+}
+
+.flash-notice {
+  background: color-mix(in srgb, var(--color-quantum) 15%, var(--color-surface));
+  border: 1px solid var(--color-quantum);
+  color: var(--color-quantum);
+}
+
+.flash-alert {
+  background: color-mix(in srgb, var(--color-varek) 15%, var(--color-surface));
+  border: 1px solid var(--color-varek);
+  color: var(--color-varek);
+}
+
+@keyframes flash-dismiss {
+  to {
+    opacity: 0;
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-width: 0;
+    overflow: hidden;
+  }
+}
+
 #queue-bar {
   display: flex;
   align-items: center;

@@ -72,9 +72,31 @@ class BuildingsController < ApplicationController
     result = Constructions::InitiateService.new(@planet, building_type, slot_index: slot_index).call
 
     if result.success?
-      redirect_to planet_path(@planet), notice: t("flash.buildings.created")
+      @planet = Current.user.planets
+                            .includes(:buildings, construction_queue: :building)
+                            .find(@planet.id)
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: [
+            turbo_stream.replace("resources_bar",  partial: "planets/resources_bar",        locals: { planet: @planet }),
+            turbo_stream.replace("planet-canvas",  partial: "planets/canvas_container",     locals: { planet: @planet }),
+            turbo_stream.replace("queue-bar",      partial: "construction_queues/queue_bar", locals: { planet: @planet }),
+            turbo_stream.prepend("flash-messages", partial: "layouts/flash_notice",          locals: { message: t("flash.buildings.created") }),
+          ]
+        end
+        format.html { redirect_to planet_path(@planet), notice: t("flash.buildings.created") }
+      end
     else
-      redirect_to planet_path(@planet), alert: t("flash.buildings.#{result.error}", default: result.error)
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.prepend(
+            "flash-messages",
+            partial: "layouts/flash_alert",
+            locals: { message: t("flash.buildings.#{result.error}", default: result.error) }
+          )
+        end
+        format.html { redirect_to planet_path(@planet), alert: t("flash.buildings.#{result.error}", default: result.error) }
+      end
     end
   end
 
@@ -82,7 +104,7 @@ class BuildingsController < ApplicationController
 
   def set_planet
     @planet = Current.user.planets
-                          .includes(:buildings, :construction_queue)
+                          .includes(:buildings, construction_queue: :building)
                           .find(params[:planet_id])
   end
 end

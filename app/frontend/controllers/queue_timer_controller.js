@@ -1,8 +1,8 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["display"]
-  static values  = { completesAt: String }
+  static targets = ["display", "bar"]
+  static values  = { completesAt: String, startedAt: String }
 
   connect() {
     this.tick()
@@ -12,11 +12,22 @@ export default class extends Controller {
   disconnect() { clearInterval(this.interval) }
 
   tick() {
-    const diff = Math.max(0, new Date(this.completesAtValue) - Date.now())
-    const m = Math.floor(diff / 60000)
-    const s = Math.floor((diff % 60000) / 1000)
+    const now   = Date.now()
+    const end   = new Date(this.completesAtValue).getTime()
+    const start = new Date(this.startedAtValue).getTime()
+
+    const remaining = Math.max(0, end - now)
+    const m = Math.floor(remaining / 60000)
+    const s = Math.floor((remaining % 60000) / 1000)
     this.displayTarget.textContent =
       `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
-    if (diff === 0) clearInterval(this.interval)
+
+    if (this.hasBarTarget) {
+      const total = end - start
+      const pct   = total > 0 ? Math.min(100, ((now - start) / total) * 100) : 0
+      this.barTarget.style.width = `${pct}%`
+    }
+
+    if (remaining === 0) clearInterval(this.interval)
   }
 }

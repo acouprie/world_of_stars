@@ -1,5 +1,6 @@
 <%
-  built_buildings = @planet.buildings.select { |b| b.level > 0 }
+  planet = local_assigns.fetch(:planet, @planet)
+  built_buildings = planet.buildings.select { |b| b.level > 0 }
   all_categories = %i[energy production storage infrastructure orbital military]
   visible_categories = all_categories.select { |c|
     built_buildings.any? { |b| b.config&.dig(:category) == c }
@@ -46,7 +47,7 @@
           production_info = building_production_info(building)
           description = production_info || building.config[:description]
         %>
-        <%= link_to planet_building_path(@planet, building),
+        <%= link_to planet_building_path(planet, building),
                     class: "block",
                     data: { turbo_frame: "building-panel", building_list_target: "card", category: category } do %>
           <div class="flex flex-col gap-1.5 rounded border border-border bg-surface p-2.5 hover:border-primary/50 transition-colors cursor-pointer">

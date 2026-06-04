@@ -46,10 +46,6 @@ const ISLAND_CSS = `
   0%   { opacity: 0.65; transform: scale(1); }
   100% { opacity: 0;    transform: scale(2.4); }
 }
-@keyframes pov-progress {
-  0%   { left: -55%; }
-  100% { left: 155%; }
-}
 `
 
 function ensureStyles() {
@@ -257,55 +253,67 @@ function PlanetSVG({ visualType, pid }) {
 
 // ─── Building Pin ─────────────────────────────────────────────────────────────
 
-function BuildingPin({ building, selected, onSelect, i18n, containerSize }) {
-  const meta  = BUILDING_META[building.building_type] || { label: building.building_type, category: 'infrastructure', icon: '?' }
-  const cat   = building.is_orbital ? 'orbital' : meta.category
-  const color = CATEGORY_COLORS[cat] || 'var(--color-text-muted)'
+const CONSTRUCTION_COLOR = 'var(--color-primary)'
 
-  const lvl      = building.level
-  const BASE = containerSize * 0.075
-  const pinSize = lvl >= 5 ? BASE * 1.3
-                : lvl >= 3 ? BASE * 1.15
-                :             BASE
-  const isOutline = lvl <= 2
-  const isPulsing = lvl >= 5
-  const borderW  = lvl >= 5 ? 2 : lvl >= 3 ? 1.5 : 1
-  const offset   = (44 - pinSize) / 2  // centers the pin inside the 44px touch target
+function BuildingPin({ building, selected, onSelect, i18n, containerSize }) {
+  const meta      = BUILDING_META[building.building_type] || { label: building.building_type, category: 'infrastructure', icon: '?' }
+  const cat       = building.is_orbital ? 'orbital' : meta.category
+  const baseColor = CATEGORY_COLORS[cat] || 'var(--color-text-muted)'
+  const color     = building.in_progress ? CONSTRUCTION_COLOR : baseColor
+
+  const lvl     = building.level
+  const BASE    = containerSize * 0.075
+  const pinSize = lvl >= 5 ? BASE * 1.3 : lvl >= 3 ? BASE * 1.15 : BASE
+  const borderW = lvl >= 5 ? 2 : lvl >= 3 ? 1.5 : 1
+  const offset  = (44 - pinSize) / 2
+
+  const pinBg = building.in_progress
+    ? 'color-mix(in srgb, var(--color-primary) 18%, var(--color-space-bg))'
+    : 'var(--color-surface)'
+
+  const pulseColor  = building.in_progress ? CONSTRUCTION_COLOR : baseColor
+  const pulseSpeed  = building.in_progress ? '1.2s' : '1.8s'
+  const showPulse   = building.in_progress || lvl >= 5
+
+  const label = i18n?.building_labels?.[building.building_type] ?? meta.label
+  const title = building.in_progress
+    ? `${label} — construction en cours`
+    : `${label} — Lv. ${lvl}`
 
   return (
     <div
       className={`pov-pin${selected ? ' pov-pin-selected' : ''}`}
       role="button"
       tabIndex={0}
-      title={`${i18n?.building_labels?.[building.building_type] ?? meta.label} — Lv. ${lvl}`}
+      title={title}
       style={{
-        position: 'absolute',
-        left: `${building.position_x * 100}%`,
-        top:  `${building.position_y * 100}%`,
+        position:  'absolute',
+        left:      `${building.position_x * 100}%`,
+        top:       `${building.position_y * 100}%`,
         transform: 'translate(-50%, -50%)',
-        width: '44px',
-        height: '44px',
-        display: 'flex',
-        alignItems: 'center',
+        width:     '44px',
+        height:    '44px',
+        display:   'flex',
+        alignItems:     'center',
         justifyContent: 'center',
-        zIndex: selected ? 10 : 2,
-        cursor: 'pointer',
+        zIndex:    selected ? 10 : 2,
+        cursor:    'pointer',
       }}
       onClick={() => onSelect(building.id)}
       onKeyDown={e => e.key === 'Enter' && onSelect(building.id)}
     >
-      {isPulsing && (
+      {showPulse && (
         <div
           aria-hidden="true"
           style={{
-            position: 'absolute',
-            top:    `${offset}px`,
-            left:   `${offset}px`,
-            width:  `${pinSize}px`,
-            height: `${pinSize}px`,
+            position:     'absolute',
+            top:          `${offset}px`,
+            left:         `${offset}px`,
+            width:        `${pinSize}px`,
+            height:       `${pinSize}px`,
             borderRadius: '50%',
-            border: `2px solid ${color}`,
-            animation: 'pov-pulse 1.8s ease-out infinite',
+            border:       `2px solid ${pulseColor}`,
+            animation:    `pov-pulse ${pulseSpeed} ease-out infinite`,
             pointerEvents: 'none',
           }}
         />
@@ -314,55 +322,31 @@ function BuildingPin({ building, selected, onSelect, i18n, containerSize }) {
       <div
         className="pov-pin-inner"
         style={{
-          width:        `${pinSize}px`,
-          height:       `${pinSize}px`,
-          minWidth:     `${pinSize}px`,
-          minHeight:    `${pinSize}px`,
-          borderRadius: '50%',
-          background:   '#1c1d27',
-          border:       `${borderW}px solid ${color}`,
+          width:          `${pinSize}px`,
+          height:         `${pinSize}px`,
+          minWidth:       `${pinSize}px`,
+          minHeight:      `${pinSize}px`,
+          borderRadius:   '50%',
+          background:     pinBg,
+          border:         `${borderW}px solid ${color}`,
           display:        'flex',
           justifyContent: 'center',
           alignItems:     'center',
           color,
-          fontSize:   `${Math.round(pinSize)}px`,
-          boxShadow:    selected ? `0 0 8px ${color}` : 'none',
-          fontFamily:   'monospace',
-          flexShrink:   0,
-          overflow:     'hidden',
+          fontSize:    `${Math.round(pinSize)}px`,
+          boxShadow:   building.in_progress
+            ? `0 0 8px color-mix(in srgb, ${CONSTRUCTION_COLOR} 60%, transparent)`
+            : selected ? `0 0 8px ${baseColor}` : 'none',
+          fontFamily:  'monospace',
+          flexShrink:  0,
+          overflow:    'hidden',
+          opacity:     building.in_progress && lvl === 0 ? 0.8 : 1,
         }}
       >
-        <span style={{
-          display:    'block',
-          lineHeight: '1',
-          transform:  'translateY(-0.1em)',
-        }}>
+        <span style={{ display: 'block', lineHeight: '1', transform: 'translateY(-0.1em)' }}>
           {meta.icon}
         </span>
       </div>
-
-      {building.in_progress && (
-        <div style={{
-          position:   'absolute',
-          bottom:     '2px',
-          left:       '50%',
-          transform:  'translateX(-50%)',
-          width:      `${pinSize + 4}px`,
-          height:     '3px',
-          background: '#2a1f0e',
-          borderRadius: '2px',
-          overflow:   'hidden',
-        }}>
-          <div style={{
-            position:   'absolute',
-            width:      '55%',
-            height:     '100%',
-            background: 'var(--color-primary)',
-            borderRadius: '2px',
-            animation:  'pov-progress 1.5s linear infinite',
-          }} />
-        </div>
-      )}
     </div>
   )
 }

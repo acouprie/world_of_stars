@@ -15,7 +15,7 @@ module PlanetsHelper
   ].freeze
 
   def orbital_view_props(planet)
-    buildings = planet.buildings.where("level >= 1")
+    buildings = planet.buildings
     cq        = planet.construction_queue
     active_cq = cq&.pending? ? cq : nil
     occupied   = buildings.pluck(:slot_index).compact

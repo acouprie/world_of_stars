@@ -1,0 +1,10 @@
+<% planet = local_assigns.fetch(:planet, @planet) %>
+<div id="planet-canvas" class="relative overflow-hidden">
+  <%= render 'planets/orbital_view', planet: planet %>
+
+  <aside id="building-panel-aside"
+         data-controller="building-panel"
+         data-building-panel-planet-id-value="<%= planet.id %>">
+    <%= turbo_frame_tag "building-panel" %>
+  </aside>
+</div>

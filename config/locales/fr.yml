@@ -47,6 +47,7 @@ fr:
       invalid_link: "Le lien de réinitialisation est invalide ou expiré."
     buildings:
       created: "Construction lancée"
+      completed: "Bâtiment construit"
       already_building: "Une construction est déjà en cours"
       prerequisite_missing: "Prérequis non rempli"
       insufficient_resources: "Ressources insuffisantes"
