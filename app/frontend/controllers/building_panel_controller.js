@@ -6,8 +6,8 @@ export default class extends Controller {
   connect() {
     this.slotHandler     = this.onSlotOpen.bind(this)
     this.buildingHandler = this.onBuildingSelect.bind(this)
-    this.frameHandler    = this.open.bind(this)
     this.outsideHandler  = this.onOutsideClick.bind(this)
+    this.frameHandler    = this.onFrameLoad.bind(this)
 
     document.addEventListener("planet:slot-open",       this.slotHandler)
     document.addEventListener("planet:building-select", this.buildingHandler)
@@ -29,18 +29,18 @@ export default class extends Controller {
   onSlotOpen({ detail: { slot_index } }) {
     if (!this.frame) return
     this.frame.src = `/planets/${this.planetIdValue}/buildings/new?slot_index=${slot_index}`
+    this.element.setAttribute("data-open", "")
   }
 
   onBuildingSelect({ detail: { building_id } }) {
     if (!this.frame) return
     this.frame.src = `/planets/${this.planetIdValue}/buildings/${building_id}`
+    this.element.setAttribute("data-open", "")
   }
 
-  open() {
-    if (!this.frame?.children.length) {
-      this.close()
-      return
-    }
+  // Called by turbo:frame-load — handles direct frame navigation (building list cards).
+  onFrameLoad() {
+    if (!this.frame?.children.length) { this.close(); return }
     this.element.setAttribute("data-open", "")
   }
 

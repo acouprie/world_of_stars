@@ -299,7 +299,7 @@ function BuildingPin({ building, selected, onSelect, i18n, containerSize }) {
         zIndex:    selected ? 10 : 2,
         cursor:    'pointer',
       }}
-      onClick={() => onSelect(building.id)}
+      onClick={(e) => { e.stopPropagation(); onSelect(building.id) }}
       onKeyDown={e => e.key === 'Enter' && onSelect(building.id)}
     >
       {showPulse && (
@@ -380,7 +380,7 @@ function SlotPin({ slot, isOpen, onOpen, onClose, i18n }) {
         role="button"
         tabIndex={0}
         title={isOrbital ? (i18n?.slot_orbital ?? 'Orbital slot') : (i18n?.slot_empty ?? 'Empty slot')}
-        onClick={isOpen ? onClose : onOpen}
+        onClick={(e) => { e.stopPropagation(); isOpen ? onClose() : onOpen() }}
         onKeyDown={e => e.key === 'Enter' && (isOpen ? onClose() : onOpen())}
         style={{
           width:        '28px',

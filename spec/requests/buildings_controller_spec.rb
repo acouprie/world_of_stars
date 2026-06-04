@@ -18,13 +18,13 @@ RSpec.describe "Buildings", type: :request do
       before { sign_in(user) }
 
       it "rend le panneau avec la liste des bâtiments disponibles" do
-        get new_planet_building_path(planet, slot_index: 0)
+        get new_planet_building_path(planet, slot_index: 1)
         expect(response).to have_http_status(:success)
         expect(response.body).to include(I18n.t("buildings.types.command_center"))
       end
 
       it "n'affiche que les bâtiments dont les prérequis sont satisfaits" do
-        get new_planet_building_path(planet, slot_index: 0)
+        get new_planet_building_path(planet, slot_index: 1)
         # Sans command_center, seul command_center doit apparaître
         expect(response.body).to include(I18n.t("buildings.types.command_center"))
         expect(response.body).not_to include(I18n.t("buildings.types.solar_station"))
@@ -37,14 +37,14 @@ RSpec.describe "Buildings", type: :request do
       end
 
       it "returns 404 when accessing another user's planet" do
-        get new_planet_building_path(other_planet, slot_index: 0)
+        get new_planet_building_path(other_planet, slot_index: 1)
         expect(response).to have_http_status(:not_found)
       end
     end
 
     context "when not authenticated" do
       it "redirects to root" do
-        get new_planet_building_path(planet, slot_index: 0)
+        get new_planet_building_path(planet, slot_index: 1)
         expect(response).to redirect_to(root_path)
       end
     end
@@ -56,14 +56,14 @@ RSpec.describe "Buildings", type: :request do
 
       context "avec les prérequis satisfaits et les ressources suffisantes" do
         it "lance la construction et redirige avec une notice" do
-          post planet_buildings_path(planet), params: { building_type: "command_center", slot_index: 0 }
+          post planet_buildings_path(planet), params: { building_type: "command_center", slot_index: 1 }
           expect(response).to redirect_to(planet_path(planet))
           expect(flash[:notice]).to eq(I18n.t("flash.buildings.created"))
         end
 
         it "crée un Building sur la planète" do
           expect {
-            post planet_buildings_path(planet), params: { building_type: "command_center", slot_index: 0 }
+            post planet_buildings_path(planet), params: { building_type: "command_center", slot_index: 1 }
           }.to change { planet.buildings.count }.by(1)
         end
 
@@ -75,14 +75,14 @@ RSpec.describe "Buildings", type: :request do
 
       context "quand un prérequis est manquant" do
         it "échoue à construire solar_station sans command_center et redirige avec une alerte" do
-          post planet_buildings_path(planet), params: { building_type: "solar_station", slot_index: 0 }
+          post planet_buildings_path(planet), params: { building_type: "solar_station", slot_index: 1 }
           expect(response).to redirect_to(planet_path(planet))
           expect(flash[:alert]).to be_present
         end
 
         it "ne crée pas de bâtiment" do
           expect {
-            post planet_buildings_path(planet), params: { building_type: "solar_station", slot_index: 0 }
+            post planet_buildings_path(planet), params: { building_type: "solar_station", slot_index: 1 }
           }.not_to change { planet.buildings.count }
         end
       end
@@ -90,7 +90,7 @@ RSpec.describe "Buildings", type: :request do
       context "quand une construction est déjà en cours" do
         before do
           # Lance une première construction
-          post planet_buildings_path(planet), params: { building_type: "command_center", slot_index: 0 }
+          post planet_buildings_path(planet), params: { building_type: "command_center", slot_index: 1 }
         end
 
         it "échoue et redirige avec une alerte" do
@@ -104,7 +104,7 @@ RSpec.describe "Buildings", type: :request do
         before { planet.update!(metal_stock: 0, food_stock: 0, thorium_stock: 0) }
 
         it "échoue et redirige avec une alerte" do
-          post planet_buildings_path(planet), params: { building_type: "command_center", slot_index: 0 }
+          post planet_buildings_path(planet), params: { building_type: "command_center", slot_index: 1 }
           expect(response).to redirect_to(planet_path(planet))
           expect(flash[:alert]).to be_present
         end
@@ -112,7 +112,7 @@ RSpec.describe "Buildings", type: :request do
 
       context "sécurité — planète d'un autre joueur" do
         it "retourne 404" do
-          post planet_buildings_path(other_planet), params: { building_type: "command_center", slot_index: 0 }
+          post planet_buildings_path(other_planet), params: { building_type: "command_center", slot_index: 1 }
           expect(response).to have_http_status(:not_found)
         end
       end
@@ -120,7 +120,7 @@ RSpec.describe "Buildings", type: :request do
 
     context "when not authenticated" do
       it "redirects to root" do
-        post planet_buildings_path(planet), params: { building_type: "command_center", slot_index: 0 }
+        post planet_buildings_path(planet), params: { building_type: "command_center", slot_index: 1 }
         expect(response).to redirect_to(root_path)
       end
     end

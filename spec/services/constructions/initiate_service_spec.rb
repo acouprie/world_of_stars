@@ -11,7 +11,7 @@ RSpec.describe Constructions::InitiateService do
       resources_updated_at: Time.current)
   end
 
-  subject(:service) { described_class.new(planet, :command_center) }
+  subject(:service) { described_class.new(planet, :command_center, slot_index: 1) }
 
   describe "#call — building command_center (no prerequisite)" do
     it "returns success" do
@@ -58,8 +58,8 @@ RSpec.describe Constructions::InitiateService do
   describe "#call — upgrading an existing building" do
     # solar_station level 2 costs: metal=75, food=37, thorium=0 — affordable within default capacity.
     before do
-      create(:building, planet: planet, building_type: "command_center",  level: 1)
-      create(:building, planet: planet, building_type: "solar_station",   level: 1)
+      create(:building, planet: planet, building_type: "command_center",  level: 1, slot_index: 1)
+      create(:building, planet: planet, building_type: "solar_station",   level: 1, slot_index: 2)
     end
 
     it "targets level 2 for the existing building" do
@@ -71,15 +71,15 @@ RSpec.describe Constructions::InitiateService do
 
   describe "#call — prerequisite_missing" do
     it "returns failure when building needs command_center but none exists" do
-      result = described_class.new(planet, :solar_station).call
+      result = described_class.new(planet, :solar_station, slot_index: 1).call
       expect(result.success?).to be false
       expect(result.error).to eq("prerequisite_missing")
     end
 
     it "succeeds once command_center is at level 1" do
-      create(:building, planet: planet, building_type: "command_center", level: 1)
+      create(:building, planet: planet, building_type: "command_center", level: 1, slot_index: 1)
       # solar_station costs: metal:75, food:30, thorium:0 at level 1
-      result = described_class.new(planet, :solar_station).call
+      result = described_class.new(planet, :solar_station, slot_index: 2).call
       expect(result.success?).to be true
     end
   end
@@ -88,7 +88,7 @@ RSpec.describe Constructions::InitiateService do
     before { service.call }
 
     it "returns failure when a construction is already pending" do
-      result = described_class.new(planet, :command_center).call
+      result = described_class.new(planet, :command_center, slot_index: 1).call
       expect(result.success?).to be false
       expect(result.error).to eq("already_building")
     end
@@ -113,11 +113,11 @@ RSpec.describe Constructions::InitiateService do
     # command_center at level 1, no energy producer → net_energy = 0
     # metal_mine needs 10 energy → additional_energy = 10 → fails
     before do
-      create(:building, planet: planet, building_type: "command_center", level: 1)
+      create(:building, planet: planet, building_type: "command_center", level: 1, slot_index: 1)
     end
 
     it "returns failure when net energy would go negative" do
-      result = described_class.new(planet, :metal_mine).call
+      result = described_class.new(planet, :metal_mine, slot_index: 2).call
       expect(result.success?).to be false
       expect(result.error).to eq("insufficient_energy")
     end
@@ -125,7 +125,7 @@ RSpec.describe Constructions::InitiateService do
 
   describe "#call — unknown building type" do
     it "returns failure with an error message" do
-      result = described_class.new(planet, :laser_cannon).call
+      result = described_class.new(planet, :laser_cannon, slot_index: 1).call
       expect(result.success?).to be false
       expect(result.error).to include("Unknown building type")
     end
@@ -134,8 +134,8 @@ RSpec.describe Constructions::InitiateService do
   describe "#call — level prerequisite gating" do
     # solar_station level 4 requires Command Center level 3
     before do
-      create(:building, planet: planet, building_type: "command_center", level: 1)
-      create(:building, planet: planet, building_type: "solar_station",  level: 3)
+      create(:building, planet: planet, building_type: "command_center", level: 1, slot_index: 1)
+      create(:building, planet: planet, building_type: "solar_station",  level: 3, slot_index: 2)
     end
 
     it "blocks upgrade when Command Center level is below the tier threshold" do
@@ -156,28 +156,75 @@ RSpec.describe Constructions::InitiateService do
       described_class.new(planet, :command_center, slot_index: 5).call
       expect(planet.buildings.find_by(building_type: "command_center").slot_index).to eq(5)
     end
-
-    it "picks an available slot automatically when the requested one is occupied" do
-      create(:building, planet: planet, building_type: "solar_station", slot_index: 5, level: 1)
-      create(:building, planet: planet, building_type: "command_center", level: 1, slot_index: 0)
-      # Upgrade command_center — request slot 5 which is taken by solar_station
-      described_class.new(planet, :command_center, slot_index: 5).call
-      # The building already exists at slot 0 and is not moved (new_record? is false)
-      expect(planet.buildings.find_by(building_type: "command_center").slot_index).to eq(0)
-    end
   end
 
   describe "#call — second construction after a completed queue" do
     it "succeeds without UniqueViolation when the previous queue is completed" do
       # First construction
-      described_class.new(planet, :command_center).call
+      described_class.new(planet, :command_center, slot_index: 1).call
       # Simulate job completing: mark queue as completed
       planet.reload.construction_queue.update!(status: "completed")
       planet.buildings.find_by(building_type: "command_center").update!(level: 1)
       # Second construction — reuses the existing queue row
-      result = described_class.new(planet, :solar_station).call
+      result = described_class.new(planet, :solar_station, slot_index: 2).call
       expect(result.success?).to be true
       expect(planet.reload.construction_queue.status).to eq("pending")
+    end
+  end
+
+  describe "#call — slot_required" do
+    it "fails when no slot_index is given for a new building" do
+      result = described_class.new(planet, :command_center).call
+      expect(result.success?).to be false
+      expect(result.error).to eq("slot_required")
+    end
+
+    it "does not require slot_index when upgrading an existing building" do
+      create(:building, planet: planet, building_type: "command_center", level: 1, slot_index: 1)
+      create(:building, planet: planet, building_type: "solar_station",  level: 1, slot_index: 2)
+      result = described_class.new(planet, :solar_station).call
+      expect(result.success?).to be true
+    end
+  end
+
+  describe "#call — slot_occupied" do
+    it "fails when the requested slot is already taken" do
+      create(:building, planet: planet, building_type: "solar_station", slot_index: 1, level: 1)
+      result = described_class.new(planet, :command_center, slot_index: 1).call
+      expect(result.success?).to be false
+      expect(result.error).to eq("slot_occupied")
+    end
+  end
+
+  describe "#call — slot_type_mismatch" do
+    it "refuses to build radar_satellite on a terrestrial slot" do
+      create(:building, planet: planet, building_type: "command_center", level: 3, slot_index: 1)
+      planet.update!(metal_stock: 100_000, food_stock: 100_000, thorium_stock: 200_000)
+      result = described_class.new(planet, :radar_satellite, slot_index: 1).call
+      expect(result.success?).to be false
+      expect(result.error).to eq("slot_type_mismatch")
+    end
+
+    it "refuses to build a terrestrial building on the orbital slot" do
+      result = described_class.new(planet, :command_center, slot_index: 0).call
+      expect(result.success?).to be false
+      expect(result.error).to eq("slot_type_mismatch")
+    end
+  end
+
+  describe "#call — radar_satellite on orbital slot" do
+    before do
+      create(:building, planet: planet, building_type: "command_center",    level: 3, slot_index: 1)
+      create(:building, planet: planet, building_type: "metal_warehouse",   level: 5, slot_index: 2)
+      create(:building, planet: planet, building_type: "food_silo",         level: 5, slot_index: 3)
+      create(:building, planet: planet, building_type: "thorium_warehouse", level: 5, slot_index: 4)
+      planet.update!(metal_stock: 100_000, food_stock: 100_000, thorium_stock: 200_000)
+    end
+
+    it "succeeds when placed on the orbital slot (0)" do
+      result = described_class.new(planet, :radar_satellite, slot_index: 0).call
+      expect(result.success?).to be true
+      expect(planet.buildings.find_by(building_type: "radar_satellite").slot_index).to eq(0)
     end
   end
 end

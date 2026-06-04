@@ -44,8 +44,15 @@ class BuildingsController < ApplicationController
 
   def new
     @slot_index = params[:slot_index].to_i
+    slot_is_orbital = PlanetsHelper::SLOT_POSITIONS
+      .find { |s| s[:slot_index] == @slot_index }
+      &.fetch(:is_orbital, false)
 
-    @buildings_data = @planet.available_building_types.map do |type|
+    available_types = @planet.available_building_types.select do |type|
+      slot_is_orbital ? Buildings.orbital?(type) : !Buildings.orbital?(type)
+    end
+
+    @buildings_data = available_types.map do |type|
       type_s       = type.to_s
       cost         = Buildings::Calculator.cost(type_s, 1)
       energy_delta = Buildings::Calculator.energy_consumed(type_s, 1)

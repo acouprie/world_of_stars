@@ -11,6 +11,14 @@ module Constructions
     def call
       Buildings.find!(@building_type)
 
+      building_is_orbital = Buildings.orbital?(@building_type)
+      if @slot_index
+        slot_is_orbital = PlanetsHelper::SLOT_POSITIONS
+          .find { |s| s[:slot_index] == @slot_index }
+          &.fetch(:is_orbital, false) || false
+        return failure("slot_type_mismatch") if building_is_orbital != slot_is_orbital
+      end
+
       planet.with_lock do
         planet.buildings.load
         planet.calculate_resources!
@@ -20,9 +28,10 @@ module Constructions
 
         building = planet.buildings.find_or_initialize_by(building_type: @building_type)
         if building.new_record?
+          return failure("slot_required") if @slot_index.nil?
           occupied = planet.buildings.pluck(:slot_index).compact
-          chosen = @slot_index if @slot_index && !occupied.include?(@slot_index)
-          building.slot_index = chosen || (0..11).find { |i| !occupied.include?(i) } || 0
+          return failure("slot_occupied") if occupied.include?(@slot_index)
+          building.slot_index = @slot_index
           building.save!
         end
 

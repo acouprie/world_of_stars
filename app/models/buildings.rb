@@ -428,6 +428,10 @@ module Buildings
 
   # ─── Helpers ──────────────────────────────────────────────────────────────
 
+  def self.orbital?(building_type)
+    REGISTRY[building_type.to_sym]&.fetch(:category, nil) == :orbital
+  end
+
   def self.find!(type)
     REGISTRY.fetch(type.to_sym) { raise ArgumentError, "Unknown building type: #{type}" }
   end

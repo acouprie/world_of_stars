@@ -1,17 +1,21 @@
 module PlanetsHelper
   SLOT_POSITIONS = [
-    { slot_index: 0,  position_x: 0.35, position_y: 0.25, is_orbital: false },
-    { slot_index: 1,  position_x: 0.60, position_y: 0.22, is_orbital: false },
-    { slot_index: 2,  position_x: 0.72, position_y: 0.42, is_orbital: false },
-    { slot_index: 3,  position_x: 0.65, position_y: 0.62, is_orbital: false },
-    { slot_index: 4,  position_x: 0.48, position_y: 0.72, is_orbital: false },
-    { slot_index: 5,  position_x: 0.30, position_y: 0.65, is_orbital: false },
-    { slot_index: 6,  position_x: 0.22, position_y: 0.45, is_orbital: false },
-    { slot_index: 7,  position_x: 0.28, position_y: 0.30, is_orbital: false },
-    { slot_index: 8,  position_x: 0.50, position_y: 0.48, is_orbital: false },
-    { slot_index: 9,  position_x: 0.68, position_y: 0.30, is_orbital: false },
-    { slot_index: 10, position_x: 0.40, position_y: 0.55, is_orbital: false },
-    { slot_index: 11, position_x: 0.82, position_y: 0.15, is_orbital: true  },
+    { slot_index: 0,  position_x: 0.82, position_y: 0.15, is_orbital: true  },  # orbital (radar satellite)
+    { slot_index: 1,  position_x: 0.35, position_y: 0.25, is_orbital: false },
+    { slot_index: 2,  position_x: 0.60, position_y: 0.22, is_orbital: false },
+    { slot_index: 3,  position_x: 0.72, position_y: 0.42, is_orbital: false },
+    { slot_index: 4,  position_x: 0.65, position_y: 0.62, is_orbital: false },
+    { slot_index: 5,  position_x: 0.48, position_y: 0.72, is_orbital: false },
+    { slot_index: 6,  position_x: 0.30, position_y: 0.65, is_orbital: false },
+    { slot_index: 7,  position_x: 0.22, position_y: 0.45, is_orbital: false },
+    { slot_index: 8,  position_x: 0.28, position_y: 0.30, is_orbital: false },
+    { slot_index: 9,  position_x: 0.50, position_y: 0.48, is_orbital: false },
+    { slot_index: 10, position_x: 0.68, position_y: 0.30, is_orbital: false },
+    { slot_index: 11, position_x: 0.40, position_y: 0.55, is_orbital: false },
+    { slot_index: 12, position_x: 0.48, position_y: 0.28, is_orbital: false },
+    { slot_index: 13, position_x: 0.32, position_y: 0.52, is_orbital: false },
+    { slot_index: 14, position_x: 0.60, position_y: 0.52, is_orbital: false },
+    { slot_index: 15, position_x: 0.55, position_y: 0.65, is_orbital: false },
   ].freeze
 
   def orbital_view_props(planet)
