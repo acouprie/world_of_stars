@@ -58,32 +58,32 @@ RSpec.describe BuildingsHelper, type: :helper do
   end
 
   describe "#building_category_color_class" do
-    it "returns text-primary for energy buildings" do
-      expect(helper.building_category_color_class("solar_station")).to eq("text-primary")
-      expect(helper.building_category_color_class("nuclear_plant")).to eq("text-primary")
+    it "returns text-energy for energy buildings" do
+      expect(helper.building_category_color_class("solar_station")).to eq("text-energy")
+      expect(helper.building_category_color_class("nuclear_plant")).to eq("text-energy")
     end
 
-    it "returns text-secondary for production buildings" do
-      expect(helper.building_category_color_class("metal_mine")).to eq("text-secondary")
-      expect(helper.building_category_color_class("farm")).to eq("text-secondary")
+    it "returns text-production for production buildings" do
+      expect(helper.building_category_color_class("metal_mine")).to eq("text-production")
+      expect(helper.building_category_color_class("farm")).to eq("text-production")
     end
 
-    it "returns text-secondary for infrastructure buildings" do
-      expect(helper.building_category_color_class("command_center")).to eq("text-secondary")
-      expect(helper.building_category_color_class("research_lab")).to eq("text-secondary")
+    it "returns text-infra for infrastructure buildings" do
+      expect(helper.building_category_color_class("command_center")).to eq("text-infra")
+      expect(helper.building_category_color_class("research_lab")).to eq("text-infra")
     end
 
-    it "returns text-quantum for orbital buildings" do
-      expect(helper.building_category_color_class("radar_satellite")).to eq("text-quantum")
+    it "returns text-orbital for orbital buildings" do
+      expect(helper.building_category_color_class("radar_satellite")).to eq("text-orbital")
     end
 
-    it "returns text-varek for military buildings" do
-      expect(helper.building_category_color_class("bunker")).to eq("text-varek")
-      expect(helper.building_category_color_class("ship_factory")).to eq("text-varek")
+    it "returns text-military for military buildings" do
+      expect(helper.building_category_color_class("bunker")).to eq("text-military")
+      expect(helper.building_category_color_class("ship_factory")).to eq("text-military")
     end
 
-    it "returns text-text-muted for storage buildings" do
-      expect(helper.building_category_color_class("food_silo")).to eq("text-text-muted")
+    it "returns text-storage for storage buildings" do
+      expect(helper.building_category_color_class("food_silo")).to eq("text-storage")
     end
 
     it "falls back to text-text-muted for unknown types" do
@@ -92,24 +92,24 @@ RSpec.describe BuildingsHelper, type: :helper do
   end
 
   describe "#building_category_badge_classes" do
-    it "returns primary badge classes for energy buildings" do
+    it "returns energy badge classes for energy buildings" do
       classes = helper.building_category_badge_classes("solar_station")
-      expect(classes).to include("text-primary")
+      expect(classes).to include("text-energy")
     end
 
-    it "returns varek badge classes for military buildings" do
+    it "returns military badge classes for military buildings" do
       classes = helper.building_category_badge_classes("training_camp")
-      expect(classes).to include("text-varek")
+      expect(classes).to include("text-military")
     end
 
-    it "returns quantum badge classes for orbital buildings" do
+    it "returns orbital badge classes for orbital buildings" do
       classes = helper.building_category_badge_classes("radar_satellite")
-      expect(classes).to include("text-quantum")
+      expect(classes).to include("text-orbital")
     end
 
     it "returns neutral classes for storage buildings" do
       classes = helper.building_category_badge_classes("food_silo")
-      expect(classes).to include("text-text-muted")
+      expect(classes).to include("text-storage")
     end
 
     it "falls back to neutral classes for unknown types" do
