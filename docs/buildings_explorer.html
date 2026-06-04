@@ -4,29 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>World of Stars — Explorateur de bâtiments</title>
+<link rel="stylesheet" href="theme.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
-  :root {
-    --bg: #0d0e12;
-    --bg2: #14151c;
-    --surface: #1c1d27;
-    --border: #2a2b38;
-    --border2: #3a3b4a;
-    --text: #e8e4d8;
-    --muted: #a09e96;
-    --subtle: #5e5d58;
-    --primary: #c8a96e;
-    --secondary: #4e8faf;
-    --quantum: #2ec4a0;
-    --varek: #e8622a;
-    --energy-color: #c8a96e;
-    --prod-color: #2ec4a0;
-    --storage-color: #4e8faf;
-    --infra-color: #8b7fcc;
-    --mil-color: #e8622a;
-    --radius: 8px;
-    --radius-lg: 12px;
-  }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, sans-serif; font-size: 14px; line-height: 1.5; min-height: 100vh; }
   a { color: var(--primary); }
@@ -87,7 +67,7 @@
   .stat-val.accent { color: var(--primary); }
   .stat-val.green { color: var(--quantum); }
   .stat-val.blue { color: var(--secondary); }
-  .stat-val.red { color: var(--varek); }
+  .stat-val.red { color: var(--alert); }
 
   /* Chart */
   .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1rem; }
@@ -166,7 +146,7 @@
 
 <script>
 const CAT = {
-  energy: { label: 'Énergie', color: '#c8a96e' },
+  energy: { label: 'Énergie', color: '#e9d454' },
   production: { label: 'Production', color: '#2ec4a0' },
   storage: { label: 'Stockage', color: '#4e8faf' },
   infrastructure: { label: 'Infrastructure', color: '#8b7fcc' },
@@ -302,11 +282,11 @@ function renderDetail(){
   let energySummaryHtml='';
   if(isEnergy){
     energySummaryHtml=`<div class="energy-card"><h3>Bilan énergétique — planète tout au max</h3>
-      <div class="energy-row"><span style="color:var(--muted)">3 mines + ferme niv 20</span><span style="color:var(--varek)">−1 434 ⚡</span></div>
-      <div class="energy-row"><span style="color:var(--muted)">Portail quantique niv 10</span><span style="color:var(--varek)">−348 ⚡</span></div>
-      <div class="energy-row"><span style="color:var(--muted)">training_camp niv 10</span><span style="color:var(--varek)">−150 ⚡</span></div>
-      <div class="energy-row"><span style="color:var(--muted)">military_camp niv 10</span><span style="color:var(--varek)">−200 ⚡</span></div>
-      <div class="energy-row"><span style="color:var(--muted)">ship_factory niv 15</span><span style="color:var(--varek)">−600 ⚡</span></div>
+      <div class="energy-row"><span style="color:var(--muted)">3 mines + ferme niv 20</span><span style="color:var(--alert)">−1 434 ⚡</span></div>
+      <div class="energy-row"><span style="color:var(--muted)">Portail quantique niv 10</span><span style="color:var(--alert)">−348 ⚡</span></div>
+      <div class="energy-row"><span style="color:var(--muted)">training_camp niv 10</span><span style="color:var(--alert)">−150 ⚡</span></div>
+      <div class="energy-row"><span style="color:var(--muted)">military_camp niv 10</span><span style="color:var(--alert)">−200 ⚡</span></div>
+      <div class="energy-row"><span style="color:var(--muted)">ship_factory niv 15</span><span style="color:var(--alert)">−600 ⚡</span></div>
       <div class="energy-total-row"><span>Total requis</span><span>2 732 ⚡</span></div>
       <div style="margin-top:10px;font-size:11px;color:var(--subtle)">Config min : 1 solar niv13 + 1 nuclear niv10 = 2 858 ⚡ (marge +126)</div>
     </div>`;

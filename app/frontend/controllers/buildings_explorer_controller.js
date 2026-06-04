@@ -32,7 +32,7 @@ export default class extends Controller {
 
     // Map categories with colors
     this.CAT = {
-      energy: { label: this.t('category_labels.energy', 'Énergie'), color: '#c8a96e' },
+      energy: { label: this.t('category_labels.energy', 'Énergie'), color: '#e9d454' },
       production: { label: this.t('category_labels.production', 'Production'), color: '#2ec4a0' },
       storage: { label: this.t('category_labels.storage', 'Stockage'), color: '#4e8faf' },
       infrastructure: { label: this.t('category_labels.infrastructure', 'Infrastructure'), color: '#8b7fcc' },
@@ -338,11 +338,11 @@ export default class extends Controller {
     let energySummaryHtml = ''
     if (isEnergy) {
       energySummaryHtml = `<div class="energy-card"><h3>${this.t('energy_balance', 'Bilan énergétique — planète tout au max')}</h3>
-      <div class="energy-row"><span style="color:var(--muted)">${this.t('energy_summary.mines_and_farm', '3 mines + ferme niv 20')}</span><span style="color:var(--varek)">−1 434 ⚡</span></div>
-      <div class="energy-row"><span style="color:var(--muted)">${this.t('energy_summary.quantum_portal', 'Portail quantique niv 10')}</span><span style="color:var(--varek)">−348 ⚡</span></div>
-      <div class="energy-row"><span style="color:var(--muted)">${this.t('energy_summary.training_camp', 'training_camp niv 10')}</span><span style="color:var(--varek)">−150 ⚡</span></div>
-      <div class="energy-row"><span style="color:var(--muted)">${this.t('energy_summary.military_camp', 'military_camp niv 10')}</span><span style="color:var(--varek)">−200 ⚡</span></div>
-      <div class="energy-row"><span style="color:var(--muted)">${this.t('energy_summary.ship_factory', 'ship_factory niv 15')}</span><span style="color:var(--varek)">−600 ⚡</span></div>
+      <div class="energy-row"><span style="color:var(--muted)">${this.t('energy_summary.mines_and_farm', '3 mines + ferme niv 20')}</span><span style="color:var(--alert)">−1 434 ⚡</span></div>
+      <div class="energy-row"><span style="color:var(--muted)">${this.t('energy_summary.quantum_portal', 'Portail quantique niv 10')}</span><span style="color:var(--alert)">−348 ⚡</span></div>
+      <div class="energy-row"><span style="color:var(--muted)">${this.t('energy_summary.training_camp', 'training_camp niv 10')}</span><span style="color:var(--alert)">−150 ⚡</span></div>
+      <div class="energy-row"><span style="color:var(--muted)">${this.t('energy_summary.military_camp', 'military_camp niv 10')}</span><span style="color:var(--alert)">−200 ⚡</span></div>
+      <div class="energy-row"><span style="color:var(--muted)">${this.t('energy_summary.ship_factory', 'ship_factory niv 15')}</span><span style="color:var(--alert)">−600 ⚡</span></div>
       <div class="energy-total-row"><span>${this.t('energy_summary.total_required', 'Total requis')}</span><span>2 732 ⚡</span></div>
       <div style="margin-top:10px;font-size:11px;color:var(--subtle)">${this.t('energy_summary.config_min', 'Config min : 1 solar niv13 + 1 nuclear niv10 = 2 858 ⚡ (marge +126)')}</div>
     </div>`

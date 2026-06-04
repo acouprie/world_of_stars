@@ -19,21 +19,39 @@ module BuildingsHelper
   }.freeze
 
   CATEGORY_TEXT_CLASSES = {
-    energy:         "text-primary",
-    production:     "text-secondary",
-    storage:        "text-text-muted",
-    infrastructure: "text-secondary",
-    orbital:        "text-quantum",
-    military:       "text-varek"
+    energy:         "text-energy",
+    production:     "text-production",
+    storage:        "text-storage",
+    infrastructure: "text-infra",
+    orbital:        "text-orbital",
+    military:       "text-military"
   }.freeze
 
   CATEGORY_BADGE_CLASSES = {
-    energy:         "border-primary/30 bg-primary/10 text-primary",
-    production:     "border-secondary/30 bg-secondary/10 text-secondary",
-    storage:        "border-border bg-surface text-text-muted",
-    infrastructure: "border-secondary/30 bg-secondary/10 text-secondary",
-    orbital:        "border-quantum/30 bg-quantum/10 text-quantum",
-    military:       "border-varek/30 bg-varek/10 text-varek"
+    energy:         "border-energy/30 bg-energy/10 text-energy",
+    production:     "border-production/30 bg-production/10 text-production",
+    storage:        "border-storage/30 bg-storage/10 text-storage",
+    infrastructure: "border-infra/30 bg-infra/10 text-infra",
+    orbital:        "border-orbital/30 bg-orbital/10 text-orbital",
+    military:       "border-military/30 bg-military/10 text-military"
+  }.freeze
+
+  CATEGORY_CARD_CLASSES = {
+    energy:         "border-energy/20 hover:border-energy/60",
+    production:     "border-production/20 hover:border-production/60",
+    storage:        "border-storage/20 hover:border-storage/60",
+    infrastructure: "border-infra/20 hover:border-infra/60",
+    orbital:        "border-orbital/20 hover:border-orbital/60",
+    military:       "border-military/20 hover:border-military/60"
+  }.freeze
+
+  CATEGORY_TAB_CLASSES = {
+    energy:         "hover:border-energy hover:text-energy data-[active=true]:border-energy data-[active=true]:bg-energy/10 data-[active=true]:text-energy",
+    production:     "hover:border-production hover:text-production data-[active=true]:border-production data-[active=true]:bg-production/10 data-[active=true]:text-production",
+    storage:        "hover:border-storage hover:text-storage data-[active=true]:border-storage data-[active=true]:bg-storage/10 data-[active=true]:text-storage",
+    infrastructure: "hover:border-infra hover:text-infra data-[active=true]:border-infra data-[active=true]:bg-infra/10 data-[active=true]:text-infra",
+    orbital:        "hover:border-orbital hover:text-orbital data-[active=true]:border-orbital data-[active=true]:bg-orbital/10 data-[active=true]:text-orbital",
+    military:       "hover:border-military hover:text-military data-[active=true]:border-military data-[active=true]:bg-military/10 data-[active=true]:text-military"
   }.freeze
 
   PRODUCTION_RESOURCE_KEYS = {
@@ -60,6 +78,15 @@ module BuildingsHelper
   def building_category_badge_classes(type)
     cat = Buildings::REGISTRY[type.to_sym]&.dig(:category)
     CATEGORY_BADGE_CLASSES[cat] || "border-border bg-surface text-text-muted"
+  end
+
+  def building_category_tab_classes(category)
+    CATEGORY_TAB_CLASSES[category.to_sym] || "hover:border-primary hover:text-primary data-[active=true]:border-primary data-[active=true]:bg-primary/10 data-[active=true]:text-primary"
+  end
+
+  def building_category_card_classes(type)
+    cat = Buildings::REGISTRY[type.to_sym]&.dig(:category)
+    CATEGORY_CARD_CLASSES[cat] || "border-border hover:border-primary/50"
   end
 
   def building_production_info(building)

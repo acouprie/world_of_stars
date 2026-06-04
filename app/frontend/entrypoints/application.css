@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @source "../../views/**/*.html.erb";
 @source "../../views/**/*.erb";
+@source "../../helpers/**/*.rb";
 
 @theme {
   --color-space-bg: #0d0e12;
@@ -13,9 +14,17 @@
   --color-primary: #c8a96e;
   --color-secondary: #4e8faf;
   --color-quantum: #2ec4a0;
+  --color-alert: #cc0000;
+  --color-warning: #ee8800;
   --color-varek: #e8622a;
   --color-varek-dark: #a83d16;
   --color-varek-bg: #1a0e0a;
+  --color-energy: #e9d454;
+  --color-production: #4e8faf;
+  --color-storage: #a09e96;
+  --color-infra: #8b7fcc;
+  --color-orbital: #2ec4a0;
+  --color-military: #e8622a;
   --color-elyrans: #5bc4d4;
   --color-elyrans-dark: #2e91a4;
   --color-elyrans-bg: #080f18;
@@ -141,9 +150,9 @@ h1 {
 }
 
 .flash-alert {
-  background: color-mix(in srgb, var(--color-varek) 15%, var(--color-surface));
-  border: 1px solid var(--color-varek);
-  color: var(--color-varek);
+  background: color-mix(in srgb, var(--color-alert) 15%, var(--color-surface));
+  border: 1px solid var(--color-alert);
+  color: var(--color-alert);
 }
 
 @keyframes flash-dismiss {

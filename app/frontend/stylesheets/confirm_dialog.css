@@ -68,11 +68,11 @@
 }
 
 .confirm-dialog__btn--danger {
-  background: color-mix(in srgb, var(--color-varek) 18%, var(--color-surface));
-  border: 1px solid var(--color-varek);
-  color: var(--color-varek);
+  background: color-mix(in srgb, var(--color-alert) 18%, var(--color-surface));
+  border: 1px solid var(--color-alert);
+  color: var(--color-alert);
 }
 
 .confirm-dialog__btn--danger:hover {
-  background: color-mix(in srgb, var(--color-varek) 28%, var(--color-surface));
+  background: color-mix(in srgb, var(--color-alert) 28%, var(--color-surface));
 }

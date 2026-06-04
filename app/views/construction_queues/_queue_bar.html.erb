@@ -28,7 +28,7 @@
     </button>
     <span class="text-[10px] text-text-subtle whitespace-nowrap"><%= t("construction_queues.slot_count") %></span>
     <button type="button"
-            class="text-[10px] text-text-subtle hover:text-varek transition-colors whitespace-nowrap cursor-pointer ml-auto"
+            class="text-[10px] text-text-subtle hover:text-alert transition-colors whitespace-nowrap cursor-pointer ml-auto"
             data-action="click->confirm-dialog#open"
             data-confirm-dialog-url-param="<%= planet_construction_queue_path(planet) %>"
             data-confirm-dialog-title-param="<%= t('construction_queues.cancel_confirm_title') %>"

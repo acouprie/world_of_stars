@@ -1,0 +1,24 @@
+/* World of Stars — design tokens for standalone docs files.
+ * Keep in sync with app/frontend/entrypoints/application.css @theme block. */
+:root {
+  --bg: #0d0e12;
+  --bg2: #14151c;
+  --surface: #1c1d27;
+  --border: #2a2b38;
+  --border2: #3a3b4a;
+  --text: #e8e4d8;
+  --muted: #a09e96;
+  --subtle: #5e5d58;
+  --primary: #c8a96e;
+  --secondary: #4e8faf;
+  --quantum: #2ec4a0;
+  --varek: #e8622a;
+  --alert: #cc0000;
+  --energy-color: #e9d454;
+  --prod-color: #4e8faf;
+  --storage-color: #a09e96;
+  --infra-color: #8b7fcc;
+  --mil-color: #e8622a;
+  --radius: 8px;
+  --radius-lg: 12px;
+}

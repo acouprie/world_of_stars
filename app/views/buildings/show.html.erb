@@ -29,19 +29,19 @@
             <% if cost[:food].to_i > 0 %>
               <span class="flex items-center gap-1">
                 <%= image_tag "icons/food.png", alt: t("resources.food"), class: "h-3 w-3" %>
-                <span class="<%= @upgrade[:can_food] ? 'text-quantum' : 'text-varek' %>"><%= number_with_delimiter(cost[:food]) %></span>
+                <span class="<%= @upgrade[:can_food] ? 'text-quantum' : 'text-alert' %>"><%= number_with_delimiter(cost[:food]) %></span>
               </span>
             <% end %>
             <% if cost[:metal].to_i > 0 %>
               <span class="flex items-center gap-1">
                 <%= image_tag "icons/metal.png", alt: t("resources.metal"), class: "h-3 w-3" %>
-                <span class="<%= @upgrade[:can_metal] ? 'text-quantum' : 'text-varek' %>"><%= number_with_delimiter(cost[:metal]) %></span>
+                <span class="<%= @upgrade[:can_metal] ? 'text-quantum' : 'text-alert' %>"><%= number_with_delimiter(cost[:metal]) %></span>
               </span>
             <% end %>
             <% if cost[:thorium].to_i > 0 %>
               <span class="flex items-center gap-1">
                 <%= image_tag "icons/thorium.png", alt: t("resources.thorium"), class: "h-3 w-3" %>
-                <span class="<%= @upgrade[:can_thorium] ? 'text-quantum' : 'text-varek' %>"><%= number_with_delimiter(cost[:thorium]) %></span>
+                <span class="<%= @upgrade[:can_thorium] ? 'text-quantum' : 'text-alert' %>"><%= number_with_delimiter(cost[:thorium]) %></span>
               </span>
             <% end %>
           </div>
@@ -50,7 +50,7 @@
         <% if @upgrade[:energy_delta] > 0 %>
           <div class="flex items-center gap-1 text-[12px]">
             <%= image_tag "icons/energy.png", alt: t("resources.energy"), class: "h-3 w-3" %>
-            <span class="<%= @upgrade[:can_energy] ? 'text-quantum' : 'text-varek' %>">+<%= @upgrade[:energy_delta].to_i %> GWh</span>
+            <span class="<%= @upgrade[:can_energy] ? 'text-quantum' : 'text-alert' %>">+<%= @upgrade[:energy_delta].to_i %> GWh</span>
             <span class="text-text-subtle"><%= t("buildings.new.energy_required") %></span>
           </div>
         <% end %>
@@ -61,7 +61,7 @@
         </div>
 
         <% if @upgrade[:missing_prerequisites].any? %>
-          <div class="flex flex-col gap-1 text-[11px] text-varek">
+          <div class="flex flex-col gap-1 text-[11px] text-alert">
             <ul class="list-disc list-inside">
               <% @upgrade[:missing_prerequisites].each do |prereq| %>
                 <li><%= t("buildings.show.prerequisite_required", building: building_name(prereq[:type]), level: prereq[:required_level]) %></li>

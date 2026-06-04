@@ -249,6 +249,8 @@ Pour le lancement de World of Stars, aucun de ces points n'est bloquant.
 
 ## Tests — RSpec, FactoryBot, WebMock
 
+Toutes les fonctionnalités ajoutées doivent être couvertes par des tests automatisés. C'est la garantie que les formules d'équilibrage restent stables, que les agents IA ne deviennent pas fous après une modification, et que les appels LLM sont bien mockés pour éviter les coûts et la dépendance réseau.
+
 ### Pourquoi RSpec plutôt que Minitest
 
 RSpec offre un DSL plus expressif, un meilleur écosystème de matchers, et un meilleur support dans Claude Code pour la génération de tests complexes. Sur un projet avec des formules d'équilibrage et des agents IA, la lisibilité des tests compte.

@@ -22,12 +22,12 @@ const BUILDING_META = {
 }
 
 const CATEGORY_COLORS = {
-  energy:         'var(--color-primary)',
-  production:     'var(--color-secondary)',
-  infrastructure: 'var(--color-secondary)',
-  military:       'var(--color-varek)',
-  storage:        'var(--color-text-muted)',
-  orbital:        'var(--color-quantum)',
+  energy:         'var(--color-energy)',
+  production:     'var(--color-production)',
+  infrastructure: 'var(--color-infra)',
+  military:       'var(--color-military)',
+  storage:        'var(--color-storage)',
+  orbital:        'var(--color-orbital)',
 }
 
 // ─── CSS keyframes (injected once) ────────────────────────────────────────────
