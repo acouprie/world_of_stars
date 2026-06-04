@@ -10,35 +10,40 @@
        data-controller="queue-timer"
        data-queue-timer-completes-at-value="<%= queue.completes_at.iso8601 %>"
        data-queue-timer-started-at-value="<%= queue.started_at.iso8601 %>">
-    <span class="scifi-text text-[10px] uppercase tracking-wider text-text-muted whitespace-nowrap"><%= t("construction_queues.queue_label") %></span>
-    <span class="text-[12px] text-text whitespace-nowrap">
-      <%= building_name(queue.building.building_type) %> <%= t("construction_queues.level_target", level: queue.target_level) %>
-    </span>
-    <div class="flex-1 h-1 rounded-full overflow-hidden min-w-[40px]" style="background: var(--color-border);">
+    <div class="flex items-center gap-3 flex-wrap">
+      <span class="scifi-text text-[10px] uppercase tracking-wider text-text-muted whitespace-nowrap"><%= t("construction_queues.queue_label") %></span>
+      <span class="text-[12px] text-text whitespace-nowrap">
+        <%= building_name(queue.building.building_type) %> <%= t("construction_queues.level_target", level: queue.target_level) %>
+      </span>
+      <div class="flex-1"></div>
+      <button class="flex items-center gap-1 group cursor-pointer"
+              title="<%= t("construction_queues.toggle_display") %>"
+              data-action="click->queue-timer#toggle">
+        <span data-queue-timer-target="display"
+              class="font-mono text-[12px] text-text whitespace-nowrap tabular-nums"></span>
+        <span class="text-[9px] text-text-subtle opacity-40 group-hover:opacity-90 transition-opacity select-none">⇄</span>
+      </button>
+      <span class="text-[10px] text-text-subtle whitespace-nowrap"><%= t("construction_queues.slot_count") %></span>
+      <button type="button"
+              class="text-[10px] text-text-subtle hover:text-alert transition-colors whitespace-nowrap cursor-pointer"
+              data-action="click->confirm-dialog#open"
+              data-confirm-dialog-url-param="<%= planet_construction_queue_path(planet) %>"
+              data-confirm-dialog-title-param="<%= t('construction_queues.cancel_confirm_title') %>"
+              data-confirm-dialog-message-param="<%= t('construction_queues.cancel_confirm_message') %>">
+        <%= t("construction_queues.cancel_button") %>
+      </button>
+    </div>
+    <div class="h-1 w-full rounded-full overflow-hidden" style="background: var(--color-border);">
       <div data-queue-timer-target="bar"
            class="h-full rounded-full"
            style="width: <%= pct %>%; background: var(--color-primary);"></div>
     </div>
-    <button class="flex items-center gap-1 group cursor-pointer"
-            title="<%= t("construction_queues.toggle_display") %>"
-            data-action="click->queue-timer#toggle">
-      <span data-queue-timer-target="display"
-            class="font-mono text-[12px] text-text whitespace-nowrap tabular-nums"></span>
-      <span class="text-[9px] text-text-subtle opacity-40 group-hover:opacity-90 transition-opacity select-none">⇄</span>
-    </button>
-    <span class="text-[10px] text-text-subtle whitespace-nowrap"><%= t("construction_queues.slot_count") %></span>
-    <button type="button"
-            class="text-[10px] text-text-subtle hover:text-alert transition-colors whitespace-nowrap cursor-pointer ml-auto"
-            data-action="click->confirm-dialog#open"
-            data-confirm-dialog-url-param="<%= planet_construction_queue_path(planet) %>"
-            data-confirm-dialog-title-param="<%= t('construction_queues.cancel_confirm_title') %>"
-            data-confirm-dialog-message-param="<%= t('construction_queues.cancel_confirm_message') %>">
-      <%= t("construction_queues.cancel_button") %>
-    </button>
   </div>
 <% else %>
   <div id="queue-bar">
-    <span class="scifi-text text-[10px] uppercase tracking-wider text-text-muted"><%= t("construction_queues.queue_label") %></span>
-    <span class="text-[11px] text-text-subtle"><%= t("construction_queues.empty") %></span>
+    <div class="flex items-center gap-3">
+      <span class="scifi-text text-[10px] uppercase tracking-wider text-text-muted"><%= t("construction_queues.queue_label") %></span>
+      <span class="text-[11px] text-text-subtle"><%= t("construction_queues.empty") %></span>
+    </div>
   </div>
 <% end %>

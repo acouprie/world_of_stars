@@ -126,6 +126,10 @@ module BuildingsHelper
     I18n.t("buildings.types.#{type}", default: type.to_s.humanize)
   end
 
+  def building_description(type)
+    I18n.t("buildings.descriptions.#{type}", default: "")
+  end
+
   def format_duration(seconds)
     seconds = seconds.to_i
     if seconds < 60

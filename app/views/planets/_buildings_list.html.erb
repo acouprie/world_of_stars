@@ -45,12 +45,12 @@
           icon = building_icon(building.building_type)
           name = building_name(building.building_type)
           production_info = building_production_info(building)
-          description = production_info || building.config[:description]
+          description = production_info || building_description(building.building_type)
         %>
         <%= link_to planet_building_path(planet, building),
-                    class: "block",
+                    class: "block h-full",
                     data: { turbo_frame: "building-panel", building_list_target: "card", category: category } do %>
-          <div class="flex flex-col gap-1.5 rounded border bg-surface p-2.5 transition-colors cursor-pointer <%= building_category_card_classes(building.building_type) %>">
+          <div class="h-full flex flex-col gap-1.5 rounded border bg-surface p-2.5 transition-colors cursor-pointer <%= building_category_card_classes(building.building_type) %>">
             <div class="flex items-start justify-between gap-1">
               <span class="text-xl leading-none <%= color_class %>"><%= icon %></span>
               <span class="rounded border px-1.5 py-0.5 text-[9px] font-medium <%= badge_classes %>">
@@ -59,7 +59,7 @@
             </div>
             <span class="text-[10px] font-bold leading-tight text-text"><%= name %></span>
             <% if description.present? %>
-              <span class="text-[9px] leading-tight text-text-subtle"><%= description %></span>
+              <span class="mt-auto text-[9px] leading-tight text-text-subtle"><%= description %></span>
             <% end %>
           </div>
         <% end %>

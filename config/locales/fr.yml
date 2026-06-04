@@ -120,6 +120,23 @@ fr:
     en: "English"
 
   buildings:
+    descriptions:
+      solar_station: "Convertit l'énergie solaire"
+      nuclear_plant: "Centrale à fission nucléaire"
+      metal_mine: "Extraction de minerai métallique"
+      farm: "Cultures alimentaires planétaires"
+      thorium_mine: "Extraction de thorium radioactif"
+      food_silo: "Stockage de la production alimentaire"
+      metal_warehouse: "Entrepôt de métal brut"
+      thorium_warehouse: "Réservoir de thorium liquide"
+      command_center: "Gère les opérations planétaires"
+      research_lab: "Développe de nouvelles technologies"
+      quantum_portal: "Téléportation quantique interstellaire"
+      radar_satellite: "Détection et surveillance orbitale"
+      training_camp: "Entraîne les unités de combat"
+      military_camp: "Caserne pour les troupes terrestres"
+      ship_factory: "Construction de vaisseaux spatiaux"
+      bunker: "Abri de protection des ressources"
     new:
       title: "Construire un bâtiment"
       empty: "Aucun bâtiment disponible"
@@ -234,6 +251,7 @@ fr:
 
   planets:
     show:
+      home_badge: "Origine"
       select_slot: "Sélectionnez un emplacement"
       buildings_list:
         title: "Bâtiments construits"

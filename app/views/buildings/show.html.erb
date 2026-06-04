@@ -7,7 +7,7 @@
           <span class="text-xl leading-none <%= building_category_color_class(@building.building_type) %>"><%= building_icon(@building.building_type) %></span>
           <span class="text-[13px] font-medium text-text"><%= building_name(@building.building_type) %></span>
         </div>
-        <span class="text-[10px] text-text-subtle pl-7"><%= @building.config[:description] %></span>
+        <span class="text-[10px] text-text-subtle pl-7"><%= building_description(@building.building_type) %></span>
       </div>
       <div class="flex">
         <span class="rounded border px-1.5 py-0.5 text-[9px] font-medium <%= building_category_badge_classes(@building.building_type) %>"><%= t("buildings.show.level_badge", level: @building.level) %></span>

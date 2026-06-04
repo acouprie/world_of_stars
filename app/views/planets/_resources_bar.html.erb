@@ -11,7 +11,7 @@
   data-resources-thorium-stock-value="<%= planet.thorium_stock %>"
   data-resources-thorium-rate-value="<%= planet.thorium_rate %>"
   data-resources-thorium-capacity-value="<%= planet.thorium_capacity %>">
-  <div class="mx-auto grid grid-cols-2 gap-5 p-5 sm:flex sm:items-center sm:px-4 sm:py-2 sm:text-sm scifi-text">
+  <div class="mx-auto grid grid-cols-2 gap-2 p-2 sm:gap-5 sm:p-5 sm:flex sm:items-center sm:px-4 sm:py-2 sm:text-sm scifi-text">
 
     <%
       energy_pct = planet.total_energy_produced > 0 ?
@@ -22,9 +22,9 @@
     <div class="flex items-center gap-2 rounded-md border border-border bg-surface px-2 py-1.5 sm:flex-1 sm:px-3">
       <%= image_tag "icons/energy.png", alt: t("resources.energy"), class: "h-4 w-4 shrink-0" %>
       <div class="flex min-w-0 flex-1 flex-col gap-1">
-        <div class="flex items-center justify-between gap-1">
+        <div class="flex flex-col gap-0.5 sm:flex-row sm:items-center sm:justify-between sm:gap-1">
           <span class="text-xs font-medium uppercase tracking-wider text-text-muted"><%= t("resources.energy") %></span>
-          <span class="font-mono text-xs text-text">
+          <span class="font-mono text-[10px] sm:text-xs text-text whitespace-nowrap">
             <span class="<%= energy_value_class %>"><%= planet.total_energy_consumed %></span>
             <span class="text-text-subtle">/</span>
             <%= planet.total_energy_produced %> GWh
@@ -40,12 +40,12 @@
     <div class="flex items-center gap-2 rounded-md border border-border bg-surface px-2 py-1.5 sm:flex-1 sm:px-3">
       <%= image_tag "icons/food.png", alt: t("resources.food"), class: "h-4 w-4 shrink-0" %>
       <div class="flex min-w-0 flex-1 flex-col gap-1">
-        <div class="flex items-center justify-between gap-1">
+        <div class="flex flex-col gap-0.5 sm:flex-row sm:items-center sm:justify-between sm:gap-1">
           <div class="flex flex-row gap-1">
             <span class="text-xs font-medium uppercase tracking-wider text-text-muted"><%= t("resources.food") %></span>
-            <span class="text-[10px] text-text-subtle">+<%= number_with_delimiter((planet.food_rate * 3600).to_i) %> /h</span>
+            <span class="hidden sm:inline text-[10px] text-text-subtle">+<%= number_with_delimiter((planet.food_rate * 3600).to_i) %> /h</span>
           </div>
-          <span class="font-mono text-xs text-text">
+          <span class="font-mono text-[10px] sm:text-xs text-text whitespace-nowrap">
             <span class="text-secondary" data-resources-target="foodStock"><%= number_with_delimiter(planet.food_stock.to_i) %></span>
             <span class="text-text-subtle">/</span>
             <%= number_with_delimiter(planet.food_capacity) %>
@@ -61,12 +61,12 @@
     <div class="flex items-center gap-2 rounded-md border border-border bg-surface px-2 py-1.5 sm:flex-1 sm:px-3">
       <%= image_tag "icons/metal.png", alt: t("resources.metal"), class: "h-4 w-4 shrink-0" %>
       <div class="flex min-w-0 flex-1 flex-col gap-1">
-        <div class="flex items-center justify-between gap-1">
+        <div class="flex flex-col gap-0.5 sm:flex-row sm:items-center sm:justify-between sm:gap-1">
           <div class="flex flex-row gap-1">
             <span class="text-xs font-medium uppercase tracking-wider text-text-muted"><%= t("resources.metal") %></span>
-            <span class="text-[10px] text-text-subtle">+<%= number_with_delimiter((planet.metal_rate * 3600).to_i) %> /h</span>
+            <span class="hidden sm:inline text-[10px] text-text-subtle">+<%= number_with_delimiter((planet.metal_rate * 3600).to_i) %> /h</span>
           </div>
-          <span class="font-mono text-xs text-text">
+          <span class="font-mono text-[10px] sm:text-xs text-text whitespace-nowrap">
             <span class="text-secondary" data-resources-target="metalStock"><%= number_with_delimiter(planet.metal_stock.to_i) %></span>
             <span class="text-text-subtle">/</span>
             <%= number_with_delimiter(planet.metal_capacity) %>
@@ -82,12 +82,12 @@
     <div class="flex items-center gap-2 rounded-md border border-border bg-surface px-2 py-1.5 sm:flex-1 sm:px-3">
       <%= image_tag "icons/thorium.png", alt: t("resources.thorium"), class: "h-4 w-4 shrink-0" %>
       <div class="flex min-w-0 flex-1 flex-col gap-1">
-        <div class="flex items-center justify-between gap-1">
+        <div class="flex flex-col gap-0.5 sm:flex-row sm:items-center sm:justify-between sm:gap-1">
           <div class="flex flex-row gap-1">
             <span class="text-xs font-medium uppercase tracking-wider text-text-muted"><%= t("resources.thorium") %></span>
-            <span class="text-[10px] text-text-subtle">+<%= number_with_delimiter((planet.thorium_rate * 3600).to_i) %> /h</span>
+            <span class="hidden sm:inline text-[10px] text-text-subtle">+<%= number_with_delimiter((planet.thorium_rate * 3600).to_i) %> /h</span>
           </div>
-          <span class="font-mono text-xs text-text">
+          <span class="font-mono text-[10px] sm:text-xs text-text whitespace-nowrap">
             <span class="text-quantum" data-resources-target="thoriumStock"><%= number_with_delimiter(planet.thorium_stock.to_i) %></span>
             <span class="text-text-subtle">/</span>
             <%= number_with_delimiter(planet.thorium_capacity) %>
