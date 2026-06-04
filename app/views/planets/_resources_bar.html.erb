@@ -1,5 +1,16 @@
 <% planet = local_assigns.fetch(:planet, @planet) %>
-<div id="resources_bar" class="sticky top-0 z-50 border-b border-border bg-space-bg-2/95 backdrop-blur-sm">
+<div id="resources_bar" class="sticky top-0 z-50 border-b border-border bg-space-bg-2/95 backdrop-blur-sm"
+  data-controller="resources"
+  data-resources-updated-at-value="<%= planet.resources_updated_at.iso8601(3) %>"
+  data-resources-food-stock-value="<%= planet.food_stock %>"
+  data-resources-food-rate-value="<%= planet.food_rate %>"
+  data-resources-food-capacity-value="<%= planet.food_capacity %>"
+  data-resources-metal-stock-value="<%= planet.metal_stock %>"
+  data-resources-metal-rate-value="<%= planet.metal_rate %>"
+  data-resources-metal-capacity-value="<%= planet.metal_capacity %>"
+  data-resources-thorium-stock-value="<%= planet.thorium_stock %>"
+  data-resources-thorium-rate-value="<%= planet.thorium_rate %>"
+  data-resources-thorium-capacity-value="<%= planet.thorium_capacity %>">
   <div class="mx-auto grid grid-cols-2 gap-5 p-5 sm:flex sm:items-center sm:px-4 sm:py-2 sm:text-sm scifi-text">
 
     <%
@@ -35,13 +46,13 @@
             <span class="text-[10px] text-text-subtle">+<%= number_with_delimiter((planet.food_rate * 3600).to_i) %> /h</span>
           </div>
           <span class="font-mono text-xs text-text">
-            <span class="text-secondary"><%= number_with_delimiter(planet.food_stock.to_i) %></span>
+            <span class="text-secondary" data-resources-target="foodStock"><%= number_with_delimiter(planet.food_stock.to_i) %></span>
             <span class="text-text-subtle">/</span>
             <%= number_with_delimiter(planet.food_capacity) %>
           </span>
         </div>
         <div class="h-1 w-full overflow-hidden rounded-full bg-border">
-          <div class="h-full rounded-full bg-secondary transition-all duration-500 <%= food_pct >= 100 ? 'opacity-50' : '' %>" style="width: <%= food_pct %>%"></div>
+          <div class="h-full rounded-full bg-secondary transition-all duration-500 <%= food_pct >= 100 ? 'opacity-50' : '' %>" style="width: <%= food_pct %>%" data-resources-target="foodBar"></div>
         </div>
       </div>
     </div>
@@ -56,13 +67,13 @@
             <span class="text-[10px] text-text-subtle">+<%= number_with_delimiter((planet.metal_rate * 3600).to_i) %> /h</span>
           </div>
           <span class="font-mono text-xs text-text">
-            <span class="text-secondary"><%= number_with_delimiter(planet.metal_stock.to_i) %></span>
+            <span class="text-secondary" data-resources-target="metalStock"><%= number_with_delimiter(planet.metal_stock.to_i) %></span>
             <span class="text-text-subtle">/</span>
             <%= number_with_delimiter(planet.metal_capacity) %>
           </span>
         </div>
         <div class="h-1 w-full overflow-hidden rounded-full bg-border">
-          <div class="h-full rounded-full bg-secondary transition-all duration-500 <%= metal_pct >= 100 ? 'opacity-50' : '' %>" style="width: <%= metal_pct %>%"></div>
+          <div class="h-full rounded-full bg-secondary transition-all duration-500 <%= metal_pct >= 100 ? 'opacity-50' : '' %>" style="width: <%= metal_pct %>%" data-resources-target="metalBar"></div>
         </div>
       </div>
     </div>
@@ -77,13 +88,13 @@
             <span class="text-[10px] text-text-subtle">+<%= number_with_delimiter((planet.thorium_rate * 3600).to_i) %> /h</span>
           </div>
           <span class="font-mono text-xs text-text">
-            <span class="text-quantum"><%= number_with_delimiter(planet.thorium_stock.to_i) %></span>
+            <span class="text-quantum" data-resources-target="thoriumStock"><%= number_with_delimiter(planet.thorium_stock.to_i) %></span>
             <span class="text-text-subtle">/</span>
             <%= number_with_delimiter(planet.thorium_capacity) %>
           </span>
         </div>
         <div class="h-1 w-full overflow-hidden rounded-full bg-border">
-          <div class="h-full rounded-full bg-quantum transition-all duration-500 <%= thorium_pct >= 100 ? 'opacity-50' : '' %>" style="width: <%= thorium_pct %>%"></div>
+          <div class="h-full rounded-full bg-quantum transition-all duration-500 <%= thorium_pct >= 100 ? 'opacity-50' : '' %>" style="width: <%= thorium_pct %>%" data-resources-target="thoriumBar"></div>
         </div>
       </div>
     </div>
