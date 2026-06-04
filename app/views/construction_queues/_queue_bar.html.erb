@@ -19,9 +19,22 @@
            class="h-full rounded-full"
            style="width: <%= pct %>%; background: var(--color-primary);"></div>
     </div>
-    <span data-queue-timer-target="display"
-          class="font-mono text-[12px] text-text whitespace-nowrap"></span>
+    <button class="flex items-center gap-1 group cursor-pointer"
+            title="Changer l'affichage"
+            data-action="click->queue-timer#toggle">
+      <span data-queue-timer-target="display"
+            class="font-mono text-[12px] text-text whitespace-nowrap tabular-nums"></span>
+      <span class="text-[9px] text-text-subtle opacity-40 group-hover:opacity-90 transition-opacity select-none">⇄</span>
+    </button>
     <span class="text-[10px] text-text-subtle whitespace-nowrap">1 slot</span>
+    <button type="button"
+            class="text-[10px] text-text-subtle hover:text-varek transition-colors whitespace-nowrap cursor-pointer ml-auto"
+            data-action="click->confirm-dialog#open"
+            data-confirm-dialog-url-param="<%= planet_construction_queue_path(planet) %>"
+            data-confirm-dialog-title-param="<%= t('construction_queues.cancel_confirm_title') %>"
+            data-confirm-dialog-message-param="<%= t('construction_queues.cancel_confirm_message') %>">
+      <%= t("construction_queues.cancel_button") %>
+    </button>
   </div>
 <% else %>
   <div id="queue-bar">

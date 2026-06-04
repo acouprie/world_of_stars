@@ -52,6 +52,18 @@ en:
       prerequisite_missing: "Prerequisites not met"
       insufficient_resources: "Insufficient resources"
       insufficient_energy: "Insufficient energy"
+    construction_queues:
+      cancelled: "Construction cancelled, resources refunded"
+      no_pending_queue: "No construction in progress"
+
+  ui:
+    cancel: "Cancel"
+    confirm: "Confirm"
+
+  construction_queues:
+    cancel_button: "Cancel"
+    cancel_confirm_title: "Cancel construction?"
+    cancel_confirm_message: "Resource costs will be fully refunded. If this is a new building, the slot will be freed."
 
   layouts:
     header:

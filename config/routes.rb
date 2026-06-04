@@ -26,6 +26,7 @@ Rails.application.routes.draw do
   # Game routes
   resources :planets do
     resources :buildings, only: [:new, :create, :show]
+    resource :construction_queue, only: [:destroy]
   end
 
   # Documentation routes

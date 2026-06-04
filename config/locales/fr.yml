@@ -52,6 +52,18 @@ fr:
       prerequisite_missing: "Prérequis non rempli"
       insufficient_resources: "Ressources insuffisantes"
       insufficient_energy: "Énergie insuffisante"
+    construction_queues:
+      cancelled: "Construction annulée, ressources remboursées"
+      no_pending_queue: "Aucune construction en cours"
+
+  ui:
+    cancel: "Annuler"
+    confirm: "Confirmer"
+
+  construction_queues:
+    cancel_button: "Annuler"
+    cancel_confirm_title: "Annuler la construction ?"
+    cancel_confirm_message: "Le coût en ressources sera intégralement remboursé. Si c'est une nouvelle construction, l'emplacement sera libéré."
 
   layouts:
     header:

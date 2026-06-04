@@ -28,7 +28,7 @@
     <%= vite_stylesheet_tag "application", "data-turbo-track": "reload" %>
   </head>
 
-  <body>
+  <body data-controller="confirm-dialog">
     <%= render "layouts/header" %>
 
     <div id="flash-messages">
@@ -41,5 +41,7 @@
     </div>
 
     <%= yield %>
+
+    <%= render "layouts/confirm_dialog" %>
   </body>
 </html>
