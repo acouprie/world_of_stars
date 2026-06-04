@@ -52,7 +52,7 @@
           <% if b[:energy_delta] > 0 %>
             <div class="flex items-center gap-1 text-[12px]">
               <%= image_tag "icons/energy.png", alt: t("resources.energy"), class: "h-3 w-3" %>
-              <span class="<%= b[:can_energy] ? 'text-quantum' : 'text-varek' %>">+<%= b[:energy_delta] %> GW</span>
+              <span class="<%= b[:can_energy] ? 'text-quantum' : 'text-varek' %>">+<%= b[:energy_delta] %> GWh</span>
               <span class="text-text-subtle"><%= t("buildings.new.energy_required") %></span>
             </div>
           <% end %>

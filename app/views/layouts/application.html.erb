@@ -29,6 +29,8 @@
   </head>
 
   <body>
+    <%= render "layouts/header" %>
+
     <div id="flash-messages">
       <% if notice.present? %>
         <%= render "layouts/flash_notice", message: notice %>
@@ -37,8 +39,6 @@
         <%= render "layouts/flash_alert", message: alert %>
       <% end %>
     </div>
-
-    <%= render "layouts/header" %>
 
     <%= yield %>
   </body>

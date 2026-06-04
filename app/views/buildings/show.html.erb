@@ -6,12 +6,14 @@
         <div class="flex items-center gap-2">
           <span class="text-xl leading-none <%= building_category_color_class(@building.building_type) %>"><%= building_icon(@building.building_type) %></span>
           <span class="text-[13px] font-medium text-text"><%= building_name(@building.building_type) %></span>
-          <span class="rounded border px-1.5 py-0.5 text-[9px] font-medium <%= building_category_badge_classes(@building.building_type) %>">Nv. <%= @building.level %></span>
         </div>
         <span class="text-[10px] text-text-subtle pl-7"><%= @building.config[:description] %></span>
       </div>
-      <button class="shrink-0 text-text-subtle hover:text-text transition-colors text-sm leading-none px-1 py-0.5"
+      <div class="flex">
+        <span class="rounded border px-1.5 py-0.5 text-[9px] font-medium <%= building_category_badge_classes(@building.building_type) %>">Nv. <%= @building.level %></span>
+        <button class="shrink-0 text-text-subtle hover:text-text transition-colors text-sm leading-none px-1 py-0.5"
               data-action="click->building-panel#close">✕</button>
+      </div>
     </div>
 
     <div class="border-t border-border"></div>
@@ -48,7 +50,7 @@
         <% if @upgrade[:energy_delta] > 0 %>
           <div class="flex items-center gap-1 text-[12px]">
             <%= image_tag "icons/energy.png", alt: t("resources.energy"), class: "h-3 w-3" %>
-            <span class="<%= @upgrade[:can_energy] ? 'text-quantum' : 'text-varek' %>">+<%= @upgrade[:energy_delta].to_i %> GW</span>
+            <span class="<%= @upgrade[:can_energy] ? 'text-quantum' : 'text-varek' %>">+<%= @upgrade[:energy_delta].to_i %> GWh</span>
             <span class="text-text-subtle"><%= t("buildings.new.energy_required") %></span>
           </div>
         <% end %>
