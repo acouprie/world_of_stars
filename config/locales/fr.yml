@@ -64,6 +64,11 @@ fr:
     cancel_button: "Annuler"
     cancel_confirm_title: "Annuler la construction ?"
     cancel_confirm_message: "Le coût en ressources sera intégralement remboursé. Si c'est une nouvelle construction, l'emplacement sera libéré."
+    queue_label: "File"
+    level_target: "Nv. %{level}"
+    toggle_display: "Changer l'affichage"
+    slot_count: "1 slot"
+    empty: "Aucune construction en cours"
 
   layouts:
     header:

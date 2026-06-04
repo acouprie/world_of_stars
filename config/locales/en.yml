@@ -64,6 +64,11 @@ en:
     cancel_button: "Cancel"
     cancel_confirm_title: "Cancel construction?"
     cancel_confirm_message: "Resource costs will be fully refunded. If this is a new building, the slot will be freed."
+    queue_label: "Queue"
+    level_target: "Lv. %{level}"
+    toggle_display: "Toggle display"
+    slot_count: "1 slot"
+    empty: "No construction in progress"
 
   layouts:
     header:
