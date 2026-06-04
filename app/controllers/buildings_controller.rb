@@ -19,16 +19,23 @@ class BuildingsController < ApplicationController
       can_thorium = @planet.thorium_stock.to_f >= cost[:thorium].to_f
       can_energy  = @planet.net_energy         >= energy_delta
 
+      built_levels = @planet.buildings.each_with_object({}) { |b, h| h[b.building_type.to_sym] = b.level }
+      missing_prerequisites = Buildings.prerequisites_for(type, target).filter_map do |req_type, req_level|
+        next if built_levels.fetch(req_type, 0) >= req_level
+        { type: req_type, required_level: req_level }
+      end
+
       @upgrade = {
-        target_level: target,
-        cost:         cost,
-        energy_delta: energy_delta,
-        duration:     duration,
-        can_afford:   can_metal && can_food && can_thorium && can_energy,
-        can_metal:    can_metal,
-        can_food:     can_food,
-        can_thorium:  can_thorium,
-        can_energy:   can_energy,
+        target_level:          target,
+        cost:                  cost,
+        energy_delta:          energy_delta,
+        duration:              duration,
+        missing_prerequisites: missing_prerequisites,
+        can_afford:            can_metal && can_food && can_thorium && can_energy && missing_prerequisites.empty?,
+        can_metal:             can_metal,
+        can_food:              can_food,
+        can_thorium:           can_thorium,
+        can_energy:            can_energy,
       }
     end
 

@@ -60,6 +60,18 @@
           <span><%= format_duration(@upgrade[:duration]) %></span>
         </div>
 
+        <% if @upgrade[:missing_prerequisites].any? %>
+          <div class="flex flex-col gap-1 text-[11px] text-varek">
+            <ul class="list-disc list-inside">
+              <% @upgrade[:missing_prerequisites].each do |prereq| %>
+                <li>
+                  <%= building_name(prereq[:type]) %> niveau <%= prereq[:required_level] %> requis
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
         <%= form_with url: planet_buildings_path(@planet), method: :post do |f| %>
           <%= f.hidden_field :building_type, value: @building.building_type %>
           <%= f.submit "Améliorer",
