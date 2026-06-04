@@ -1,28 +1,62 @@
-<header class="top-0 left-0 right-0 z-50 flex items-center justify-end gap-2 p-2">
-  <%= link_to docs_path,
-      class: "px-3 py-1.5 rounded text-sm font-medium hover:bg-white/10 transition-colors",
-      style: "color: var(--color-primary)" do %>
-    <%= t("layouts.header.documentation") %>
-  <% end %>
+<%
+  locale_flags = { 'fr' => '🇫🇷', 'en' => '🇬🇧' }
+  current_locale = I18n.locale.to_s
+%>
+<header class="top-0 left-0 right-0 z-50 flex items-center justify-between sm:justify-end gap-2 p-2">
 
-  <% if authenticated? %>
-    <%= link_to planet_path(Current.user.planets.first),
-      class: "px-3 py-1.5 rounded text-sm font-medium hover:bg-white/10 transition-colors",
-      style: "color: var(--color-primary)" do %>
-      <%= t("layouts.header.home_planet") %>
-    <% end %>
-    <%= button_to session_path, method: :delete,
-        class: "flex items-center gap-2 px-3 py-1.5 rounded text-sm font-medium hover:bg-white/10 transition-colors cursor-pointer",
+  <%# Mobile hamburger menu (hidden on sm+) %>
+  <div class="relative sm:hidden"
+       data-controller="nav-menu"
+       data-action="click@window->nav-menu#closeOnOutside">
+    <button type="button"
+            class="cursor-pointer p-2 rounded hover:bg-white/10 select-none text-xl"
+            style="color: var(--color-primary)"
+            data-action="click->nav-menu#toggle">☰</button>
+    <div id="mobile-nav-menu" data-nav-menu-target="menu">
+      <%= link_to docs_path,
+          class: "block px-4 py-2.5 text-sm font-medium hover:bg-white/10 transition-colors",
+          style: "color: var(--color-primary)" do %>
+        <%= t("layouts.header.documentation") %>
+      <% end %>
+      <% if authenticated? %>
+        <%= link_to planet_path(Current.user.planets.first),
+            class: "block px-4 py-2.5 text-sm font-medium hover:bg-white/10 transition-colors",
+            style: "color: var(--color-primary)" do %>
+          <%= t("layouts.header.home_planet") %>
+        <% end %>
+        <%= button_to session_path, method: :delete,
+            class: "flex items-center gap-2 px-4 py-2.5 w-full text-sm font-medium hover:bg-white/10 transition-colors cursor-pointer",
+            style: "color: var(--color-primary)" do %>
+          <span>⏻</span>
+          <span><%= t("home.index.logout") %></span>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Desktop navigation (hidden on mobile) %>
+  <div class="hidden sm:flex items-center gap-2">
+    <%= link_to docs_path,
+        class: "px-3 py-1.5 rounded text-sm font-medium hover:bg-white/10 transition-colors",
         style: "color: var(--color-primary)" do %>
-      <span>⏻</span>
-      <span><%= t("home.index.logout") %></span>
+      <%= t("layouts.header.documentation") %>
     <% end %>
-  <% end %>
+    <% if authenticated? %>
+      <%= link_to planet_path(Current.user.planets.first),
+          class: "px-3 py-1.5 rounded text-sm font-medium hover:bg-white/10 transition-colors",
+          style: "color: var(--color-primary)" do %>
+        <%= t("layouts.header.home_planet") %>
+      <% end %>
+      <%= button_to session_path, method: :delete,
+          class: "flex items-center gap-2 px-3 py-1.5 rounded text-sm font-medium hover:bg-white/10 transition-colors cursor-pointer",
+          style: "color: var(--color-primary)" do %>
+        <span>⏻</span>
+        <span><%= t("home.index.logout") %></span>
+      <% end %>
+    <% end %>
+  </div>
 
-  <%
-    locale_flags = { 'fr' => '🇫🇷', 'en' => '🇬🇧' }
-    current_locale = I18n.locale.to_s
-  %>
+  <%# Language switcher (always visible) %>
   <details class="relative inline-block">
     <summary class="cursor-pointer list-none text-2xl p-2 rounded hover:bg-white/10 select-none">
       <%= locale_flags[current_locale] %>
@@ -39,4 +73,5 @@
       <% end %>
     </div>
   </details>
+
 </header>
