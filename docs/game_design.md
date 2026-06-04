@@ -1,6 +1,6 @@
 # World of Stars — Document de Game Design
 
-> Version 0.3 — Document de référence projet
+> Version 0.4 — Document de référence projet
 > Auteur : Antoine Couprie
 > Statut : En cours — annexes à compléter
 
@@ -165,12 +165,12 @@ L'énergie n'est **pas un stock consommable** : c'est une **capacité installée
 
 #### Infrastructure militaire
 
-| Bâtiment            | Rôle                                                    |
-| ------------------- | ------------------------------------------------------- |
-| Camp d'entraînement | Accès aux types de soldats selon le niveau              |
-| Camp militaire      | Formation de soldats et de scientifiques                |
-| Usine spatiale      | Construction de vaisseaux                               |
-| Bunker              | Protection des ressources et soldats (capacité limitée) |
+| Bâtiment            | Rôle                                                         |
+| ------------------- | ------------------------------------------------------------ |
+| Camp d'entraînement | Production des unités terrestres (niveau ↑ = temps ↓)        |
+| Camp militaire      | Débloque les types d'unités selon son niveau                 |
+| Usine spatiale      | Construction de vaisseaux                                    |
+| Bunker              | Mise à l'abri consciente d'unités + protection de ressources |
 
 ### Satellite radar — niveaux de détection
 
@@ -185,7 +185,9 @@ L'énergie n'est **pas un stock consommable** : c'est une **capacité installée
 
 - Nécessite d'être construit sur la planète de départ **et** sur la planète de destination.
 - **Ne pas construire de portail = immunité aux attaques par portail** (choix stratégique délibéré).
+- Les planètes vides sont considérées comme ayant un **portail implicite** (exploration uniquement).
 - Consomme de l'énergie de capacité comme tout bâtiment.
+- **Iris** : mécanisme de défense débloqué par l'amélioration du portail quantique. Bonus à la défense des assauts entrants par portail — comportement et équilibrage exact à définir (voir questions ouvertes).
 - _Note : un coût en ressources par utilisation (Thorium ?) est envisagé mais non tranché — voir questions ouvertes._
 
 ---
@@ -215,43 +217,71 @@ L'énergie n'est **pas un stock consommable** : c'est une **capacité installée
 
 - **Range de points** : un joueur ne peut pas attaquer un joueur dont les points sont trop inférieurs aux siens. Cela protège les nouveaux joueurs sans les rendre intouchables indéfiniment.
 - **Planète d'origine** : ne peut pas être conquise en toutes circonstances.
-- **Bunker** : protège ressources et soldats à hauteur de sa capacité.
+- **Bunker** : mise à l'abri consciente d'unités (immunisées au combat) et protection d'une fraction des ressources. 1 unité = 1 slot, quel que soit le type.
 - **Pas de portail** : immunité aux attaques par portail (choix stratégique).
 
 ---
 
 ## 6. Combat & espionnage
 
-### Résolution des combats
+### Modèle de combat — résolution en couches
 
-- Les combats se résolvent **à l'arrivée de la flotte** attaquante sur la planète cible.
-- L'ordre d'attaque est déterminé par l'**intelligence** des unités (moyenne pondérée de toutes les troupes engagées). Certaines technologies peuvent augmenter ou diminuer l'intelligence ennemie.
-- Une attaque implique un aller **et** un retour pour les vaisseaux survivants.
+Les combats se résolvent **à l'arrivée** des forces attaquantes sur la planète cible. Le système repose sur deux couches de combat, résolues séquentiellement dans une même résolution :
 
-### Résultats d'une attaque réussie
+**Couche 1 — Orbitale** _(reportée à la définition des vaisseaux)_ : attaquant flotte vs défenseur flotte + défenses orbitales. **Sautée si l'assaut arrive par portail quantique** — le portail téléporte directement au sol, contournant toute défense orbitale. Si le porteur (vaisseau) est détruit dans cette couche, les troupes terrestres embarquées sont perdues avec lui.
 
-- Pillage d'une fraction des ressources non protégées par le bunker.
-- Destruction partielle ou totale des défenses et unités non protégées.
-- **Conquête** possible si les conditions sont remplies (planète non originelle, victoire totale).
+**Couche 2 — Au sol** : les unités terrestres débarquées affrontent les unités terrestres stationnées en défense.
+
+**Asymétrie portail / vaisseau** : le portail quantique contourne la couche orbitale mais nécessite un portail des deux côtés (construire un portail = accepter cette vulnérabilité). L'assaut par vaisseau atteint n'importe quelle planète mais doit franchir l'orbite.
+
+### Résolution au sol — par rounds
+
+Le combat au sol se résout **par rounds** successifs, pas par un calcul agrégé unique.
+
+- **Ordre d'attaque** : déterminé par l'**intelligence** des unités — moyenne pondérée de toutes les troupes engagées dans chaque camp. Le camp avec l'intelligence la plus élevée frappe en premier à chaque round. Des technologies peuvent augmenter l'intelligence de ses propres troupes ou diminuer celle de l'ennemi.
+- **Défense = seuil d'encaissement** : chaque unité a un seuil de défense. Un coup qui dépasse la défense détruit l'unité. **Pas de points de vie** — la destruction est binaire.
+- **Pas de plancher de pertes** en combat : contrairement à l'exploration (voir section 7), un attaquant écrasé peut être totalement anéanti.
+
+### Repli — attaquant uniquement
+
+Seul l'**attaquant** peut se replier ; le défenseur combat jusqu'au dernier.
+
+Le repli se déclenche quand les pertes de l'attaquant franchissent un seuil, et son efficacité dépend du **delta d'intelligence entre attaquant et défenseur** : `intelligence_attaquant − intelligence_défenseur`.
+
+- **Delta positif** (attaquant plus intelligent) → repli précoce et propre, pertes minimisées.
+- **Delta proche de zéro** → repli moyen, pertes significatives.
+- **Delta négatif** (défenseur plus intelligent) → le défenseur « verrouille » le champ de bataille, l'attaquant se replie difficilement, pertes lourdes.
+
+Ce mécanisme donne à l'intelligence du défenseur un rôle concret même s'il ne se replie pas : un défenseur intelligent inflige davantage de pertes à un attaquant en retraite.
+
+_Note : les technologies modifiant l'intelligence (bonus ou malus) affectent ce delta et donc l'efficacité du repli._
+
+### Bunker — mise à l'abri consciente
+
+Le bunker n'est **pas** un mécanisme de repli automatique. C'est une **action consciente du joueur avant la bataille** : il choisit quelles unités mettre à l'abri (transports, scientifiques, ou troupes qu'il préfère préserver). Les unités abritées sont **immunisées** et ne participent pas au combat.
+
+- **1 unité = 1 slot** dans le bunker, quel que soit le type.
+- Le bunker protège également une fraction des ressources (capacité `resources`, voir `building_reference.md`).
+- Un joueur peut préférer être pillé plutôt que perdre des troupes — c'est un choix stratégique valide.
+
+### Résultats d'une attaque
+
+- **Pillage** : l'attaquant doit **tenir le sol** (gagner l'engagement terrestre) pour piller. Une victoire orbitale sans victoire au sol = pas de butin. Les transporteurs de l'attaquant se remplissent de ressources non protégées par le bunker.
+- **Destruction** : les unités du camp perdant (hors bunker) subissent des pertes proportionnelles à la résolution des rounds.
+- **Conquête** : mécanique reportée. Retenu : la conquête exige zéro défense restante sur la planète.
+- **Rapport de combat** : généré pour **l'attaquant et le défenseur** — contenu exact à définir (pertes, butin, XP, survivants). Le rapport inclut un volet narratif généré par IA.
 
 ### Système d'XP combat
 
 - Les joueurs gagnent de l'XP en détruisant des unités ennemies lors des combats.
 - L'XP est associée **au joueur**, pas aux unités — elle sert uniquement au **classement** et n'a pas d'impact mécanique sur le gameplay.
-- Le niveau 1 commence à 400 pts d'XP, chaque niveau suivant nécessite x1.2 pts supplémentaires.
+- Le niveau 1 commence à 400 pts d'XP, chaque niveau suivant nécessite ×1.2 pts supplémentaires.
 - Les gains d'XP sont multipliés par 1.0292 à chaque passage de niveau.
 - **L'XP se cumule** — l'excédent au passage de niveau n'est pas perdu.
 
 #### Gains d'XP par unité détruite
 
-| Unité détruite      | XP gagnée |
-| ------------------- | --------- |
-| 1 unité légère      | 0.3 XP    |
-| 1 unité lourde      | 0.5 XP    |
-| 1 scientifique      | 0.7 XP    |
-| 1 archéologue       | 0.9 XP    |
-| 1 Malp (équivalent) | 2 XP      |
-| 1 UAV (équivalent)  | 3 XP      |
+_Les noms et valeurs XP des unités seront mis à jour avec le roster définitif (voir `unit_reference.md`)._
 
 #### Multiplicateurs — victoire sans pertes
 
@@ -265,24 +295,17 @@ L'énergie n'est **pas un stock consommable** : c'est une **capacité installée
 
 ### Espionnage
 
-- Deux types d'unités d'espionnage : **Malp** (équivalent terrestre) et **UAV** (reconnaissance avancée).
+Deux types d'unités de reconnaissance aux profils distincts : l'une orientée exploration (remplace l'ancien « Malp »), l'autre orientée espionnage (remplace l'ancien « UAV »). Voir `unit_reference.md` pour les noms définitifs.
+
 - Une mission d'espionnage dure **5 minutes**.
-- Plus on envoie d'unités, plus on obtient d'informations — mais plus le risque de se faire détecter est élevé.
-- Si détecté, le joueur ciblé reçoit une notification dans sa messagerie.
-- L'envoi de **5 unités** est généralement le bon compromis (bonne visibilité, risque de détection limité).
-
-#### Niveaux de visibilité selon les unités envoyées
-
-| Information révélée | Unité requise                                |
-| ------------------- | -------------------------------------------- |
-| Bâtiments           | Malp                                         |
-| Unités terrestres   | Malp                                         |
-| Ressources          | Malp                                         |
-| Technologies        | Malp (niveau technologie espionnage ≥ cible) |
-| Vaisseaux en orbite | UAV uniquement                               |
-
-- Formation d'un Malp ou UAV : **15 minutes**.
+- **Quantité d'unités vs furtivité** : plus on envoie d'unités, plus on obtient d'informations (bâtiments → unités → ressources → technologies → vaisseaux en orbite). Mais plus on en envoie, plus le **risque de détection** augmente. Si détecté, le joueur ciblé reçoit une notification dans sa messagerie.
+- La stat d'**espionnage** des unités limite le risque de détection — une unité avec un espionnage élevé est plus discrète.
+- L'envoi de **5 unités** est généralement un bon compromis (bonne visibilité, risque de détection limité).
+- Les vaisseaux en orbite ne sont visibles que par l'unité de type espionnage (pas par l'unité type exploration).
+- L'espionnage des **technologies** ennemies nécessite un niveau de technologie d'espionnage ≥ celui de la cible.
 - 10 niveaux de technologie d'espionnage.
+
+_Formule exacte de détection et de révélation d'information à définir lors de l'implémentation._
 
 ---
 
@@ -291,34 +314,35 @@ L'énergie n'est **pas un stock consommable** : c'est une **capacité installée
 ### Principe
 
 - Les planètes vides (non assignées) sont **explorables**.
+- Les planètes vides sont considérées comme ayant un **portail implicite** permettant l'exploration par portail.
 - Une mission d'exploration envoie une équipe d'unités sur une planète vide.
-- Résultats : **points de technologie** (XP exploration), **ressources** (aléatoire), **rapport de mission narratif** généré par IA.
-- L'exploration se fait soit par vaisseau, soit par portail.
+- Résultats : **points d'exploration** (alimentent les niveaux d'exploration), **ressources** (aléatoire), **rapport de mission narratif** généré par IA.
+- L'exploration est **beaucoup plus rapide par portail**. Pour ne pas bloquer les joueurs sans portail, un **vaisseau d'exploration unique** est disponible dès le lancement (stratégie plus lente mais plus sûre, peu de points d'exploration).
 
 ### Durée d'une expédition
 
-- Durée de base : **20 minutes**
+- Durée de base : **20 minutes** (par portail)
 - **+1 minute par unité** ajoutée à l'équipe (une grande équipe = une expédition longue)
 
 ### Unités d'exploration et leurs rôles
 
-| Unité        | XP de base   | Transport ressources     | Particularités                                            |
-| ------------ | ------------ | ------------------------ | --------------------------------------------------------- |
-| Scientifique | 33 XP (seul) | 75 de chaque ressource   | XP croissant avec le nombre, risque de pertes croissant   |
-| Archéologue  | 31 XP (seul) | 75 de chaque ressource   | Chance de ramener de l'or — mécanique à définir           |
-| Lourd        | 30 XP fixe   | 200 de chaque ressource  | Réduit le risque de pertes des scientifiques/archéologues |
-| Léger        | 30 XP fixe   | 100 de chaque ressource  | Réduit le risque de pertes (moins efficace que lourd)     |
-| Malp         | 30 XP fixe   | 1000 de chaque ressource | Aucune perte possible                                     |
-| UAV          | 30 XP fixe   | Aucun transport          | Aucune perte possible                                     |
+_Les noms définitifs des unités seront définis dans `unit_reference.md`. Le tableau ci-dessous décrit les rôles fonctionnels._
+
+| Rôle                 | XP de base   | Transport ressources | Particularités                                          |
+| -------------------- | ------------ | -------------------- | ------------------------------------------------------- |
+| Scientifique         | 33 XP (seul) | Modéré               | XP croissant avec le nombre, risque de pertes croissant |
+| Recon-exploration    | 30 XP fixe   | Élevé                | Aucune perte en exploration, bonus exploration          |
+| Recon-espionnage     | 30 XP fixe   | Aucun transport      | Aucune perte en exploration, bonus espionnage           |
+| Combattant (escorte) | 30 XP fixe   | Variable             | Réduit le risque de pertes des scientifiques            |
+| Transport            | —            | Très élevé           | Capacité de transport maximale                          |
 
 ### Règles générales d'exploration
 
 - **Chance de gagner des ressources : 20%** peu importe les unités envoyées. La quantité varie entre 50% et 100% de la capacité de transport de l'équipe.
-- **Une équipe ne peut jamais être totalement exterminée** : si une seule unité est envoyée, aucune perte possible.
+- **Règle de sécurité PvE** : une équipe d'exploration **ne peut jamais être totalement exterminée**. Si une seule unité est envoyée, aucune perte possible. Les unités de type reconnaissance ne subissent **jamais de pertes** en exploration (trait intrinsèque). _Cette règle est spécifique à l'exploration et ne s'applique pas au combat PvP._
 - La quantité de pertes est égale au pourcentage de risque calculé.
 - Les XP gagnés ont une **variation de ±5%** (résultat non déterministe).
-- En présence de Scientifiques ou d'Archéologues, les 30 XP des Lourds et Légers **ne sont pas comptabilisés** (annulés).
-- L'XP des Scientifiques et Archéologues **s'additionne**.
+- En présence de Scientifiques, les 30 XP des combattants et transports **ne sont pas comptabilisés** (annulés).
 
 ### Calcul du risque — Scientifiques
 
@@ -327,27 +351,21 @@ L'énergie n'est **pas un stock consommable** : c'est une **capacité installée
 - 90 Scientifiques = 100% de risque → 300 XP
 - Au-delà de 100% : +3 XP par Scientifique supplémentaire
 - **Formule XP** : `% de risque × 3 = XP`
-- Les unités Lourdes/Légères réduisent le risque global selon leur proportion dans l'équipe
-
-### Calcul du risque — Archéologues
-
-- 1 Archéologue seul = 10% de risque → 31 XP
-- Chaque Archéologue supplémentaire = +1% de risque
-- **Formule XP** : `31 + (nombre_archéologues - 1) × 1.5`
-- Même mécanique de réduction du risque avec Lourds/Légers que pour les Scientifiques
+- Les unités combattantes d'escorte réduisent le risque global selon leur proportion dans l'équipe
 
 ### Niveaux d'exploration
 
-- L'XP d'exploration est associée **au joueur**, pas aux unités — elle sert au **classement** et n'a pas d'impact mécanique sur le gameplay.
+- L'XP d'exploration est associée **au joueur**, pas aux unités.
+- Les niveaux d'exploration peuvent servir de **prérequis pour certaines technologies**.
 - Niveau 1 : 400 XP requis
 - Chaque niveau suivant : XP requis × 1.2
 - Gains d'XP par exploration multipliés par 1.0292 à chaque passage de niveau
 - **L'XP se cumule** — l'excédent au passage de niveau n'est pas perdu
 
-### Points de technologie
+### Points d'exploration et technologies
 
-- L'exploration de planètes vides génère des **points de technologie** utilisés pour progresser dans l'arbre technologique.
-- Ces points débloquent de nouveaux bâtiments, unités, vaisseaux et améliorations de production.
+- L'exploration de planètes vides génère des **points d'exploration** qui alimentent les **niveaux d'exploration** du joueur.
+- Les niveaux d'exploration peuvent être un **prérequis** pour la recherche de certaines technologies.
 - _L'arbre technologique complet est à définir — voir Annexes._
 
 ---
@@ -566,20 +584,29 @@ L'IA est utilisée comme outil de développement à tous les niveaux, au-delà d
 
 Ces points sont intentionnellement non tranchés dans cette version du document. Ils seront résolus lors des phases de développement et de test.
 
-| Sujet                                           | État            | Note                                                                       |
-| ----------------------------------------------- | --------------- | -------------------------------------------------------------------------- |
-| Coût d'utilisation du Portail quantique         | À définir       | Coût fixe ou variable en Thorium ? Favorise les décisions stratégiques     |
-| Nombre maximum de planètes                      | Base : 3        | À réévaluer lors des tests d'équilibrage                                   |
-| Capacité du bunker                              | À équilibrer    | Doit protéger sans éliminer tout le risque                                 |
-| Modificateur alliance sur la réputation Elyrans | À définir       | Principe acté, valeurs à équilibrer                                        |
-| Seuil minimum de planètes Varek/Elyrans         | À définir       | Garantit la survie des factions, valeur à fixer selon la taille du serveur |
-| Seuils de déclenchement des vagues Nexhianti    | À définir       | Basé sur nombre de planètes contrôlées ou temps                            |
-| Fenêtre de vulnérabilité                        | **Supprimée**   | Remplacée par le système bunker                                            |
-| Rôle de l'or et des archéologues                | À creuser       | Mécanique intéressante, à définir en v2                                    |
-| Monétisation                                    | À définir en v2 | Hors scope pour le développement initial                                   |
-| Arbre technologique complet                     | À construire    | Voir Annexes                                                               |
-| Liste complète des vaisseaux                    | À construire    | Voir Annexes                                                               |
-| Mécaniques d'alliance avancées                  | À définir en v2 | Partage radar, attaques coordonnées, etc.                                  |
+| Sujet                                           | État            | Note                                                                                            |
+| ----------------------------------------------- | --------------- | ----------------------------------------------------------------------------------------------- |
+| Coût d'utilisation du Portail quantique         | À définir       | Coût fixe ou variable en Thorium ? Favorise les décisions stratégiques                          |
+| Iris — bonus de défense portail                 | À définir       | Débloqué par le niveau du portail quantique. Comportement et équilibrage TBD                    |
+| Nombre maximum de planètes                      | Base : 3        | À réévaluer lors des tests d'équilibrage                                                        |
+| Capacité du bunker                              | À équilibrer    | Doit protéger sans éliminer tout le risque                                                      |
+| Modificateur alliance sur la réputation Elyrans | À définir       | Principe acté, valeurs à équilibrer                                                             |
+| Seuil minimum de planètes Varek/Elyrans         | À définir       | Garantit la survie des factions, valeur à fixer selon la taille du serveur                      |
+| Seuils de déclenchement des vagues Nexhianti    | À définir       | Basé sur nombre de planètes contrôlées ou temps                                                 |
+| Fenêtre de vulnérabilité                        | **Supprimée**   | Remplacée par le système bunker                                                                 |
+| Archéologue et or                               | **Reporté**     | Mécanique retirée du scope actuel, à reconsidérer en v2                                         |
+| Bombardement orbital                            | À définir       | Flottes sans troupes au sol : dégâts purs sans butin ? À définir avec les vaisseaux             |
+| Bâtiments de défense statique                   | En réflexion    | Toute la défense passe par les unités pour l'instant ; tourelles/structures possibles plus tard |
+| Capacité de garnison (military_camp)            | Reporté         | Limiter le nombre d'unités stationnées par planète selon le niveau du camp                      |
+| Unité d'escorte dédiée                          | À trancher      | Les unités combattantes réduisent le risque en exploration ; faut-il une escorte spécialisée ?  |
+| Contenu exact du rapport de combat              | À définir       | Pertes, butin, XP, survivants + volet narratif IA                                               |
+| Formule exacte de l'espionnage                  | À implémenter   | Stat furtivité + quantité → détection/révélation                                                |
+| Formule exacte du repli (delta intelligence)    | À implémenter   | Seuil de déclenchement et % de survivants selon le delta                                        |
+| Monétisation                                    | À définir en v2 | Hors scope pour le développement initial                                                        |
+| Arbre technologique complet                     | À construire    | Voir Annexes                                                                                    |
+| Liste complète des vaisseaux                    | À construire    | Voir Annexes                                                                                    |
+| Roster complet des unités terrestres            | **En cours**    | Voir `unit_reference.md`                                                                        |
+| Mécaniques d'alliance avancées                  | À définir en v2 | Partage radar, attaques coordonnées, etc.                                                       |
 
 ---
 
@@ -606,9 +633,13 @@ Types connus à ce stade : chasseurs, vaisseaux mères, transporteurs, bombardie
 
 ### Annexe C — Unités terrestres
 
-_À construire._
+_En cours de définition — voir `unit_reference.md` pour le document de référence complet._
 
-Types connus à ce stade : unités légères, unités lourdes, scientifiques, archéologues, Malp (équivalent), UAV (équivalent).
+**Catégories validées** : combat (offensif, défensif, mid-range), scientifique (exploration), reconnaissance-exploration, reconnaissance-espionnage, transport. Les anciens noms « léger / lourd / Malp / UAV / archéologue » sont abandonnés au profit de noms originaux dans l'univers World of Stars.
+
+**Principes de production** : toutes les unités sont produites dans le `training_camp` (niveau ↑ = temps ↓). Les types d'unités sont débloqués par le `military_camp`, avec des dépendances multiples possibles (ex : scientifique = military_camp + research_lab). Files de production parallèles supplémentaires débloquées par technologie. Coût en métal/nourriture/thorium + temps. Pas d'entretien (coût unique).
+
+**Stats** : Attaque, Défense, Intelligence, Transport, Exploration, Espionnage. Pas de PV (défense = seuil d'encaissement). Pas de vitesse (unités terrestres = charge utile). Toutes les stats sont modifiables par technologies.
 
 ### Annexe D — Équilibrage des ressources
 
