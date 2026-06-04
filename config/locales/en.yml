@@ -121,6 +121,12 @@ en:
       level: "Level 1"
       energy_required: "required"
       build: "Build"
+    show:
+      upgrade_title: "Upgrade → Lv. %{level}"
+      upgrade_button: "Upgrade"
+      max_level: "Maximum level reached"
+      prerequisite_required: "%{building} level %{level} required"
+      level_badge: "Lv. %{level}"
     types:
       solar_station: "Solar Station"
       nuclear_plant: "Nuclear Plant"

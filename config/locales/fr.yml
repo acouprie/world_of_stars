@@ -121,6 +121,12 @@ fr:
       level: "Niveau 1"
       energy_required: "requis"
       build: "Construire"
+    show:
+      upgrade_title: "Amélioration → Nv. %{level}"
+      upgrade_button: "Améliorer"
+      max_level: "Niveau maximum atteint"
+      prerequisite_required: "%{building} niveau %{level} requis"
+      level_badge: "Nv. %{level}"
     types:
       solar_station: "Station solaire"
       nuclear_plant: "Centrale nucléaire"
