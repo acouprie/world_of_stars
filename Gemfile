@@ -33,7 +33,7 @@ gem "kamal", require: false
 # HTTP/2 + asset compression in front of Puma
 gem "thruster", require: false
 # Active Storage image variants
-gem "image_processing", "~> 1.2"
+gem "image_processing", "~> 2.0"
 
 group :development, :test do
   gem "debug", platforms: %i[mri windows], require: "debug/prelude"
