@@ -1,6 +1,9 @@
 class Planet < ApplicationRecord
   PLANET_TYPES  = %w[player ai_faction empty].freeze
-  BIOMES  = %w[oceanic arid volcanic glacial forest].freeze
+  BIOMES = %w[
+    oceanic arid volcanic glacial forest
+    temperate tundra crystalline fungal toxic irradiated barren
+  ].freeze
 
   belongs_to :user, optional: true
   has_many :buildings, dependent: :destroy
