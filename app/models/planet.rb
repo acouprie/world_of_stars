@@ -5,6 +5,21 @@ class Planet < ApplicationRecord
     temperate tundra crystalline fungal toxic irradiated barren
   ].freeze
 
+  BIOME_BONUSES = {
+    oceanic:     { food: 1.5, metal: 1.5 },
+    arid:        { metal: 3.0 },
+    volcanic:    { thorium: 3.0 },
+    glacial:     { thorium: 2.0, metal: 1.0 },
+    forest:      { food: 3.0 },
+    temperate:   { metal: 1.0, food: 1.0, thorium: 1.0 },
+    tundra:      { metal: 2.0, food: 1.0 },
+    crystalline: { thorium: 2.0, metal: 1.0 },
+    fungal:      { food: 2.0, thorium: 1.0 },
+    toxic:       { food: 1.5, thorium: 1.5 },
+    irradiated:  { thorium: 2.0, food: 1.0 },
+    barren:      { metal: 2.0, thorium: 1.0 },
+  }.freeze
+
   belongs_to :user, optional: true
   has_many :buildings, dependent: :destroy
   has_one  :construction_queue, dependent: :destroy
@@ -45,17 +60,24 @@ class Planet < ApplicationRecord
 
   def metal_rate
     b = buildings.find { |bld| bld.building_type == "metal_mine" }
-    Buildings::Calculator.production_rate(:metal_mine, b&.level || 0)
+    base = Buildings::Calculator.production_rate(:metal_mine, b&.level || 0)
+    base + biome_bonus(:metal) * Math.sqrt(base)
   end
 
   def food_rate
     b = buildings.find { |bld| bld.building_type == "farm" }
-    Buildings::Calculator.production_rate(:farm, b&.level || 0)
+    base = Buildings::Calculator.production_rate(:farm, b&.level || 0)
+    base + biome_bonus(:food) * Math.sqrt(base)
   end
 
   def thorium_rate
     b = buildings.find { |bld| bld.building_type == "thorium_mine" }
-    Buildings::Calculator.production_rate(:thorium_mine, b&.level || 0)
+    base = Buildings::Calculator.production_rate(:thorium_mine, b&.level || 0)
+    base + biome_bonus(:thorium) * Math.sqrt(base)
+  end
+
+  def biome_bonus(resource)
+    BIOME_BONUSES.dig(biome.to_sym, resource) || 0.0
   end
 
   def available_building_types

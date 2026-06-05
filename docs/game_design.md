@@ -1,6 +1,6 @@
 # World of Stars — Document de Game Design
 
-> Version 0.4 — Document de référence projet
+> Version 0.5 — Document de référence projet
 > Auteur : Antoine Couprie
 > Statut : En cours — annexes à compléter
 
@@ -60,17 +60,49 @@ Trois **statuts de possession** coexistent sur la carte :
 | `ai_faction`           | Appartenant aux factions l'Empire Varek, la Confédération Elyrans ou les Nexhianti |
 | `empty`                | Non assignée, colonisable et explorable                                            |
 
-Chaque planète possède également un **type visuel** (indépendant du statut de possession) qui détermine son apparence graphique :
+Chaque planète possède également un **biome** (propriété `biome`, stockée en base, indépendante du statut de possession) qui détermine son apparence graphique et influence sa production de ressources.
 
-| Type visuel | Apparence                                 |
-| ----------- | ----------------------------------------- |
-| `oceanic`   | Monde aquatique, tons bleus profonds      |
-| `arid`      | Surface désertique, tons ocre et sable    |
-| `volcanic`  | Monde instable, tons rouge sombre et gris |
-| `glacial`   | Monde gelé, tons blanc et cyan            |
-| `forest`    | Monde végétal, tons vert foncé et brun    |
+| Biome         | Apparence                                                            |
+| ------------- | -------------------------------------------------------------------- |
+| `oceanic`     | Monde aquatique, tons bleus profonds                                 |
+| `arid`        | Surface désertique, tons ocre et sable                               |
+| `volcanic`    | Monde instable, tons rouge sombre et gris                            |
+| `glacial`     | Monde gelé, tons blanc et cyan                                       |
+| `forest`      | Monde végétal, tons vert foncé et brun                               |
+| `temperate`   | Mélange eau/terre/nuages, tons bleu clair, vert doux et beige        |
+| `tundra`      | Sol nu gris-brun, sans calottes, pergélisol apparent                 |
+| `crystalline` | Formations géométriques translucides, tons violet pâle et cyan       |
+| `fungal`      | Formes organiques arrondies, tons mauve et orange chaud              |
+| `toxic`       | Nuages denses jaune-vert, surface brunâtre corrosive                 |
+| `irradiated`  | Surface fracturée, lueur vert néon, cratères lumineux                |
+| `barren`      | Roche nue cratérisée, gris bleuté très sombre, quasi sans atmosphère |
 
-Le type visuel est dérivé de façon déterministe depuis l'identifiant de la planète (`id % 5`) — chaque planète a donc toujours le même skin, sans colonne supplémentaire en base.
+Le biome est assigné à la génération de la galaxie de façon déterministe (`(coord_x + coord_y) % 12`), garantissant une distribution régulière sur la carte.
+
+### Bonus de production par biome
+
+Le biome d'une planète applique un **bonus dégressif** sur la production des ressources correspondantes, incitant le joueur à coloniser des planètes de biomes variés.
+
+**Formule :** `taux_final = base + k × √base`
+
+Le bonus est proportionnel à la racine carrée de la production de base — fort en proportion sur les niveaux 1 à 5 des bâtiments de production (early game), il devient négligeable en late game sans jamais être nul.
+
+| Biome         | Métal (k) | Nourriture (k) | Thorium (k) | Profil                  |
+| ------------- | --------- | -------------- | ----------- | ----------------------- |
+| `oceanic`     | 1.5       | 1.5            | —           | Métal + nourriture      |
+| `arid`        | 3.0       | —              | —           | Métal pur               |
+| `volcanic`    | —         | —              | 3.0         | Thorium pur             |
+| `glacial`     | 1.0       | —              | 2.0         | Thorium dominant        |
+| `forest`      | —         | 3.0            | —           | Nourriture pure         |
+| `temperate`   | 1.0       | 1.0            | 1.0         | Tri-ressource équilibré |
+| `tundra`      | 2.0       | 1.0            | —           | Métal dominant          |
+| `crystalline` | 1.0       | —              | 2.0         | Thorium dominant        |
+| `fungal`      | —         | 2.0            | 1.0         | Nourriture dominant     |
+| `toxic`       | —         | 1.5            | 1.5         | Nourriture + thorium    |
+| `irradiated`  | —         | 1.0            | 2.0         | Thorium dominant        |
+| `barren`      | 2.0       | —              | 1.0         | Métal dominant          |
+
+Le k total par biome est identique (3.0), garantissant l'équilibre entre biomes quelle que soit la ressource visée. `temperate` est le seul biome tri-ressource — polyvalent mais sans excellence sur aucun axe.
 
 ### Capacité maximale du serveur
 
