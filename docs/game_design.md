@@ -1,6 +1,6 @@
 # World of Stars — Document de Game Design
 
-> Version 0.5 — Document de référence projet
+> Version 0.6 — Document de référence projet
 > Auteur : Antoine Couprie
 > Statut : En cours — annexes à compléter
 
@@ -271,7 +271,7 @@ Les combats se résolvent **à l'arrivée** des forces attaquantes sur la planè
 Le combat au sol se résout **par rounds** successifs, pas par un calcul agrégé unique.
 
 - **Ordre d'attaque** : déterminé par l'**intelligence du camp** — moyenne d'intelligence **pondérée par l'attaque**, calculée sur les seuls combattants survivants et **recalculée à chaque round**. Le camp à l'intelligence la plus élevée tire en premier ; **à intelligence égale, les deux salves sont simultanées** (calculées sur l'effectif de début de round). Les unités à attaque nulle (transports, reconnaissance) n'influencent pas l'intelligence du camp. Des technologies peuvent augmenter l'intelligence de ses propres troupes ou diminuer celle de l'ennemi.
-- **Défense = palier d'armure** : chaque round, chaque unité combattante est assignée à une cible ennemie tirée au hasard ; les dégâts des tireurs visant une même cible sont **additionnés** (`attaque × aléa`, aléa ∈ [0,85 ; 1,15]). Une cible est détruite si ces dégâts **concentrés** dépassent sa défense. **Pas de points de vie** — la destruction est binaire, et tuer exige donc de concentrer le feu de plusieurs unités. Le détail de l'algorithme est dans `unit_reference.md` §6.
+- **Défense = palier d'armure** : chaque round, chaque unité combattante est assignée à une cible ennemie tirée au hasard ; les dégâts des tireurs visant une même cible sont **additionnés** (`attaque × aléa`, aléa ∈ [0,85 ; 1,15]). Une cible est détruite si ces dégâts **concentrés** dépassent sa défense. **Pas de points de vie** — la destruction est binaire, et tuer exige donc de concentrer le feu de plusieurs unités. Au-dessus du jitter par tir s'ajoute un **aléa global par round** (`Normal(1 ; 0,25)` par camp), seule source d'incertitude significative à grande échelle. La résolution se fait **par effectifs de type** (forme fermée), jamais unité par unité : elle est **indépendante de la taille des armées** — un combat dure ~10 rounds qu'il oppose 100 ou 100 000 unités, et les rapports loggent des effectifs par type. Détail de l'algorithme dans `unit_reference.md` §6.
 - **Pas de plancher de pertes** en combat : contrairement à l'exploration (voir section 7), un attaquant écrasé peut être totalement anéanti.
 
 ### Repli — attaquant uniquement
@@ -398,7 +398,7 @@ _Les noms définitifs des unités seront définis dans `unit_reference.md`. Le t
 
 - L'exploration de planètes vides génère des **points d'exploration** qui alimentent les **niveaux d'exploration** du joueur.
 - Les niveaux d'exploration peuvent être un **prérequis** pour la recherche de certaines technologies.
-- _L'arbre technologique complet est à définir — voir Annexes._
+- Les niveaux d'exploration servent de **prérequis aux technologies du palier avancé** (Cœur de thorium, Colonisation, et la future Régénération cellulaire) — voir `tech_reference.md`.
 
 ---
 
@@ -617,9 +617,9 @@ L'IA est utilisée comme outil de développement à tous les niveaux, au-delà d
 Ces points sont intentionnellement non tranchés dans cette version du document. Ils seront résolus lors des phases de développement et de test.
 
 | Sujet                                           | État             | Note                                                                                                                             |
-| ----------------------------------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| ----------------------------------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------- | --- |
 | Coût d'utilisation du Portail quantique         | À définir        | Coût fixe ou variable en Thorium ? Favorise les décisions stratégiques                                                           |
-| Iris — bonus de défense portail                 | Design retenu    | Bonus de défense aux unités en défense contre un assaut **par portail**, croissant avec le niveau du portail. Valeurs à chiffrer |
+| Iris — bonus de défense portail                 | Design retenu    | Bonus de défense aux unités en défense contre un assaut **par portail**, croissant avec le niveau du portail. Valeurs à chiffrer |     |
 | Nombre maximum de planètes                      | Base : 3         | À réévaluer lors des tests d'équilibrage                                                                                         |
 | Capacité du bunker                              | À équilibrer     | Doit protéger sans éliminer tout le risque                                                                                       |
 | Modificateur alliance sur la réputation Elyrans | À définir        | Principe acté, valeurs à équilibrer                                                                                              |
@@ -636,9 +636,9 @@ Ces points sont intentionnellement non tranchés dans cette version du document.
 | Unité officier (niv 7-10 military_camp)         | **Idée future**  | Unité survivable dont l'intelligence mènerait le tempo de l'armée (initiative = INT max)                                         |
 | Contenu exact du rapport de combat              | À définir        | Pertes, butin, XP, survivants + volet narratif IA                                                                                |
 | Formule exacte de l'espionnage                  | À implémenter    | Stat furtivité + quantité → détection/révélation                                                                                 |
-| Formule exacte du repli (delta intelligence)    | **Tranché (v1)** | Auto à 55 % de pertes ; volée d'adieu = `clamp(0,5 − Δ/8, 0, 1,5)`                                                               |
+| Formule exacte du repli (delta intelligence)    | **Tranché (v1)** | Auto à 55 % de pertes ; volée d'adieu = `clamp(0,5 − Δ/8, 0, 1,5)                                                                |
 | Monétisation                                    | À définir en v2  | Hors scope pour le développement initial                                                                                         |
-| Arbre technologique complet                     | À construire     | Voir Annexes                                                                                                                     |
+| Arbre technologique complet                     | **Structuré**    | Structure et roster validés — voir `tech_reference.md`. Reste : valeurs d'équilibrage                                            |
 | Liste complète des vaisseaux                    | À construire     | Voir Annexes                                                                                                                     |
 | Roster complet des unités terrestres            | **En cours**     | Voir `unit_reference.md`                                                                                                         |
 | Mécaniques d'alliance avancées                  | À définir en v2  | Partage radar, attaques coordonnées, etc.                                                                                        |
@@ -649,16 +649,35 @@ Ces points sont intentionnellement non tranchés dans cette version du document.
 
 ### Annexe A — Arbre technologique
 
-_À construire._
+_Structure validée — voir `tech_reference.md` pour le document de référence complet (roster, prérequis, structure de données)._
+
+**Principes :** arbre **hybride** de technologies **à niveaux** (on améliore plusieurs fois la même techno). Chaque technologie a son propre niveau maximum. Bonus de combat **globaux** (toutes unités) pour l'instant. **Pas d'orientation stratégique imposée** : tous les joueurs accèdent au même arbre, les prérequis créent un ordre de progression naturel.
+
+**Pacing :** le niveau du `research_lab` **plafonne le niveau maximum de chaque technologie**, comme le `command_center` plafonne les bâtiments. `niveau_utile = min(plafond_labo, niveau_max_techno)`.
+
+**Prérequis (3 leviers superposés) :**
+
+- **Niveau de laboratoire** — plafond global.
+- **Cross-dépendances** — une techno peut exiger un niveau minimum d'une autre techno.
+- **Exploration** — appliqué directement sur certaines technologies « breakthrough ». L'exploration (découverte scientifique) est la **porte d'entrée du palier avancé** ; le palier initial reste accessible sans explorer.
+
+**File de recherche :** propre au `research_lab`, distincte des files de construction et de production. Une recherche à la fois.
 
 Les technologies servent à :
 
-- Débloquer des bâtiments, unités et vaisseaux
-- Augmenter la production de ressources
-- Améliorer les capacités de combat (attaque, défense, intelligence)
-- Améliorer les chances de succès et les gains d'exploration
-- Débloquer la colonisation de planètes supplémentaires (jusqu'à 3 max)
-- Améliorer les capacités d'espionnage
+- Augmenter la production de ressources (métal, nourriture, thorium) et l'énergie
+- Réduire la consommation énergétique des bâtiments
+- Améliorer les capacités de combat (attaque, défense, intelligence — bonus globaux)
+- Ajouter des files de construction et de production d'unités
+- Améliorer les gains et la sécurité de l'exploration
+- _(Anticipé)_ Débloquer la colonisation de planètes supplémentaires (jusqu'à 3 max)
+- _(Anticipé)_ Améliorer les capacités d'espionnage
+
+**Périmètre initial** (11 technos) : Conversion énergétique, Supraconductivité, Forage cristallin, Hydroponie, Raffinage du thorium, Armement, Blindage tactique, Guerre électronique, Ingénierie parallèle, Chaîne de production, Cartographie stellaire.
+
+**Anticipé** (conçu, implémenté avec la fonctionnalité) : Cœur de thorium (exploration), Renseignement (espionnage), Colonisation (colonisation + vaisseau).
+
+**Évolutions futures notées** : Régénération cellulaire (résurrection d'unités post-combat), vitesse de recherche, capacité de stockage, files de recherche parallèles, bonus de combat ciblés par type, branche spatiale/vaisseaux, technologies exclusives via diplomatie Elyrans.
 
 ### Annexe B — Vaisseaux
 

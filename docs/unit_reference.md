@@ -1,8 +1,8 @@
 # World of Stars — Référence des unités terrestres
 
-> Version 0.2 — Document de conception
+> Version 0.3 — Document de conception
 > Complément au game_design.md et building_reference.md
-> Statut : principes validés, **modèle de combat validé par simulation**, roster défini (stats = baseline à finaliser avec l'économie)
+> Statut : principes validés · **modèle de combat validé par simulation (résolution par compteurs)** · roster, stats v2.1, coûts, transport, durées **proposés et validés en coût-équivalent** (échelle absolue = curseur libre)
 
 ---
 
@@ -12,7 +12,7 @@
 2. [Catégories et rôles](#2-catégories-et-rôles)
 3. [Statistiques](#3-statistiques)
 4. [Production des unités](#4-production-des-unités)
-5. [Mouvement](#5-mouvement)
+5. [Mouvement et Iris](#5-mouvement-et-iris)
 6. [Combat](#6-combat)
 7. [Exploration](#7-exploration)
 8. [Espionnage](#8-espionnage)
@@ -25,341 +25,282 @@
 
 Les unités terrestres constituent l'armée du joueur. Elles sont la **charge utile** — elles ne se déplacent jamais seules et nécessitent un porteur (portail quantique ou vaisseau) pour agir sur une autre planète.
 
-Chaque unité est définie par un coût de production (métal, nourriture, thorium, temps) et un ensemble de statistiques. **Aucune unité n'a de coût d'entretien** : le coût de production est unique. Les statistiques de base sont modifiables par les **technologies** (bonus d'attaque, de défense, d'intelligence, etc.).
+Chaque unité est définie par un coût de production (métal, nourriture, thorium, temps) et un ensemble de statistiques. **Aucun coût d'entretien** : le coût de production est unique. Les statistiques de base sont modifiables par les **technologies**.
 
-Les anciens noms issus de World of Stargate (léger, lourd, Malp, UAV, archéologue) sont abandonnés au profit de noms originaux dans l'univers World of Stars (voir section 9).
+Les combats peuvent opposer des **dizaines de milliers** d'unités de chaque côté. La résolution est donc conçue pour être **indépendante de l'effectif** (voir §6.5).
 
 ---
 
 ## 2. Catégories et rôles
 
-### Combat
+### Combat — trois archétypes
 
-Trois archétypes, définis par la balance attaque/défense :
+| Archétype  | Nom            | Profil                         | Rôle                        |
+| ---------- | -------------- | ------------------------------ | --------------------------- |
+| Offensif   | **Maraudeur**  | Attaque haute, défense faible  | Raids, assauts rapides      |
+| Défensif   | **Sentinelle** | Défense haute, attaque modérée | Garnison, tenue de position |
+| Polyvalent | **Régulier**   | Attaque/défense équilibrées    | Ligne de front, flexibilité |
 
-| Archétype  | Nom            | Profil                        | Rôle                        |
-| ---------- | -------------- | ----------------------------- | --------------------------- |
-| Offensif   | **Maraudeur**  | Attaque haute, défense faible | Raids, assauts rapides      |
-| Défensif   | **Sentinelle** | Défense haute, attaque faible | Garnison, tenue de position |
-| Polyvalent | **Régulier**   | Attaque/défense équilibrées   | Ligne de front, flexibilité |
-
-Pas d'unité d'escorte dédiée au lancement : les combattants remplissent ce rôle en exploration. Les niveaux 7-10 du military_camp sont réservés à de futures unités (voir idée « unité officier » en section 10).
+Pas d'unité d'escorte dédiée au lancement. Niveaux 7-10 du military_camp réservés à de futures unités (cf. idée « unité officier », §10).
 
 ### Scientifique (exploration)
 
-Génère des **points d'exploration** qui alimentent les **niveaux d'exploration** du joueur. Capacité de transport modérée. Possède une **attaque symbolique** (« arme de poing ») qui ne change rien à son statut : ce n'est pas une unité de combat, on ne l'envoie pas en assaut.
+Génère des **points d'exploration**. Transport modéré. **Attaque symbolique** (« arme de poing », ATQ 2) qui ne le transforme pas en unité de combat.
 
-### Reconnaissance — double usage exploration/espionnage
+### Reconnaissance — Sonde (exploration) & Spectre (espionnage)
 
-| Profil            | Nom         | Domaine principal                 | Transport |
-| ----------------- | ----------- | --------------------------------- | --------- |
-| Recon-exploration | **Sonde**   | Exploration (bonus XP/ressources) | Élevé     |
-| Recon-espionnage  | **Spectre** | Espionnage (furtivité élevée)     | Aucun     |
+Toutes deux **sans pertes en exploration** (PvE). La Sonde transporte et explore ; le Spectre est furtif et espionne (transport nul).
 
-Les deux possèdent le trait **« aucune perte en exploration »** (PvE uniquement). Le coût/temps du Spectre est supérieur à celui de la Sonde, pour refléter sa spécialisation.
+### Transport — Mule
 
-### Transport — **Mule**
+ATQ 0 (ne combat jamais), DEF faible, **transport très élevé**. Une troupe de Mules seules ne gagne jamais ; elle pille si la cible n'a aucun défenseur.
 
-- **Attaque : 0** — ne combat jamais, quel que soit le contexte.
-- **Défense : faible mais non nulle** — peut encaisser, ne riposte pas.
-- **Transport : très élevé** — la plus haute capacité de toutes les unités.
-
-Une troupe composée uniquement de Mules ne peut **jamais gagner un combat**. Si la planète ciblée n'a **aucune unité en défense**, les Mules pillent les ressources non protégées par le bunker.
-
-> **Conséquence du modèle de combat (voir §6) :** l'intelligence en combat est pondérée par l'attaque. Les unités à attaque nulle (Sonde, Spectre, Mule) **ne servent ni à attaquer ni à défendre** — elles n'influencent pas l'issue d'un combat et meurent sans riposter. On ne les emmène que pour l'exploration, l'espionnage, ou le pillage après une victoire. **L'UI doit avertir** le joueur qui voudrait les inclure dans un assaut.
+> **Conséquence du modèle (cf. §6) :** l'intelligence de combat est pondérée par l'attaque ; les unités à ATQ 0 (Sonde, Spectre, Mule) **n'influencent pas un combat** et meurent sans riposter. On ne les emmène qu'en exploration/espionnage, ou les Mules au pillage après victoire. **L'UI doit en avertir** le joueur.
 
 ---
 
 ## 3. Statistiques
 
-Chaque unité possède les statistiques suivantes. Toutes sont modifiables par technologies.
-
-| Stat             | Rôle                                                              |
-| ---------------- | ----------------------------------------------------------------- |
-| **Attaque**      | Contribue au budget de dégâts du camp par round (0 = ne combat pas) |
-| **Défense**      | **Palier d'armure** : seuil de dégâts concentrés à dépasser pour détruire l'unité (pas de PV) |
-| **Intelligence** | Ordre d'attaque (initiative) + efficacité du repli — **stat de combat uniquement** |
+| Stat             | Rôle                                                                                 |
+| ---------------- | ------------------------------------------------------------------------------------ |
+| **Attaque**      | Contribue au budget de dégâts du camp (0 = ne combat pas)                            |
+| **Défense**      | **Palier d'armure** : dégâts _concentrés_ à dépasser pour détruire (pas de PV)       |
+| **Intelligence** | Initiative + efficacité du repli — **stat de combat uniquement**                     |
 | **Transport**    | Ressources transportables, **par ressource** (métal, nourriture, thorium séparément) |
-| **Exploration**  | Points d'exploration générés en mission                           |
-| **Espionnage**   | Furtivité en mission d'espionnage (réduit le risque de détection) |
+| **Exploration**  | Points d'exploration générés                                                         |
+| **Espionnage**   | Furtivité en mission d'espionnage                                                    |
 
-**Pas de PV.** La défense est un **palier** : un round détruit une unité seulement si les dégâts *concentrés* sur elle dépassent sa défense (voir l'algorithme en §6). Pas de dégâts partiels.
+### Stats de combat — baseline v2.1 (validée par simulation)
 
-**Intelligence = stat de combat.** L'INT ne sert qu'à l'initiative et au repli, et n'est prise en compte que pour les unités qui combattent (pondération par l'attaque). La « compétence » d'un Spectre s'exprime par sa **furtivité (espionnage)**, pas par son INT — son INT en combat est négligeable et c'est voulu.
+| Unité        | ATQ | DEF | INT |
+| ------------ | --- | --- | --- |
+| Maraudeur    | 16  | 20  | 6   |
+| Régulier     | 11  | 30  | 8   |
+| Sentinelle   | 13  | 38  | 10  |
+| Scientifique | 2   | 14  | 7   |
+| Sonde        | 0   | 12  | 4   |
+| Spectre      | 0   | 10  | 2   |
+| Mule         | 0   | 16  | 1   |
 
-**Pas de vitesse** : les unités terrestres sont une charge utile (le temps de trajet dépend du porteur).
+> **v2.1 :** la Sentinelle passe de 9/52 à **13/38**. Sa DEF 52 créait un effet de seuil binaire (invincible si nombreuse, inerte sinon) et son ATQ 9 la rendait édentée — un « effet mur » indésirable et difficile à équilibrer en coût. Le profil 13/38 reste le plus blindé du roster, mais se comporte continûment.
 
-### Table de statistiques de combat — baseline v2 (validée par simulation, à finaliser avec l'économie)
+**Principe gravé :** `DEF_min > ATQ_max × 1,15` — aucune unité ne meurt d'un seul tir ; tuer exige de **concentrer** le feu.
 
-| Unité        | ATQ | DEF | INT | Combattant |
-| ------------ | --- | --- | --- | ---------- |
-| Maraudeur    | 16  | 20  | 6   | oui        |
-| Régulier     | 11  | 30  | 8   | oui        |
-| Sentinelle   | 9   | 52  | 10  | oui        |
-| Scientifique | 2   | 14  | 7   | marginal   |
-| Sonde        | 0   | 12  | 4   | non        |
-| Spectre      | 0   | 10  | 2   | non        |
-| Mule         | 0   | 16  | 1   | non        |
+### Transport / exploration / espionnage
 
-**Principe de calibrage gravé :** `DEF_min > ATQ_max × 1,15`. Aucune unité ne meurt d'un seul tir — tuer exige de **concentrer** le feu de plusieurs unités, ce qui borne l'avantage du premier tir et étale le combat sur plusieurs rounds.
+| Unité        | Transport | Explo          | Espion |
+| ------------ | --------- | -------------- | ------ |
+| Maraudeur    | 50        | 30 (fixe)\*    | 0      |
+| Régulier     | 80        | 30 (fixe)\*    | 0      |
+| Sentinelle   | 30        | 30 (fixe)\*    | 0      |
+| Scientifique | 60        | 33 → croissant | 0      |
+| Sonde        | 150       | 30             | 3      |
+| Spectre      | 0         | 30             | 12     |
+| Mule         | 350       | 0              | 0      |
 
-### Table logistique — transport / exploration / espionnage / traits
+\* 30 XP fixes en exploration, **annulés** en présence de Scientifiques (cf. §7). Transport « par ressource » : une Mule porte 350 métal **et** 350 nourriture **et** 350 thorium.
 
-| Unité        | Transport | Explo        | Espion | Traits                          |
-| ------------ | --------- | ------------ | ------ | ------------------------------- |
-| Maraudeur    | 50        | 30 (fixe)\*  | 0      | —                               |
-| Régulier     | 100       | 30 (fixe)\*  | 0      | —                               |
-| Sentinelle   | 50        | 30 (fixe)\*  | 0      | —                               |
-| Scientifique | 75        | 33 → croissant | 0    | XP ∝ risque (voir §7)           |
-| Sonde        | 200       | 30           | 3      | Aucune perte en exploration     |
-| Spectre      | 0         | 30           | 12     | Aucune perte en exploration     |
-| Mule         | 300       | 0            | 0      | Ne combat jamais ; pillage seul |
-
-\* Les 30 XP fixes des combattants/transports en exploration sont **annulés** en présence de Scientifiques (voir §7).
-
-> **XP accordée à la destruction** (classement uniquement, sans effet mécanique) : à fixer **proportionnellement au coût de production** de l'unité, lors de la passe économie. Ordre de grandeur attendu : Mule < combattants < Scientifique < Sonde < Spectre.
+> **XP à la destruction** (classement, sans effet mécanique) : à fixer **proportionnellement au coût** de l'unité.
 
 ---
 
 ## 4. Production des unités
 
-### Lieu de production
+### Lieu & files
 
-Toutes les unités sont produites dans le **training_camp**, seul bâtiment capable de produire des unités terrestres.
+Toutes les unités sont produites au **training_camp** (seul producteur). Une file par défaut ; files parallèles débloquées par **technologie**. Déblocage des _types_ par le **military_camp** (cf. §10, calendrier à refaire).
 
-### Réduction du temps de production
+### Coûts — baseline validée (coût-équivalent)
 
-Monter le niveau du training_camp **réduit le temps de production** de toutes les unités. Formule exacte à définir.
+Principe : le coût des unités de combat **suit leur puissance** (ratios mesurés 1 : 1,15 : 1,5 pour Maraudeur : Régulier : Sentinelle) ; le **thorium gate les paliers** (petites quantités croissantes) ; l'**échelle absolue est un curseur libre `k`** (multiplier toute la table par `k` ajuste le rythme sans toucher l'équilibre).
 
-### Files de production
+| Unité        | Métal | Nourr. | Thorium | Total | ×Mar | Temps de base |
+| ------------ | ----- | ------ | ------- | ----- | ---- | ------------- |
+| Maraudeur    | 70    | 30     | 0       | 100   | 1,00 | 1 min 30      |
+| Régulier     | 75    | 30     | 10      | 115   | 1,15 | 3 min 00      |
+| Sentinelle   | 90    | 35     | 25      | 150   | 1,50 | 4 min 30      |
+| Scientifique | 60    | 45     | 25      | 130   | 1,30 | 2 min 30      |
+| Sonde        | 80    | 40     | 30      | 150   | 1,50 | 3 min 30      |
+| Spectre      | 70    | 25     | 40      | 135   | 1,35 | 3 min 30      |
+| Mule         | 70    | 40     | 0       | 110   | 1,10 | 2 min 00      |
 
-Par défaut, **une seule file**. Des files parallèles sont débloquées par **technologie** (pas par le niveau du bâtiment).
+Validation coût-équivalent (budget identique, victoire attaquant) — avantage défenseur cohérent, aucune domination :
 
-### Déblocage des types d'unités
+```
+ATT \ DEF     Maraudeur   Régulier   Sentinelle
+Maraudeur        0%         12%         17%
+Régulier        14%         40%         23%
+Sentinelle      47%         70%         43%
+```
 
-Les types d'unités sont débloqués par le **military_camp** selon son niveau, avec des **dépendances multiples** possibles (ex : Scientifique = military_camp + research_lab).
+Sanity économie (mines niv ~6) : un scan de 5 Spectres ≈ **0,7 h de thorium** (contre ~6,5 h dans l'ancienne proposition jugée trop chère). L'espionnage de routine est abordable.
 
-> **⚠ À revoir (passe économie/déblocage).** Le calendrier de déblocage et les coûts proposés précédemment ont été jugés **trop chers** (espionnage en particulier). Cette table sera reprise de zéro en cohérence avec l'économie réelle (production des mines, coût des bâtiments) et avec le modèle de combat validé. Ne pas figer avant cette passe.
+### Réduction du temps par le training_camp
 
-### Coût de production
-
-Chaque unité a un coût en **métal, nourriture, thorium** + un **temps de base** (réduit par le training_camp). **Pas d'énergie, pas d'entretien.** Valeurs à fixer en passe économie.
+`temps = temps_base × 0,95^(niveau − 1)` (−5 %/niveau, composé). Au niv 10 : ÷1,4 (~30 % plus rapide) ; au niv 20 : ÷2,6. Coefficient ajustable.
 
 ---
 
-## 5. Mouvement
+## 5. Mouvement et Iris
 
-Les unités terrestres ne traversent jamais la carte seules. Deux modes :
+Les unités ne traversent jamais la carte seules. Deux modes :
 
 ### Portail quantique
 
-- Durée fixe : **20 minutes** (indépendante de la distance).
-- Nécessite un portail au départ **et** à destination (les planètes vides ont un portail implicite, exploration uniquement).
-- **Contourne la couche orbitale** : dépose les troupes directement au sol.
-- « Pas de portail = immunité aux attaques par portail » — le construire ouvre une vulnérabilité.
-- **Iris** : défense débloquée en montant le portail quantique. **Design retenu** : l'Iris accorde un **bonus de défense (palier d'armure relevé)** aux unités en défense, **uniquement contre un assaut arrivé par portail**, croissant avec le niveau du portail. C'est la contrepartie défensive de la vulnérabilité ouverte par le portail. Valeurs à chiffrer avec l'arbre techno.
+- Durée fixe **20 min** (indépendante de la distance). Envoi en attaque/exploration **dès le niveau 3** du portail ; on peut **subir** une attaque par portail dès qu'on en possède un.
+- **Contourne la couche orbitale** : dépose les troupes au sol.
+- « Pas de portail = immunité aux attaques par portail ».
+
+### Iris — protection du portail
+
+Activable/désactivable consciemment (comme le bunker). Quand l'Iris est **active**, elle accorde un **bonus de défense** à toutes les unités en défense **contre un assaut arrivé par portail** (relève leurs paliers d'armure). Contrepartie : **+10 min** sur la durée des attaques et expéditions **sortantes** par portail tant qu'elle est active.
+
+| Niveau Iris | Structure      | Bonus défense |
+| ----------- | -------------- | ------------- |
+| 1           | Titane         | **+10 %**     |
+| 2           | Titane-tritium | **+15 %**     |
+| 3           | Tritium        | **+20 %**     |
+
+Les niveaux d'Iris se débloquent en montant le portail quantique.
 
 ### Vaisseau (reporté)
 
-- Durée proportionnelle à la distance ; doit franchir la couche orbitale.
-- Un **vaisseau d'exploration unique** est disponible au lancement pour les joueurs sans portail.
+Durée proportionnelle à la distance ; franchit la couche orbitale. Un **vaisseau d'exploration unique** est disponible au lancement.
 
 ---
 
 ## 6. Combat
 
-> **Modèle validé : « Tir agrégé + paliers d'armure » (Modèle A), assignation par cible, sans PV.** Validé par simulation (voir §6.5). Référence de cohérence : `game_design.md` §6.
+> **Modèle validé : « Tir agrégé + paliers d'armure » (Modèle A), sans PV.** Implémentation **par compteurs de type** (cf. §6.5) — indépendante de l'effectif. Référence : `game_design.md` §6.
 
-### 6.1 Modèle en couches
+### 6.1 Couches
 
-1. **Couche orbitale** (vaisseaux, reportée) : sautée si arrivée par portail. Porteur détruit = troupes embarquées perdues.
-2. **Couche au sol** : unités débarquées vs unités stationnées. C'est ici qu'interviennent les stats terrestres.
+1. **Couche orbitale** (vaisseaux, reportée) : sautée si arrivée par portail.
+2. **Couche au sol** : c'est ici qu'interviennent les stats terrestres.
 
-### 6.2 Résolution d'un round
+### 6.2 Résolution conceptuelle d'un round
 
-À chaque round, chaque camp tire une **salve**. Une salve fonctionne ainsi :
+Chaque camp tire une **salve**. Conceptuellement : chaque unité combattante (ATQ > 0) vise une cible ennemie au hasard (pondéré par l'effectif des combattants ; non-combattants en dernier, **Mules en tout dernier**) ; les dégâts des tireurs visant une même cible **s'additionnent** ; une cible meurt si ces dégâts **concentrés ≥ sa DEF** (pas de report). La répartition aléatoire « gaspille » du feu, ce qui borne la létalité par round et étale le combat.
 
-1. Chaque unité **combattante** (ATQ > 0) est assignée à **une** cible ennemie, tirée **au hasard** parmi les combattants adverses (pondéré par l'effectif). Les non-combattants (Mules en dernier) ne sont visés que s'il ne reste plus aucun combattant.
-2. Pour chaque cible, on **somme** les dégâts des tireurs qui l'ont visée : `ATQ × jitter` par tireur, où **jitter ∈ [0,85 ; 1,15]** (variation aléatoire par tir).
-3. Une cible est **détruite** si les dégâts concentrés sur elle **≥ sa DEF**. Sinon elle survit ; **aucun report** du reliquat.
+### 6.3 Aléa
 
-La concentration aléatoire « gaspille » naturellement du feu (sur-tir sur certaines cibles, aucun sur d'autres) : c'est l'amortissement qui borne la létalité par round et fait durer le combat.
+- **Jitter par tir** ∈ [0,85 ; 1,15] — texture des petites escarmouches (s'évapore sur la masse).
+- **Swing global par round** : un multiplicateur tiré **une fois par camp et par round**, `swing ~ Normal(1 ; 0,25)` borné > 0, appliqué à toute la salve. **C'est la principale source d'incertitude à grande échelle** (corrélé, il ne se moyenne pas) et il lisse les courbes de victoire / adoucit l'effet falaise.
 
-### 6.3 Initiative (qui tire en premier)
+### 6.4 Initiative & repli
 
-- L'**intelligence du camp** = **moyenne d'INT pondérée par l'attaque**, sur les **survivants combattants**, **recalculée à chaque round**.
-- Le camp à l'INT la plus élevée **tire en premier** ; le second riposte avec ses survivants.
-- **À INT égale** : les deux salves sont **simultanées** (calculées sur l'effectif de début de round, appliquées ensemble) — cela neutralise l'alpha-strike injuste dans le cas le plus sensible.
+- **Initiative** : INT du camp = moyenne d'INT **pondérée par l'attaque**, sur les survivants combattants, **recalculée chaque round**. Le camp à l'INT la plus haute tire en premier ; **à INT égale, salves simultanées**.
+- **Repli (v1, automatique)** : déclenché quand les pertes cumulées de l'attaquant dépassent **55 %**. Le défenseur tire une **volée d'adieu** : `multiplicateur = clamp(0,5 − Δ/8, 0, 1,5)` avec `Δ = INT_att − INT_def`.
+- **Statu quo** : au-delà d'un plafond de rounds (mur infranchissable), l'attaquant se retire. En pratique un combat dure **~10 rounds quelle que soit la taille** (max ~20).
 
-### 6.4 Repli (attaquant uniquement)
+### 6.5 Algorithme par compteurs (pseudocode Ruby — indépendant de l'effectif)
 
-Le défenseur combat jusqu'au dernier. L'attaquant se replie automatiquement (v1) lorsque ses **pertes cumulées dépassent 55 %**.
-
-Au repli, le défenseur tire une **volée d'adieu** dont la puissance dépend du **delta d'intelligence** `Δ = INT_att − INT_def` :
-
-```
-multiplicateur_volée = clamp(0,5 − Δ / 8 , 0 , 1,5)
-```
-
-- Δ positif (attaquant plus malin) → fuite propre, volée faible voire nulle.
-- Δ ≈ 0 → demi-volée.
-- Δ négatif (défenseur plus malin) → le défenseur « verrouille », volée renforcée, pertes lourdes.
-
-**Statu quo** : si aucun camp ne progresse au-delà d'un plafond de rounds (mur infranchissable — ex. deux garnisons de Sentinelles), l'attaquant se retire (pas de pillage). Plafond à régler (≈ 40 rounds en simulation).
-
-### 6.5 Algorithme (pseudocode Ruby)
+On ne simule **jamais** les unités individuellement. L'état d'un camp est un dictionnaire `{type => effectif}`. La probabilité de mort d'un type est calculée en **forme fermée** (approximation normale de la somme de Poisson composée), validée à quelques % près contre une simulation par unité, pour un coût de **~O(types)** par round.
 
 ```ruby
-JITTER            = (0.85..1.15)
-RETREAT_THRESHOLD = 0.55
-RETREAT_K         = 8.0
-STANDOFF_CAP      = 40   # à régler
+SIGMA = 0.25       # écart-type du swing global
+EJ2   = 1.0075     # E[jitter^2] pour jitter ~ U[0.85,1.15]
 
-def army_int(units)        # moyenne INT pondérée par l'ATQ, combattants seulement
-  shooters = units.select { |u| u.atk > 0 }
-  return 0.0 if shooters.empty?
-  shooters.sum { |u| u.int * u.atk }.to_f / shooters.sum(&:atk)
+def army_int(counts)               # moyenne INT pondérée par l'ATQ
+  num = den = 0.0
+  counts.each { |t, c| next unless c > 0 && t.atk > 0
+                       num += t.int * t.atk * c; den += t.atk * c }
+  den > 0 ? num / den : 0.0
 end
 
-def volley(attackers, defenders, mult = 1.0)   # renvoie les unités détruites
-  shooters = attackers.select { |u| u.atk > 0 }
-  return [] if shooters.empty? || defenders.empty?
-  pool   = combat_targets(defenders)            # combattants ; sinon non-combattants ; Mules en dernier
-  damage = Hash.new(0.0)
-  shooters.each { |s| damage[pool.sample] += s.atk * rand(JITTER) * mult }
-  damage.select { |target, d| d >= target.def }.keys
+def fire(att, defe, swing, mult = 1.0)
+  shots = sum1 = sum2 = 0.0
+  att.each { |t, c| next unless c > 0 && t.atk > 0 && t.combat?
+                    shots += c; sum1 += c * t.atk; sum2 += c * t.atk**2 }
+  return defe if shots.zero?
+  elig = eligible_targets(defe)    # combattants ; sinon non-combattants ; Mules en dernier
+  n = elig.sum { |t| defe[t] }
+  return defe if n.zero?
+  mean = sum1 / n
+  sd   = Math.sqrt(sum2 * EJ2 / n)
+  elig.each do |t|
+    p_kill = 1.0 - normal_cdf((t.def / [swing, 0.05].max - mean) / sd)
+    defe[t] = [0, defe[t] - (defe[t] * p_kill).round].max
+  end
+  defe
 end
 
 def resolve_round(att, defe)
   ia, idf = army_int(att), army_int(defe)
-  if (ia - idf).abs < 1e-9                       # égalité -> simultané
-    ka, kd = volley(att, defe), volley(defe, att)
-    defe -= ka; att -= kd
+  sA, sD  = sample_swing, sample_swing          # Normal(1, SIGMA), borné > 0
+  if (ia - idf).abs < 1e-9                        # égalité -> simultané
+    nd, na = fire(att, defe.dup, sA), fire(defe, att.dup, sD); return [na, nd]
   elsif ia > idf
-    defe -= volley(att, defe)
-    att  -= volley(defe, att) unless defe.empty?
+    defe = fire(att, defe, sA)
+    att  = fire(defe, att, sD) if alive?(defe)
   else
-    att  -= volley(defe, att)
-    defe -= volley(att, defe) unless att.empty?
+    att  = fire(defe, att, sD)
+    defe = fire(att, defe, sA) if alive?(att)
   end
   [att, defe]
 end
 ```
 
+`normal_cdf(x) = 0.5 * (1 + Math.erf(x / Math.sqrt(2)))`.
+
 ### 6.6 Bunker, pillage, rapport
 
-- **Bunker** : mise à l'abri **consciente** avant le combat. 1 unité = 1 slot. Les unités abritées ne combattent pas et sont immunisées.
-- **Pillage** : l'attaquant doit **tenir le sol** (gagner l'engagement) ; les transporteurs se remplissent des ressources non protégées par le bunker.
-- **Rapport de combat** : généré pour les deux camps (pertes, butin, XP, survivants, round par round) + volet narratif IA.
-
-### 6.7 Résultats de simulation (baseline v2)
-
-| Scénario                                   | Résultat                                                            |
-| ------------------------------------------ | ------------------------------------------------------------------- |
-| Raid 100 Maraudeur vs 30/50/70 Régulier    | Victoire 100 % ; pertes attaquant **3,5 % / 11 % / 28 %**           |
-| Miroir Régulier 100v100                    | Attaquant gagne **39 %** (avantage défenseur), ~10 rounds           |
-| Perce-mur : Maraudeurs vs 100 Sentinelles  | Seuil de victoire vers **×1,5** d'effectif                          |
-| Valeur du mur (attaquant fixe)             | +30 Sentinelles : pertes ATT 12 %→26 % ; +60 : assaut **repoussé** |
-| Repli Δ positif / Δ négatif                | Δ+ : défenseur encaisse ; Δ− : défenseur intact                     |
-| Spectre/Mule en combat                     | Inutiles (aucune influence, meurent sans riposte)                   |
-
-**Conclusion** : mécaniques saines (multi-rounds, masse efficace, mur progressif, raids fluides, premier tir borné). Les **valeurs numériques** restent une baseline à régler finement lors de la passe économie (le « prix » d'une Sentinelle conditionne sa rentabilité défensive).
+- **Bunker** : mise à l'abri consciente avant combat (1 unité = 1 slot) ; les unités abritées ne combattent pas et sont immunisées.
+- **Pillage** : l'attaquant doit tenir le sol ; les transporteurs se remplissent des ressources non protégées.
+- **Rapport** : par camp, **round par round en effectifs de type** (compact même à grande échelle) + volet narratif IA.
 
 ---
 
 ## 7. Exploration
 
-_Résumé. Référence complète : `game_design.md` §7._
+_Résumé. Référence : `game_design.md` §7._
 
-### Principe
-
-Les planètes vides sont explorables (portail implicite). Une mission génère des **points d'exploration** et peut ramener des **ressources** (20 % de chance, 50–100 % de la capacité de transport).
-
-### Durée
-
-- Base **20 minutes** (portail) ; **+1 minute par unité**.
-
-### Sécurité PvE
-
-- Une équipe **ne peut jamais être totalement exterminée** ; 1 unité seule = aucune perte.
-- Sonde et Spectre ne subissent **jamais de pertes** en exploration (trait intrinsèque).
-- _Spécifique à l'exploration — ne s'applique pas au combat PvP._
-
-### Scientifique — risque et XP
-
-- 1 seul = 11 % de risque → 33 XP ; +1 % par Scientifique supplémentaire ; 90 = 100 % → 300 XP ; au-delà +3 XP/unité.
-- **Formule** : `% risque × 3 = XP` ; pertes = % de risque ; variation ±5 %.
-- En présence de Scientifiques, les 30 XP fixes des combattants/transports sont **annulés**.
-- _Formule de réduction du risque par l'escorte (combattants) à recalculer autour de Maraudeur/Régulier/Sentinelle._
-
-### Niveaux d'exploration
-
-- Niveau 1 = 400 XP, ×1,2 par niveau ; gains ×1,0292 par niveau ; XP cumulée.
+Planètes vides explorables (portail implicite). Mission : **20 min + 1 min/unité** ; **plancher PvE** (jamais exterminé) ; Sonde/Spectre sans pertes. Scientifique : `% risque × 3 = XP`, 1 seul = 11 % → 33 XP, 90 = 100 % → 300 XP, puis +3 XP/unité ; annule les 30 XP fixes des autres unités. Niveaux d'exploration : niv 1 = 400 XP, ×1,2/niveau, XP cumulée.
 
 ---
 
 ## 8. Espionnage
 
-_Résumé. Référence complète : `game_design.md` §6._
+_Résumé. Référence : `game_design.md` §6._
 
-Mission de **5 minutes**. Plus d'unités envoyées = plus d'informations mais plus de risque de détection ; la stat **espionnage** (furtivité) réduit ce risque.
-
-| Pallier | Information                                                    |
-| ------- | -------------------------------------------------------------- |
-| 1       | Bâtiments                                                      |
-| 2       | Unités terrestres                                              |
-| 3       | Ressources                                                     |
-| 4       | Technologies (nécessite techno espionnage ≥ cible)             |
-| 5       | Vaisseaux en orbite (Spectre uniquement)                       |
-
-~5 unités = compromis standard ; 10 niveaux de technologie d'espionnage.
-
-> **Tension à résoudre en passe économie** : le Spectre est l'unité la plus chère et thorium-dépendante, ce qui rend l'espionnage de routine coûteux. Pistes : baisser nettement le coût du Spectre, ou faire porter les paliers 1–3 par la Sonde (furtivité rehaussée) et réserver le Spectre aux paliers 4–5.
+Mission **5 min**. Plus d'unités = plus d'info mais plus de risque ; la **furtivité (espionnage)** réduit la détection. Paliers : 1 bâtiments, 2 unités, 3 ressources, 4 technologies (techno espionnage ≥ cible), 5 vaisseaux (Spectre uniquement). ~5 unités = compromis standard ; 10 niveaux de techno. Coût du Spectre revu à la baisse (cf. §4) pour rendre l'espionnage de routine viable.
 
 ---
 
 ## 9. Roster des unités
 
-**Noms définitifs** (univers World of Stars) :
-
-| Rôle              | Nom              | Catégorie       |
-| ----------------- | ---------------- | --------------- |
-| Combat offensif   | **Maraudeur**    | Combat          |
-| Combat défensif   | **Sentinelle**   | Combat          |
-| Combat polyvalent | **Régulier**     | Combat          |
-| Scientifique      | **Scientifique** | Exploration     |
-| Recon-exploration | **Sonde**        | Reconnaissance  |
-| Recon-espionnage  | **Spectre**      | Reconnaissance  |
-| Transport         | **Mule**         | Transport       |
-
-Stats de combat et logistiques : voir **§3**. Coûts et déblocage : **passe économie** (voir §4 et §10).
+| Rôle              | Nom              | Catégorie      |
+| ----------------- | ---------------- | -------------- |
+| Combat offensif   | **Maraudeur**    | Combat         |
+| Combat défensif   | **Sentinelle**   | Combat         |
+| Combat polyvalent | **Régulier**     | Combat         |
+| Scientifique      | **Scientifique** | Exploration    |
+| Recon-exploration | **Sonde**        | Reconnaissance |
+| Recon-espionnage  | **Spectre**      | Reconnaissance |
+| Transport         | **Mule**         | Transport      |
 
 ---
 
 ## 10. Questions ouvertes
 
-| Sujet                                         | État            | Note                                                                 |
-| --------------------------------------------- | --------------- | -------------------------------------------------------------------- |
-| Noms des unités                               | **Tranché**     | Maraudeur, Sentinelle, Régulier, Scientifique, Sonde, Spectre, Mule  |
-| Modèle de combat                              | **Tranché**     | Modèle A (tir agrégé + paliers, assignation par cible, sans PV)      |
-| Calcul de l'intelligence                      | **Tranché**     | Moyenne pondérée par l'ATQ, survivants, recalcul/round ; égalité → simultané |
-| Repli (v1)                                    | **Tranché**     | Auto à 55 % de pertes ; volée d'adieu = f(delta INT)                 |
-| Stats de combat (ATQ/DEF/INT)                 | Baseline validée| Shape validée par simulation ; valeurs à finaliser en passe économie |
-| Coûts de production                           | À définir       | Passe économie                                                       |
-| Calendrier de déblocage (military_camp)       | À refaire       | Jugé trop cher ; à reprendre avec l'économie                         |
-| XP par unité détruite                         | À définir       | Proportionnel au coût de production                                  |
-| Réduction du temps (training_camp)            | À définir       | Formule par niveau                                                   |
-| Réduction du risque (escorte explo)           | À recalculer    | Autour de Maraudeur/Régulier/Sentinelle                              |
-| Iris (portail)                                | Design retenu   | Bonus de DEF aux défenseurs vs assaut-portail, ∝ niveau portail ; à chiffrer |
-| Technos de combat                             | Architecture posée | Modificateurs % sur ATQ/DEF/INT/repli ; pas modifiables (effet falaise) ; à chiffrer |
-| Plafond de statu quo (rounds)                 | À régler        | ≈ 40 en simulation                                                   |
-| Coût d'espionnage (Spectre)                   | À rééquilibrer  | Trop cher pour de la routine (voir §8)                               |
-| Repli paramétrable par le joueur              | **Idée future** | Seuil de repli choisi avant l'envoi (v2+)                            |
-| Unité officier (niv 7-10 military_camp)       | **Idée future** | Unité survivable dont l'INT mène le tempo de l'armée (modèle « initiative = INT max ») |
-| Contenu détaillé du rapport de combat         | À définir       | Round par round + narratif IA                                        |
-| Bombardement orbital                          | Reporté         | À définir avec les vaisseaux                                         |
-| Bâtiments de défense statique                 | En réflexion    | Tourelles, structures fixes                                          |
+| Sujet                                     | État                | Note                                                                  |
+| ----------------------------------------- | ------------------- | --------------------------------------------------------------------- |
+| Noms des unités                           | **Tranché**         | —                                                                     |
+| Modèle de combat                          | **Tranché**         | Modèle A, résolution par compteurs (indépendante de l'effectif)       |
+| Aléa                                      | **Tranché**         | Jitter par tir [0,85;1,15] + swing global Normal(1; 0,25)/round       |
+| Initiative / repli (v1)                   | **Tranché**         | INT pondérée par l'ATQ ; repli auto 55 % ; volée d'adieu = f(Δ)       |
+| Stats de combat (v2.1)                    | **Validé**          | Sentinelle 13/38 ; baseline validée, fine-tuning possible avec le jeu |
+| Coûts de production                       | **Proposé/validé**  | Coût-équivalent OK ; échelle absolue = curseur `k`                    |
+| Transport                                 | **Proposé**         | Par ressource ; à équilibrer vs capacité du bunker                    |
+| Durées de formation                       | **Proposé**         | Base + réduction `0,95^(niveau−1)` du training_camp                   |
+| Iris                                      | **Tranché**         | +10 / +15 / +20 % DEF (niv 1/2/3) vs assaut portail ; +10 min sortant |
+| Calendrier de déblocage (military_camp)   | **À refaire**       | Prochain chantier ; cohérence avec l'économie                         |
+| XP par unité détruite                     | À définir           | ∝ coût de production                                                  |
+| Technos de combat                         | Architecture posée  | Modificateurs % sur ATQ/DEF/INT/repli ; à chiffrer                    |
+| Repli paramétrable par le joueur          | **Idée future**     | Seuil choisi avant l'envoi (v2+)                                      |
+| Unité officier (niv 7-10 military_camp)   | **Idée future**     | INT mène le tempo (modèle « initiative = INT max »)                   |
+| Bombardement orbital / défenses statiques | Reporté / réflexion | Avec les vaisseaux                                                    |
 
 ---
 
-_Document vivant v0.2 — à maintenir en parallèle de game_design.md et building_reference.md_
+_Document vivant v0.3 — à maintenir avec game_design.md et building_reference.md_
