@@ -1,0 +1,154 @@
+<% content_for :title, t('documentation.economy_explorer.title') + " — World of Stars" %>
+
+<%= content_for :head do %>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<% end %>
+
+<div class="app" data-controller="economy-explorer"
+     data-economy-explorer-biome-bonuses-value='<%= Planet::BIOME_BONUSES.to_json %>'
+     data-economy-explorer-biomes-value='<%= Planet::BIOMES.to_json %>'
+     data-economy-explorer-locale-value='<%= I18n.locale %>'
+     data-economy-explorer-translations-value='<%= t("documentation.economy_explorer").to_json %>'
+     data-economy-explorer-icons-value='<%= { energy: asset_path("icons/energy.png"), metal: asset_path("icons/metal.png"), food: asset_path("icons/food.png"), thorium: asset_path("icons/thorium.png") }.to_json %>'>
+
+  <div class="sidebar">
+    <%= link_to docs_path, class: "back-link" do %>
+      <%= t('documentation.back_to_docs') %>
+    <% end %>
+    <div class="logo">⭐ World of Stars</div>
+    <div class="logo-sub"><%= t('documentation.economy_explorer.subtitle') %></div>
+    <div class="nav-label"><%= t('documentation.economy_explorer.nav_label') %></div>
+    <div class="nav-list" data-economy-explorer-target="nav"></div>
+  </div>
+
+  <div class="main" data-economy-explorer-target="main">
+    <div class="placeholder">
+      <div class="placeholder-icon">⚗️</div>
+      <div style="font-size:16px;color:var(--muted)"><%= t('documentation.economy_explorer.title') %></div>
+    </div>
+  </div>
+
+</div>
+
+<style>
+  :root {
+    --bg:            var(--color-space-bg);
+    --bg2:           var(--color-space-bg-2);
+    --surface:       var(--color-surface);
+    --border:        var(--color-border);
+    --border2:       #3a3b4a;
+    --text:          var(--color-text);
+    --muted:         var(--color-text-muted);
+    --subtle:        var(--color-text-subtle);
+    --primary:       var(--color-primary);
+    --secondary:     var(--color-secondary);
+    --quantum:       var(--color-quantum);
+    --varek:         var(--color-varek);
+    --alert:         var(--color-alert);
+    --radius:        8px;
+    --radius-lg:     12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, sans-serif; font-size: 14px; line-height: 1.5; min-height: 100vh; }
+  a { color: var(--primary); }
+
+  .app { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+  .sidebar { background: var(--bg2); border-right: 1px solid var(--border); padding: 1.5rem 1rem; overflow-y: auto; }
+  .main { padding: 1.5rem 2rem; overflow-y: auto; }
+
+  .back-link { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); text-decoration: none; padding: 5px 8px; border-radius: var(--radius); margin-bottom: 1.25rem; transition: all .15s; }
+  .back-link:hover { background: var(--surface); color: var(--primary); }
+  .logo { font-size: 18px; font-weight: 600; color: var(--primary); margin-bottom: 4px; letter-spacing: 0.5px; }
+  .logo-sub { font-size: 11px; color: var(--subtle); margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 1px; }
+  .nav-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--subtle); margin-bottom: 8px; }
+  .nav-list { display: flex; flex-direction: column; gap: 3px; }
+  .nav-btn { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: var(--radius); border: 1px solid transparent; background: transparent; color: var(--muted); cursor: pointer; font-size: 13px; text-align: left; transition: all .15s; width: 100%; }
+  .nav-btn:hover { background: var(--surface); color: var(--text); }
+  .nav-btn.active { background: var(--surface); border-color: var(--border2); color: var(--text); }
+  .nav-icon { font-size: 15px; flex-shrink: 0; }
+  .nav-text { flex: 1; }
+
+  .placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; color: var(--subtle); text-align: center; gap: 12px; }
+  .placeholder-icon { font-size: 48px; opacity: 0.3; }
+
+  .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 1.5rem; }
+  .section-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+  .section-title { font-size: 20px; font-weight: 600; color: var(--text); }
+  .section-sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1rem; }
+  .card-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+
+  .concept-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .concept-item { border: 1px solid var(--border2); border-radius: var(--radius); padding: 14px; }
+  .concept-item.energy-item { border-color: rgba(200,169,110,0.3); }
+  .concept-item.stock-item { border-color: rgba(46,196,160,0.3); }
+  .concept-icon { font-size: 22px; margin-bottom: 8px; }
+  .concept-name { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+  .concept-type { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--subtle); margin-bottom: 8px; }
+  .concept-desc { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+  .rule-box { display: flex; gap: 12px; align-items: flex-start; background: rgba(200,169,110,0.06); border: 1px solid rgba(200,169,110,0.2); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 12px; }
+  .rule-box.warning { background: rgba(139,127,204,0.06); border-color: rgba(139,127,204,0.2); }
+  .rule-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .rule-text { font-size: 13px; color: var(--text); line-height: 1.6; }
+  .detail-list { display: flex; flex-direction: column; gap: 6px; }
+  .detail-item { display: flex; align-items: baseline; gap: 8px; font-size: 12px; color: var(--muted); }
+  .detail-dot { font-size: 10px; flex-shrink: 0; }
+
+  .data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .data-table th { text-align: left; padding: 6px 10px; color: var(--subtle); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border2); white-space: nowrap; }
+  .data-table td { padding: 7px 10px; border-bottom: 1px solid var(--border); color: var(--text); }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .data-table td.em { font-weight: 500; }
+  .data-table td.zero { color: var(--subtle); }
+  .data-table td.k-val { font-weight: 600; }
+  .data-table td.k-val.metal { color: var(--primary); }
+  .data-table td.k-val.food { color: var(--quantum); }
+  .data-table td.k-val.thorium { color: var(--secondary); }
+  .data-table td.total-k { font-weight: 600; color: var(--muted); }
+  .data-table td.biome-name { font-weight: 500; }
+  .data-table td.profile { color: var(--subtle); font-size: 11px; }
+
+  .formula-block { background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--radius); padding: 14px 18px; margin-bottom: 12px; font-family: 'SF Mono', 'Fira Mono', monospace; }
+  .formula-text { font-size: 14px; color: var(--primary); letter-spacing: 0.5px; }
+
+  .note { background: rgba(200,169,110,0.05); border-left: 2px solid var(--primary); border-radius: 0 var(--radius) var(--radius) 0; padding: 10px 12px; font-size: 12px; color: var(--muted); line-height: 1.6; }
+  .explorer-link { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
+  .explorer-link a { font-size: 12px; color: var(--quantum); text-decoration: none; transition: color .15s; }
+  .explorer-link a:hover { color: var(--primary); }
+
+  .res-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1rem; }
+  .res-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1rem; text-align: center; }
+  .res-icon { font-size: 28px; margin-bottom: 8px; }
+  .res-name { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+  .res-building { font-size: 11px; color: var(--subtle); }
+
+  .chart-wrap { position: relative; width: 100%; height: 220px; }
+  .chart-wrap-lg { position: relative; width: 100%; height: 280px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; }
+  .lg { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
+  .lgsq { width: 8px; height: 8px; border-radius: 2px; }
+
+  .bunker-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .bunker-slot { border: 1px solid var(--border2); border-radius: var(--radius); padding: 14px; text-align: center; }
+  .bunker-slot-icon { font-size: 24px; margin-bottom: 8px; }
+  .bunker-slot-label { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .bunker-slot-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  @media (max-width: 700px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { border-right: none; border-bottom: 1px solid var(--border); }
+    .nav-list { flex-direction: row; flex-wrap: wrap; gap: 6px; }
+    .nav-btn { width: auto; padding: 6px 12px; }
+    .concept-grid { grid-template-columns: 1fr; }
+    .res-grid { grid-template-columns: 1fr; }
+    .bunker-grid { grid-template-columns: 1fr; }
+    .main { padding: 1rem; }
+  }
+</style>

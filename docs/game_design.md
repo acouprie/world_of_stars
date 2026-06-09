@@ -270,15 +270,15 @@ Les combats se résolvent **à l'arrivée** des forces attaquantes sur la planè
 
 Le combat au sol se résout **par rounds** successifs, pas par un calcul agrégé unique.
 
-- **Ordre d'attaque** : déterminé par l'**intelligence** des unités — moyenne pondérée de toutes les troupes engagées dans chaque camp. Le camp avec l'intelligence la plus élevée frappe en premier à chaque round. Des technologies peuvent augmenter l'intelligence de ses propres troupes ou diminuer celle de l'ennemi.
-- **Défense = seuil d'encaissement** : chaque unité a un seuil de défense. Un coup qui dépasse la défense détruit l'unité. **Pas de points de vie** — la destruction est binaire.
+- **Ordre d'attaque** : déterminé par l'**intelligence du camp** — moyenne d'intelligence **pondérée par l'attaque**, calculée sur les seuls combattants survivants et **recalculée à chaque round**. Le camp à l'intelligence la plus élevée tire en premier ; **à intelligence égale, les deux salves sont simultanées** (calculées sur l'effectif de début de round). Les unités à attaque nulle (transports, reconnaissance) n'influencent pas l'intelligence du camp. Des technologies peuvent augmenter l'intelligence de ses propres troupes ou diminuer celle de l'ennemi.
+- **Défense = palier d'armure** : chaque round, chaque unité combattante est assignée à une cible ennemie tirée au hasard ; les dégâts des tireurs visant une même cible sont **additionnés** (`attaque × aléa`, aléa ∈ [0,85 ; 1,15]). Une cible est détruite si ces dégâts **concentrés** dépassent sa défense. **Pas de points de vie** — la destruction est binaire, et tuer exige donc de concentrer le feu de plusieurs unités. Le détail de l'algorithme est dans `unit_reference.md` §6.
 - **Pas de plancher de pertes** en combat : contrairement à l'exploration (voir section 7), un attaquant écrasé peut être totalement anéanti.
 
 ### Repli — attaquant uniquement
 
 Seul l'**attaquant** peut se replier ; le défenseur combat jusqu'au dernier.
 
-Le repli se déclenche quand les pertes de l'attaquant franchissent un seuil, et son efficacité dépend du **delta d'intelligence entre attaquant et défenseur** : `intelligence_attaquant − intelligence_défenseur`.
+En v1, le repli est **automatique** : il se déclenche quand les pertes cumulées de l'attaquant dépassent **55 %**. Au repli, le défenseur tire une **volée d'adieu** dont la puissance dépend du **delta d'intelligence** `Δ = intelligence_attaquant − intelligence_défenseur` : `multiplicateur = clamp(0,5 − Δ/8, 0, 1,5)`.
 
 - **Delta positif** (attaquant plus intelligent) → repli précoce et propre, pertes minimisées.
 - **Delta proche de zéro** → repli moyen, pertes significatives.
@@ -313,7 +313,7 @@ Le bunker n'est **pas** un mécanisme de repli automatique. C'est une **action c
 
 #### Gains d'XP par unité détruite
 
-_Les noms et valeurs XP des unités seront mis à jour avec le roster définitif (voir `unit_reference.md`)._
+_Le roster est défini (voir `unit_reference.md`). L'XP accordée à la destruction d'une unité est **proportionnelle à son coût de production** ; les valeurs seront fixées lors de la passe économie._
 
 #### Multiplicateurs — victoire sans pertes
 
@@ -616,29 +616,32 @@ L'IA est utilisée comme outil de développement à tous les niveaux, au-delà d
 
 Ces points sont intentionnellement non tranchés dans cette version du document. Ils seront résolus lors des phases de développement et de test.
 
-| Sujet                                           | État            | Note                                                                                            |
-| ----------------------------------------------- | --------------- | ----------------------------------------------------------------------------------------------- |
-| Coût d'utilisation du Portail quantique         | À définir       | Coût fixe ou variable en Thorium ? Favorise les décisions stratégiques                          |
-| Iris — bonus de défense portail                 | À définir       | Débloqué par le niveau du portail quantique. Comportement et équilibrage TBD                    |
-| Nombre maximum de planètes                      | Base : 3        | À réévaluer lors des tests d'équilibrage                                                        |
-| Capacité du bunker                              | À équilibrer    | Doit protéger sans éliminer tout le risque                                                      |
-| Modificateur alliance sur la réputation Elyrans | À définir       | Principe acté, valeurs à équilibrer                                                             |
-| Seuil minimum de planètes Varek/Elyrans         | À définir       | Garantit la survie des factions, valeur à fixer selon la taille du serveur                      |
-| Seuils de déclenchement des vagues Nexhianti    | À définir       | Basé sur nombre de planètes contrôlées ou temps                                                 |
-| Fenêtre de vulnérabilité                        | **Supprimée**   | Remplacée par le système bunker                                                                 |
-| Archéologue et or                               | **Reporté**     | Mécanique retirée du scope actuel, à reconsidérer en v2                                         |
-| Bombardement orbital                            | À définir       | Flottes sans troupes au sol : dégâts purs sans butin ? À définir avec les vaisseaux             |
-| Bâtiments de défense statique                   | En réflexion    | Toute la défense passe par les unités pour l'instant ; tourelles/structures possibles plus tard |
-| Capacité de garnison (military_camp)            | Reporté         | Limiter le nombre d'unités stationnées par planète selon le niveau du camp                      |
-| Unité d'escorte dédiée                          | À trancher      | Les unités combattantes réduisent le risque en exploration ; faut-il une escorte spécialisée ?  |
-| Contenu exact du rapport de combat              | À définir       | Pertes, butin, XP, survivants + volet narratif IA                                               |
-| Formule exacte de l'espionnage                  | À implémenter   | Stat furtivité + quantité → détection/révélation                                                |
-| Formule exacte du repli (delta intelligence)    | À implémenter   | Seuil de déclenchement et % de survivants selon le delta                                        |
-| Monétisation                                    | À définir en v2 | Hors scope pour le développement initial                                                        |
-| Arbre technologique complet                     | À construire    | Voir Annexes                                                                                    |
-| Liste complète des vaisseaux                    | À construire    | Voir Annexes                                                                                    |
-| Roster complet des unités terrestres            | **En cours**    | Voir `unit_reference.md`                                                                        |
-| Mécaniques d'alliance avancées                  | À définir en v2 | Partage radar, attaques coordonnées, etc.                                                       |
+| Sujet                                           | État             | Note                                                                                                                             |
+| ----------------------------------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Coût d'utilisation du Portail quantique         | À définir        | Coût fixe ou variable en Thorium ? Favorise les décisions stratégiques                                                           |
+| Iris — bonus de défense portail                 | Design retenu    | Bonus de défense aux unités en défense contre un assaut **par portail**, croissant avec le niveau du portail. Valeurs à chiffrer |
+| Nombre maximum de planètes                      | Base : 3         | À réévaluer lors des tests d'équilibrage                                                                                         |
+| Capacité du bunker                              | À équilibrer     | Doit protéger sans éliminer tout le risque                                                                                       |
+| Modificateur alliance sur la réputation Elyrans | À définir        | Principe acté, valeurs à équilibrer                                                                                              |
+| Seuil minimum de planètes Varek/Elyrans         | À définir        | Garantit la survie des factions, valeur à fixer selon la taille du serveur                                                       |
+| Seuils de déclenchement des vagues Nexhianti    | À définir        | Basé sur nombre de planètes contrôlées ou temps                                                                                  |
+| Fenêtre de vulnérabilité                        | **Supprimée**    | Remplacée par le système bunker                                                                                                  |
+| Archéologue et or                               | **Reporté**      | Mécanique retirée du scope actuel, à reconsidérer en v2                                                                          |
+| Bombardement orbital                            | À définir        | Flottes sans troupes au sol : dégâts purs sans butin ? À définir avec les vaisseaux                                              |
+| Bâtiments de défense statique                   | En réflexion     | Toute la défense passe par les unités pour l'instant ; tourelles/structures possibles plus tard                                  |
+| Capacité de garnison (military_camp)            | Reporté          | Limiter le nombre d'unités stationnées par planète selon le niveau du camp                                                       |
+| Unité d'escorte dédiée                          | **Écartée (v1)** | Les combattants remplissent ce rôle ; pas d'escorte dédiée au lancement                                                          |
+| Modèle de combat au sol                         | **Tranché**      | Tir agrégé + paliers d'armure, assignation par cible, sans PV — validé par simulation (voir `unit_reference.md` §6)              |
+| Seuil de repli paramétrable par le joueur       | **Idée future**  | En v1 le seuil est automatique (55 %) ; le rendre choisi avant l'envoi en v2+                                                    |
+| Unité officier (niv 7-10 military_camp)         | **Idée future**  | Unité survivable dont l'intelligence mènerait le tempo de l'armée (initiative = INT max)                                         |
+| Contenu exact du rapport de combat              | À définir        | Pertes, butin, XP, survivants + volet narratif IA                                                                                |
+| Formule exacte de l'espionnage                  | À implémenter    | Stat furtivité + quantité → détection/révélation                                                                                 |
+| Formule exacte du repli (delta intelligence)    | **Tranché (v1)** | Auto à 55 % de pertes ; volée d'adieu = `clamp(0,5 − Δ/8, 0, 1,5)`                                                               |
+| Monétisation                                    | À définir en v2  | Hors scope pour le développement initial                                                                                         |
+| Arbre technologique complet                     | À construire     | Voir Annexes                                                                                                                     |
+| Liste complète des vaisseaux                    | À construire     | Voir Annexes                                                                                                                     |
+| Roster complet des unités terrestres            | **En cours**     | Voir `unit_reference.md`                                                                                                         |
+| Mécaniques d'alliance avancées                  | À définir en v2  | Partage radar, attaques coordonnées, etc.                                                                                        |
 
 ---
 
@@ -667,7 +670,7 @@ Types connus à ce stade : chasseurs, vaisseaux mères, transporteurs, bombardie
 
 _En cours de définition — voir `unit_reference.md` pour le document de référence complet._
 
-**Catégories validées** : combat (offensif, défensif, mid-range), scientifique (exploration), reconnaissance-exploration, reconnaissance-espionnage, transport. Les anciens noms « léger / lourd / Malp / UAV / archéologue » sont abandonnés au profit de noms originaux dans l'univers World of Stars.
+**Roster défini** : **Maraudeur** (offensif), **Sentinelle** (défensif), **Régulier** (polyvalent), **Scientifique** (exploration), **Sonde** (recon-exploration), **Spectre** (recon-espionnage), **Mule** (transport). Les anciens noms « léger / lourd / Malp / UAV / archéologue » sont abandonnés. Stats de combat, modèle de combat et logistique : voir `unit_reference.md`.
 
 **Principes de production** : toutes les unités sont produites dans le `training_camp` (niveau ↑ = temps ↓). Les types d'unités sont débloqués par le `military_camp`, avec des dépendances multiples possibles (ex : scientifique = military_camp + research_lab). Files de production parallèles supplémentaires débloquées par technologie. Coût en métal/nourriture/thorium + temps. Pas d'entretien (coût unique).
 

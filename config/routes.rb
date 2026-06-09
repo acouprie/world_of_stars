@@ -32,4 +32,5 @@ Rails.application.routes.draw do
   # Documentation routes
   get "docs",           to: "docs#index",     as: :docs
   get "docs/buildings", to: "docs#buildings", as: :docs_buildings
+  get "docs/economy",   to: "docs#economy",   as: :docs_economy
 end

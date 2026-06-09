@@ -12,6 +12,9 @@
      data-buildings-explorer-building-names-value='<%= t("buildings.types").to_json %>'>
 
   <div class="sidebar">
+    <%= link_to docs_path, class: "back-link" do %>
+      <%= t('documentation.back_to_docs') %>
+    <% end %>
     <div class="logo">⭐ World of Stars</div>
     <div class="logo-sub"><%= t('documentation.buildings_explorer.subtitle') %></div>
     <div class="cat-label"><%= t('documentation.buildings_explorer.categories_label') %></div>
@@ -62,6 +65,8 @@
   .main { padding: 1.5rem; overflow-y: auto; }
 
   /* Header */
+  .back-link { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); text-decoration: none; padding: 5px 8px; border-radius: var(--radius); margin-bottom: 1.25rem; transition: all .15s; }
+  .back-link:hover { background: var(--surface); color: var(--primary); }
   .logo { font-size: 18px; font-weight: 600; color: var(--primary); margin-bottom: 4px; letter-spacing: 0.5px; }
   .logo-sub { font-size: 11px; color: var(--subtle); margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 1px; }
 

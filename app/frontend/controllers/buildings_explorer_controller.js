@@ -47,6 +47,22 @@ export default class extends Controller {
     this.renderCats()
     this.renderList()
     this.renderDetail()
+
+    // Auto-select from URL params (deep-link from other docs pages)
+    const params = new URLSearchParams(window.location.search)
+    const building = params.get('building')
+    const cat = params.get('cat')
+    if (building && this.BUILDINGS[building]) {
+      this.selBuilding = building
+      this.selCat = this.BUILDINGS[building].cat
+      this.renderCats()
+      this.renderList()
+      this.renderDetail()
+    } else if (cat && (this.CAT[cat] || cat === 'all')) {
+      this.selCat = cat
+      this.renderCats()
+      this.renderList()
+    }
   }
 
   disconnect() {

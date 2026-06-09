@@ -5,4 +5,7 @@ class DocsController < ApplicationController
 
   def buildings
   end
+
+  def economy
+  end
 end

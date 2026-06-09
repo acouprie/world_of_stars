@@ -16,11 +16,11 @@
 
     <div class="docs-nav-label" style="margin-top: 1.5rem;"><%= t("docs.index.nav.coming_soon") %></div>
     <nav class="docs-nav">
-      <div class="docs-nav-item disabled">
-        <span class="docs-nav-icon" style="background: rgba(46,196,160,0.08); color: #2ec4a0;">⚗️</span>
+      <%= link_to docs_economy_path, class: "docs-nav-item" do %>
+        <span class="docs-nav-icon" style="background: rgba(46,196,160,0.15); color: #2ec4a0;">⚗️</span>
         <span class="docs-nav-text"><%= t("docs.index.nav.resources") %></span>
-        <span class="docs-nav-badge soon"><%= t("docs.index.status.soon") %></span>
-      </div>
+        <span class="docs-nav-badge available"><%= t("docs.index.status.available") %></span>
+      <% end %>
       <div class="docs-nav-item disabled">
         <span class="docs-nav-icon" style="background: rgba(232,98,42,0.08); color: #e8622a;">⚔️</span>
         <span class="docs-nav-text"><%= t("docs.index.nav.combat") %></span>
@@ -69,21 +69,22 @@
         <div class="docs-card-cta"><%= t("docs.index.cards.buildings.cta") %></div>
       <% end %>
 
-      <%# Coming soon %>
-      <div class="docs-card soon">
+      <%# Available %>
+      <%= link_to docs_economy_path, class: "docs-card available" do %>
         <div class="docs-card-header">
-          <div class="docs-card-icon" style="background: rgba(46,196,160,0.08); color: #2ec4a0;">⚗️</div>
-          <span class="docs-card-status soon"><%= t("docs.index.status.soon") %></span>
+          <div class="docs-card-icon" style="background: rgba(46,196,160,0.12); color: #2ec4a0;">⚗️</div>
+          <span class="docs-card-status available"><%= t("docs.index.status.available") %></span>
         </div>
         <h2 class="docs-card-title"><%= t("docs.index.cards.resources.title") %></h2>
         <p class="docs-card-desc"><%= t("docs.index.cards.resources.description") %></p>
         <div class="docs-card-tags">
-          <span class="docs-tag"><%= t("resources.energy") %></span>
-          <span class="docs-tag"><%= t("resources.metal") %></span>
-          <span class="docs-tag"><%= t("resources.food") %></span>
-          <span class="docs-tag"><%= t("resources.thorium") %></span>
+          <span class="docs-tag" style="color:#c8a96e;"><%= t("resources.energy") %></span>
+          <span class="docs-tag" style="color:#c8a96e;"><%= t("resources.metal") %></span>
+          <span class="docs-tag" style="color:#2ec4a0;"><%= t("resources.food") %></span>
+          <span class="docs-tag" style="color:#4e8faf;"><%= t("resources.thorium") %></span>
         </div>
-      </div>
+        <div class="docs-card-cta"><%= t("docs.index.cards.resources.cta") %></div>
+      <% end %>
 
       <div class="docs-card soon">
         <div class="docs-card-header">
