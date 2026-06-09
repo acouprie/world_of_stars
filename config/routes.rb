@@ -23,6 +23,14 @@ Rails.application.routes.draw do
   require "sidekiq/web"
   mount Sidekiq::Web => "/sidekiq" if Rails.env.development?
 
+  # Galaxy map
+  get "/galaxy", to: "galaxy#index", as: :galaxy
+
+  # JSON API
+  namespace :api do
+    resources :planets, only: [:index]
+  end
+
   # Game routes
   resources :planets do
     resources :buildings, only: [:new, :create, :show]
