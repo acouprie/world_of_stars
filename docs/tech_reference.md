@@ -1,7 +1,7 @@
 # World of Stars — Référence des technologies
 
-> Version 0.1 — Document de conception
-> Complément au `game_design.md`, `building_reference.md` et `unit_reference.md`
+> Version 0.2 — Document de conception
+> Complément au `game_design.md`, `combat_reference.md`, `building_reference.md` et `unit_reference.md`
 > Statut : structure validée, valeurs d'équilibrage à définir
 
 ---
@@ -130,7 +130,7 @@ Technologies dont les fonctionnalités support existent ou sont en cours de cons
 | **Chaîne de production**   | Logistique  | + 1 file de production d'unités par niveau                   | 4       | —                         |
 | **Cartographie stellaire** | Exploration | + gains XP & ressources d'exploration, − risque de pertes    | 10      | —                         |
 
-> Les bonus de **combat** (Armement, Blindage tactique, Guerre électronique) modifient les stats d'unités encore en cours de validation. La **structure** des technologies est figée ; les **valeurs** seront calibrées avec le roster final (`unit_reference.md`).
+> **Bonus de combat — modèle acté.** Armement, Blindage tactique et Guerre électronique appliquent un bonus **multiplicatif à accumulation additive** sur la stat : `stat_eff = stat_base × (1 + r·niveau)`. En agrégé, l'effet est **lisse** (pas de falaise) et **seul le delta de techno entre les camps compte** — monter la même techno des deux côtés ne change rien. Le couple `(r, niveau_max)` est borné pour garder le combat **≥ ~3 rounds au differentiel maximal** (sinon l'initiative décide tout en un round). Détail et validation : `combat_reference.md` §9. Valeur de travail : `r ≈ 0,04–0,05`.
 
 ---
 
@@ -233,17 +233,17 @@ module Technologies
     armement: {
       category: :military, scope: :initial, max_level: 18,
       requires: { research_lab: 1 },
-      effect: { type: :unit_attack_bonus, per_level: nil } # pending unit stats
+      effect: { type: :unit_attack_bonus, per_level: 0.04 } # ×(1+0.04·niv) ATQ — multiplicatif additif, à calibrer (combat_reference §9)
     },
     blindage_tactique: {
       category: :military, scope: :initial, max_level: 18,
       requires: { research_lab: 1 },
-      effect: { type: :unit_defense_bonus, per_level: nil } # pending unit stats
+      effect: { type: :unit_defense_bonus, per_level: 0.04 } # ×(1+0.04·niv) DEF — idem
     },
     guerre_electronique: {
       category: :military, scope: :initial, max_level: 15,
       requires: { research_lab: 1 },
-      effect: { type: :unit_intelligence_bonus, per_level: nil } # pending unit stats
+      effect: { type: :unit_intelligence_bonus, per_level: 0.04 } # ×(1+0.04·niv) INT — idem
     },
     ingenierie_parallele: {
       category: :logistics, scope: :initial, max_level: 3,
@@ -302,7 +302,7 @@ end
 | Sujet                                          | État          | Note                                                                          |
 | ---------------------------------------------- | ------------- | ----------------------------------------------------------------------------- |
 | Valeurs `per_level` des bonus                  | À équilibrer  | Additif vs multiplicatif, % par niveau                                        |
-| Bonus de combat (Armement/Blindage/G. élec.)   | En attente    | Dépend des stats d'unités validées (`unit_reference.md`)                      |
+| Bonus de combat (Armement/Blindage/G. élec.)   | **Modèle acté** | Multiplicatif additif `×(1+r·niv)`, lisse, **delta-only** (`combat_reference.md` §9). `r≈0,04–0,05` + plafonds à calibrer pour garder ≥ ~3 rounds au delta max |
 | Tables de coûts de recherche                   | À construire  | Coût géométrique métal/nourriture/thorium + temps (Annexe D)                  |
 | Effet exact de Cartographie stellaire          | À définir     | Répartition entre + XP, + chance de ressources, − risque de pertes            |
 | Seuils d'exploration de Colonisation           | À équilibrer  | Niv 2 / niv 4 proposés, à ajuster                                             |

@@ -1,8 +1,16 @@
 # World of Stars — Document de Game Design
 
-> Version 0.6 — Document de référence projet
+> Version 0.7 — Document de référence projet
 > Auteur : Antoine Couprie
 > Statut : En cours — annexes à compléter
+
+> **Structure de la documentation.** Ce GDD est le **hub** : vision, univers, économie, progression, factions, alliances, UI, architecture. Les systèmes les plus détaillés vivent dans des documents de référence dédiés, sources de vérité de leur domaine :
+> - [`combat_reference.md`](combat_reference.md) — système de combat au sol (modèle, aléa, repli, technos de combat, algorithme, validation)
+> - [`unit_reference.md`](unit_reference.md) — roster, stats, production, exploration & espionnage des unités
+> - [`tech_reference.md`](tech_reference.md) — arbre technologique, pacing, coûts
+> - [`building_reference.md`](building_reference.md) — bâtiments, coûts par niveau, prérequis
+>
+> Combat, exploration et espionnage **ne sont plus dupliqués** dans le GDD : il en donne un résumé et renvoie au document de référence.
 
 ---
 
@@ -256,74 +264,18 @@ L'énergie n'est **pas un stock consommable** : c'est une **capacité installée
 
 ## 6. Combat & espionnage
 
-### Modèle de combat — résolution en couches
+> **La mécanique de combat complète a été sortie dans son propre document : [`combat_reference.md`](combat_reference.md).** Ce fichier est la **source de vérité unique** du combat (modèle, aléa, repli, technos, algorithme, validation). Le résumé ci-dessous donne l'essentiel ; tout détail ou toute évolution se fait dans `combat_reference.md`.
 
-Les combats se résolvent **à l'arrivée** des forces attaquantes sur la planète cible. Le système repose sur deux couches de combat, résolues séquentiellement dans une même résolution :
+### Résumé du combat (détail dans `combat_reference.md`)
 
-**Couche 1 — Orbitale** _(reportée à la définition des vaisseaux)_ : attaquant flotte vs défenseur flotte + défenses orbitales. **Sautée si l'assaut arrive par portail quantique** — le portail téléporte directement au sol, contournant toute défense orbitale. Si le porteur (vaisseau) est détruit dans cette couche, les troupes terrestres embarquées sont perdues avec lui.
-
-**Couche 2 — Au sol** : les unités terrestres débarquées affrontent les unités terrestres stationnées en défense.
-
-**Asymétrie portail / vaisseau** : le portail quantique contourne la couche orbitale mais nécessite un portail des deux côtés (construire un portail = accepter cette vulnérabilité). L'assaut par vaisseau atteint n'importe quelle planète mais doit franchir l'orbite.
-
-### Résolution au sol — par rounds
-
-Le combat au sol se résout **par rounds** successifs, pas par un calcul agrégé unique.
-
-- **Ordre d'attaque** : déterminé par l'**intelligence du camp** — moyenne d'intelligence **pondérée par l'attaque**, calculée sur les seuls combattants survivants et **recalculée à chaque round**. Le camp à l'intelligence la plus élevée tire en premier ; **à intelligence égale, les deux salves sont simultanées** (calculées sur l'effectif de début de round). Les unités à attaque nulle (transports, reconnaissance) n'influencent pas l'intelligence du camp. Des technologies peuvent augmenter l'intelligence de ses propres troupes ou diminuer celle de l'ennemi.
-- **Défense = palier d'armure** : chaque round, chaque unité combattante est assignée à une cible ennemie tirée au hasard ; les dégâts des tireurs visant une même cible sont **additionnés** (`attaque × aléa`, aléa ∈ [0,85 ; 1,15]). Une cible est détruite si ces dégâts **concentrés** dépassent sa défense. **Pas de points de vie** — la destruction est binaire, et tuer exige donc de concentrer le feu de plusieurs unités. Au-dessus du jitter par tir s'ajoute un **aléa global par round** (`Normal(1 ; 0,25)` par camp), seule source d'incertitude significative à grande échelle. La résolution se fait **par effectifs de type** (forme fermée), jamais unité par unité : elle est **indépendante de la taille des armées** — un combat dure ~10 rounds qu'il oppose 100 ou 100 000 unités, et les rapports loggent des effectifs par type. Détail de l'algorithme dans `unit_reference.md` §6.
-- **Pas de plancher de pertes** en combat : contrairement à l'exploration (voir section 7), un attaquant écrasé peut être totalement anéanti.
-
-### Repli — attaquant uniquement
-
-Seul l'**attaquant** peut se replier ; le défenseur combat jusqu'au dernier.
-
-En v1, le repli est **automatique** : il se déclenche quand les pertes cumulées de l'attaquant dépassent **55 %**. Au repli, le défenseur tire une **volée d'adieu** dont la puissance dépend du **delta d'intelligence** `Δ = intelligence_attaquant − intelligence_défenseur` : `multiplicateur = clamp(0,5 − Δ/8, 0, 1,5)`.
-
-- **Delta positif** (attaquant plus intelligent) → repli précoce et propre, pertes minimisées.
-- **Delta proche de zéro** → repli moyen, pertes significatives.
-- **Delta négatif** (défenseur plus intelligent) → le défenseur « verrouille » le champ de bataille, l'attaquant se replie difficilement, pertes lourdes.
-
-Ce mécanisme donne à l'intelligence du défenseur un rôle concret même s'il ne se replie pas : un défenseur intelligent inflige davantage de pertes à un attaquant en retraite.
-
-_Note : les technologies modifiant l'intelligence (bonus ou malus) affectent ce delta et donc l'efficacité du repli._
-
-### Bunker — mise à l'abri consciente
-
-Le bunker n'est **pas** un mécanisme de repli automatique. C'est une **action consciente du joueur avant la bataille** : il choisit quelles unités mettre à l'abri (transports, scientifiques, ou troupes qu'il préfère préserver). Les unités abritées sont **immunisées** et ne participent pas au combat.
-
-- **1 unité = 1 slot** dans le bunker, quel que soit le type.
-- Le bunker protège également une fraction des ressources (capacité `resources`, voir `building_reference.md`).
-- Un joueur peut préférer être pillé plutôt que perdre des troupes — c'est un choix stratégique valide.
-
-### Résultats d'une attaque
-
-- **Pillage** : l'attaquant doit **tenir le sol** (gagner l'engagement terrestre) pour piller. Une victoire orbitale sans victoire au sol = pas de butin. Les transporteurs de l'attaquant se remplissent de ressources non protégées par le bunker.
-- **Destruction** : les unités du camp perdant (hors bunker) subissent des pertes proportionnelles à la résolution des rounds.
-- **Conquête** : mécanique reportée. Retenu : la conquête exige zéro défense restante sur la planète.
-- **Rapport de combat** : généré pour **l'attaquant et le défenseur** — contenu exact à définir (pertes, butin, XP, survivants). Le rapport inclut un volet narratif généré par IA.
-
-### Système d'XP combat
-
-- Les joueurs gagnent de l'XP en détruisant des unités ennemies lors des combats.
-- L'XP est associée **au joueur**, pas aux unités — elle sert uniquement au **classement** et n'a pas d'impact mécanique sur le gameplay.
-- Le niveau 1 commence à 400 pts d'XP, chaque niveau suivant nécessite ×1.2 pts supplémentaires.
-- Les gains d'XP sont multipliés par 1.0292 à chaque passage de niveau.
-- **L'XP se cumule** — l'excédent au passage de niveau n'est pas perdu.
-
-#### Gains d'XP par unité détruite
-
-_Le roster est défini (voir `unit_reference.md`). L'XP accordée à la destruction d'une unité est **proportionnelle à son coût de production** ; les valeurs seront fixées lors de la passe économie._
-
-#### Multiplicateurs — victoire sans pertes
-
-| Écart de force (attaquant / défenseur) | Multiplicateur XP |
-| -------------------------------------- | ----------------- |
-| Plus de 20x                            | x1 (pas de bonus) |
-| 15x à 20x                              | x3                |
-| 10x à 15x                              | x5                |
-| 5x à 10x                               | x10               |
-| Moins de 5x                            | x15               |
+- **Couches** : orbitale (vaisseaux, reportée — sautée si arrivée par portail) puis **au sol** (unités terrestres). C'est la couche au sol qui est entièrement spécifiée.
+- **Modèle acté** : **tir agrégé + paliers d'armure, sans PV**. On oppose la **puissance de feu agrégée d'un camp** (Σ ATQ) aux **paliers de défense** des cibles ; tuer exige de **concentrer** le feu. Résolution **par compteurs de type** (forme fermée, `O(types)`), **indépendante de la taille** des armées (~10 rounds, qu'on oppose 100 ou 100 000 unités).
+- **Aléa** : jitter par tir `[0,85 ; 1,15]` (texture) + **swing global par round `Normal(1 ; σ=0,25)`** (acté — principale incertitude à grande échelle). Game feel cible : **prédictif ~80 %, bande pile-ou-face ~20 % de ratio de force**.
+- **Initiative** : INT du camp = moyenne pondérée par l'ATQ, recalculée chaque round ; à égalité, salves simultanées.
+- **Repli (attaquant seul)** : automatique au-delà de **55 %** de pertes, avec **volée d'adieu** modulée par le delta d'INT `clamp(0,5 − Δ/8 ; 0 ; 1,5)`. **Plafond de statu quo à 18 rounds** → retrait de l'attaquant (jamais d'impasse).
+- **Invariant** : `DEF_min > ATQ_max × 1,15` (stats de base) → aucune unité de ligne one-shottable. La défense a un avantage **réel mais pénétrable** (cracker un mur de Sentinelles ≈ ×1,45 de force).
+- **Technos de combat** : bonus **multiplicatif à accumulation additive**, lisse — **seul le delta** entre les camps compte (modèle acté ; valeurs à calibrer).
+- **Bunker / pillage / conquête / rapport / XP** : cf. `combat_reference.md` (XP = classement uniquement, table de multiplicateurs « victoire sans pertes » volontairement inversée pour récompenser le combat serré).
 
 ### Espionnage
 
@@ -631,12 +583,12 @@ Ces points sont intentionnellement non tranchés dans cette version du document.
 | Bâtiments de défense statique                   | En réflexion     | Toute la défense passe par les unités pour l'instant ; tourelles/structures possibles plus tard                                  |
 | Capacité de garnison (military_camp)            | Reporté          | Limiter le nombre d'unités stationnées par planète selon le niveau du camp                                                       |
 | Unité d'escorte dédiée                          | **Écartée (v1)** | Les combattants remplissent ce rôle ; pas d'escorte dédiée au lancement                                                          |
-| Modèle de combat au sol                         | **Tranché**      | Tir agrégé + paliers d'armure, assignation par cible, sans PV — validé par simulation (voir `unit_reference.md` §6)              |
+| Modèle de combat au sol                         | **Tranché**      | Tir agrégé + paliers d'armure, sans PV — validé par simulation. Source de vérité : `combat_reference.md`              |
 | Seuil de repli paramétrable par le joueur       | **Idée future**  | En v1 le seuil est automatique (55 %) ; le rendre choisi avant l'envoi en v2+                                                    |
 | Unité officier (niv 7-10 military_camp)         | **Idée future**  | Unité survivable dont l'intelligence mènerait le tempo de l'armée (initiative = INT max)                                         |
 | Contenu exact du rapport de combat              | À définir        | Pertes, butin, XP, survivants + volet narratif IA                                                                                |
 | Formule exacte de l'espionnage                  | À implémenter    | Stat furtivité + quantité → détection/révélation                                                                                 |
-| Formule exacte du repli (delta intelligence)    | **Tranché (v1)** | Auto à 55 % de pertes ; volée d'adieu = `clamp(0,5 − Δ/8, 0, 1,5)                                                                |
+| Formule exacte du repli (delta intelligence)    | **Tranché (v1)** | Auto à 55 % de pertes + plafond de statu quo à 18 rounds ; volée d'adieu = `clamp(0,5 − Δ/8, 0, 1,5)` (cf. `combat_reference.md`)                                                                |
 | Monétisation                                    | À définir en v2  | Hors scope pour le développement initial                                                                                         |
 | Arbre technologique complet                     | **Structuré**    | Structure et roster validés — voir `tech_reference.md`. Reste : valeurs d'équilibrage                                            |
 | Liste complète des vaisseaux                    | À construire     | Voir Annexes                                                                                                                     |
@@ -689,11 +641,11 @@ Types connus à ce stade : chasseurs, vaisseaux mères, transporteurs, bombardie
 
 _En cours de définition — voir `unit_reference.md` pour le document de référence complet._
 
-**Roster défini** : **Maraudeur** (offensif), **Sentinelle** (défensif), **Régulier** (polyvalent), **Scientifique** (exploration), **Sonde** (recon-exploration), **Spectre** (recon-espionnage), **Mule** (transport). Les anciens noms « léger / lourd / Malp / UAV / archéologue » sont abandonnés. Stats de combat, modèle de combat et logistique : voir `unit_reference.md`.
+**Roster défini** : **Maraudeur** (offensif), **Sentinelle** (défensif), **Régulier** (polyvalent), **Scientifique** (exploration), **Sonde** (recon-exploration), **Spectre** (recon-espionnage), **Mule** (transport). Les anciens noms « léger / lourd / Malp / UAV / archéologue » sont abandonnés. Stats et logistique : voir `unit_reference.md`. Modèle de combat : voir `combat_reference.md`.
 
 **Principes de production** : toutes les unités sont produites dans le `training_camp` (niveau ↑ = temps ↓). Les types d'unités sont débloqués par le `military_camp`, avec des dépendances multiples possibles (ex : scientifique = military_camp + research_lab). Files de production parallèles supplémentaires débloquées par technologie. Coût en métal/nourriture/thorium + temps. Pas d'entretien (coût unique).
 
-**Stats** : Attaque, Défense, Intelligence, Transport, Exploration, Espionnage. Pas de PV (défense = seuil d'encaissement). Pas de vitesse (unités terrestres = charge utile). Toutes les stats sont modifiables par technologies.
+**Stats** : Attaque, Défense, Intelligence, Transport, Exploration, Espionnage. Pas de PV (défense = palier d'armure ; tuer exige de concentrer le feu — cf. `combat_reference.md`). Pas de vitesse (unités terrestres = charge utile). Toutes les stats sont modifiables par technologies.
 
 ### Annexe D — Équilibrage des ressources
 

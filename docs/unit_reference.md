@@ -1,8 +1,9 @@
 # World of Stars — Référence des unités terrestres
 
-> Version 0.3 — Document de conception
-> Complément au game_design.md et building_reference.md
-> Statut : principes validés · **modèle de combat validé par simulation (résolution par compteurs)** · roster, stats v2.1, coûts, transport, durées **proposés et validés en coût-équivalent** (échelle absolue = curseur libre)
+> Version 0.4 — Document de conception
+> Complément au `game_design.md`, `combat_reference.md` et `building_reference.md`
+> Statut : principes validés · roster, stats v2.1, coûts, transport, durées **proposés et validés en coût-équivalent** (échelle absolue = curseur libre)
+> **La mécanique de combat a été déplacée dans `combat_reference.md` (source de vérité). Le §6 ci-dessous n'en garde que le volet « unités ».**
 
 ---
 
@@ -171,85 +172,15 @@ Durée proportionnelle à la distance ; franchit la couche orbitale. Un **vaisse
 
 ## 6. Combat
 
-> **Modèle validé : « Tir agrégé + paliers d'armure » (Modèle A), sans PV.** Implémentation **par compteurs de type** (cf. §6.5) — indépendante de l'effectif. Référence : `game_design.md` §6.
+> **La mécanique de combat complète vit désormais dans [`combat_reference.md`](combat_reference.md)** (source de vérité unique : modèle, aléa, initiative, repli, plafond de rounds, technos de combat, algorithme par compteurs, validation). Cette section ne garde que ce qui touche directement les unités.
 
-### 6.1 Couches
+### Ce que les unités apportent au combat
 
-1. **Couche orbitale** (vaisseaux, reportée) : sautée si arrivée par portail.
-2. **Couche au sol** : c'est ici qu'interviennent les stats terrestres.
-
-### 6.2 Résolution conceptuelle d'un round
-
-Chaque camp tire une **salve**. Conceptuellement : chaque unité combattante (ATQ > 0) vise une cible ennemie au hasard (pondéré par l'effectif des combattants ; non-combattants en dernier, **Mules en tout dernier**) ; les dégâts des tireurs visant une même cible **s'additionnent** ; une cible meurt si ces dégâts **concentrés ≥ sa DEF** (pas de report). La répartition aléatoire « gaspille » du feu, ce qui borne la létalité par round et étale le combat.
-
-### 6.3 Aléa
-
-- **Jitter par tir** ∈ [0,85 ; 1,15] — texture des petites escarmouches (s'évapore sur la masse).
-- **Swing global par round** : un multiplicateur tiré **une fois par camp et par round**, `swing ~ Normal(1 ; 0,25)` borné > 0, appliqué à toute la salve. **C'est la principale source d'incertitude à grande échelle** (corrélé, il ne se moyenne pas) et il lisse les courbes de victoire / adoucit l'effet falaise.
-
-### 6.4 Initiative & repli
-
-- **Initiative** : INT du camp = moyenne d'INT **pondérée par l'attaque**, sur les survivants combattants, **recalculée chaque round**. Le camp à l'INT la plus haute tire en premier ; **à INT égale, salves simultanées**.
-- **Repli (v1, automatique)** : déclenché quand les pertes cumulées de l'attaquant dépassent **55 %**. Le défenseur tire une **volée d'adieu** : `multiplicateur = clamp(0,5 − Δ/8, 0, 1,5)` avec `Δ = INT_att − INT_def`.
-- **Statu quo** : au-delà d'un plafond de rounds (mur infranchissable), l'attaquant se retire. En pratique un combat dure **~10 rounds quelle que soit la taille** (max ~20).
-
-### 6.5 Algorithme par compteurs (pseudocode Ruby — indépendant de l'effectif)
-
-On ne simule **jamais** les unités individuellement. L'état d'un camp est un dictionnaire `{type => effectif}`. La probabilité de mort d'un type est calculée en **forme fermée** (approximation normale de la somme de Poisson composée), validée à quelques % près contre une simulation par unité, pour un coût de **~O(types)** par round.
-
-```ruby
-SIGMA = 0.25       # écart-type du swing global
-EJ2   = 1.0075     # E[jitter^2] pour jitter ~ U[0.85,1.15]
-
-def army_int(counts)               # moyenne INT pondérée par l'ATQ
-  num = den = 0.0
-  counts.each { |t, c| next unless c > 0 && t.atk > 0
-                       num += t.int * t.atk * c; den += t.atk * c }
-  den > 0 ? num / den : 0.0
-end
-
-def fire(att, defe, swing, mult = 1.0)
-  shots = sum1 = sum2 = 0.0
-  att.each { |t, c| next unless c > 0 && t.atk > 0 && t.combat?
-                    shots += c; sum1 += c * t.atk; sum2 += c * t.atk**2 }
-  return defe if shots.zero?
-  elig = eligible_targets(defe)    # combattants ; sinon non-combattants ; Mules en dernier
-  n = elig.sum { |t| defe[t] }
-  return defe if n.zero?
-  mean = sum1 / n
-  sd   = Math.sqrt(sum2 * EJ2 / n)
-  elig.each do |t|
-    p_kill = 1.0 - normal_cdf((t.def / [swing, 0.05].max - mean) / sd)
-    defe[t] = [0, defe[t] - (defe[t] * p_kill).round].max
-  end
-  defe
-end
-
-def resolve_round(att, defe)
-  ia, idf = army_int(att), army_int(defe)
-  sA, sD  = sample_swing, sample_swing          # Normal(1, SIGMA), borné > 0
-  if (ia - idf).abs < 1e-9                        # égalité -> simultané
-    nd, na = fire(att, defe.dup, sA), fire(defe, att.dup, sD); return [na, nd]
-  elsif ia > idf
-    defe = fire(att, defe, sA)
-    att  = fire(defe, att, sD) if alive?(defe)
-  else
-    att  = fire(defe, att, sD)
-    defe = fire(att, defe, sA) if alive?(att)
-  end
-  [att, defe]
-end
-```
-
-`normal_cdf(x) = 0.5 * (1 + Math.erf(x / Math.sqrt(2)))`.
-
-### 6.6 Bunker, pillage, rapport
-
-- **Bunker** : mise à l'abri consciente avant combat (1 unité = 1 slot) ; les unités abritées ne combattent pas et sont immunisées.
-- **Pillage** : l'attaquant doit tenir le sol ; les transporteurs se remplissent des ressources non protégées.
-- **Rapport** : par camp, **round par round en effectifs de type** (compact même à grande échelle) + volet narratif IA.
-
----
+- **ATQ** alimente le budget de feu agrégé du camp (0 = ne combat pas).
+- **DEF** est un **palier d'armure** : il faut concentrer des dégâts ≥ DEF pour détruire l'unité (pas de PV).
+- **INT** sert à l'initiative et au repli (stat de combat uniquement) ; les unités à ATQ nulle (Mule, Sonde, Spectre) n'influencent pas l'INT du camp.
+- Les stats de combat de référence (baseline v2.1) sont au **§3**. L'invariant `DEF_min > ATQ_max × 1,15` s'applique aux unités de ligne (Maraudeur, Régulier, Sentinelle) ; les supports (Mule, Sonde, Spectre) en sont exclus — mourir vite fait partie de leur identité.
+- **Ancre de coûts** issue de la validation : Maraudeur : Régulier : Sentinelle ≈ **1 : 1,15 : 1,6** (à exploiter à la passe économie).
 
 ## 7. Exploration
 
