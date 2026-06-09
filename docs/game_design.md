@@ -1,6 +1,6 @@
 # World of Stars — Document de Game Design
 
-> Version 0.7 — Document de référence projet
+> Version 0.8 — Document de référence projet
 > Auteur : Antoine Couprie
 > Statut : En cours — annexes à compléter
 
@@ -295,64 +295,67 @@ _Formule exacte de détection et de révélation d'information à définir lors 
 
 ## 7. Exploration
 
-### Principe
+### Principe & intention
 
-- Les planètes vides (non assignées) sont **explorables**.
-- Les planètes vides sont considérées comme ayant un **portail implicite** permettant l'exploration par portail.
-- Une mission d'exploration envoie une équipe d'unités sur une planète vide.
-- Résultats : **points d'exploration** (alimentent les niveaux d'exploration), **ressources** (aléatoire), **rapport de mission narratif** généré par IA.
-- L'exploration est **beaucoup plus rapide par portail**. Pour ne pas bloquer les joueurs sans portail, un **vaisseau d'exploration unique** est disponible dès le lancement (stratégie plus lente mais plus sûre, peu de points d'exploration).
+- Les planètes vides (non assignées) sont **explorables** (portail implicite). Une mission envoie une équipe d'unités.
+- **But premier : récolter des points d'exploration** qui débloquent les technologies du palier avancé. Les **ressources sont un bonus** qui **s'auto-finance** (en moyenne, le butin compense le coût des unités perdues) et reste **très en dessous du revenu des mines**. L'exploration ne concurrence donc jamais l'économie minière : ce sont deux moteurs distincts (mines = ressources, exploration = progression techno).
+- **Une seule mission à la fois** (file d'exploration dédiée). Combiné à la durée croissante avec la taille d'équipe, cela borne naturellement le débit.
+- L'exploration est **plus rapide par portail**. Pour les joueurs sans portail, un **vaisseau d'exploration unique** est disponible dès le lancement (plus lent, plus sûr, peu de points).
+- Chaque mission produit un **rapport narratif généré par IA**, écrit à partir du résultat chiffré (cf. ci-dessous).
 
 ### Durée d'une expédition
 
-- Durée de base : **20 minutes** (par portail)
-- **+1 minute par unité** ajoutée à l'équipe (une grande équipe = une expédition longue)
+- Base : **20 minutes** (par portail) + **1 minute par unité** ajoutée à l'équipe.
 
-### Unités d'exploration et leurs rôles
+### Le modèle — trois tirages indépendants
 
-_Les noms définitifs des unités seront définis dans `unit_reference.md`. Le tableau ci-dessous décrit les rôles fonctionnels._
+Chaque mission tire **séparément** trois résultats : **points d'exploration (XP)**, **ressources**, **pertes d'unités**. Chaque tirage choisit d'abord un **palier** (par probabilité), puis une **magnitude uniforme dans le palier**. La distribution est **asymétrique** : le plus souvent modeste, parfois nulle, rarement extrême. Les trois tirages sont **décorrélés** — toutes les combinaisons surviennent (pertes sans ressources, ressources sans XP, etc.), et c'est le **débrief IA qui tisse le récit** reliant ce qui est tombé.
 
-| Rôle                 | XP de base   | Transport ressources | Particularités                                          |
-| -------------------- | ------------ | -------------------- | ------------------------------------------------------- |
-| Scientifique         | 33 XP (seul) | Modéré               | XP croissant avec le nombre, risque de pertes croissant |
-| Recon-exploration    | 30 XP fixe   | Élevé                | Aucune perte en exploration, bonus exploration          |
-| Recon-espionnage     | 30 XP fixe   | Aucun transport      | Aucune perte en exploration, bonus espionnage           |
-| Combattant (escorte) | 30 XP fixe   | Variable             | Réduit le risque de pertes des scientifiques            |
-| Transport            | —            | Très élevé           | Capacité de transport maximale                          |
+| Tirage | rien | modeste | bon | extrême |
+| ------ | ---- | ------- | --- | ------- |
+| **Ressources** (× capacité de transport de l'équipe) | 20 % → 0 | 58 % → 5–25 % | 18 % → 25–55 % | 4 % → 55–100 % |
+| **XP** (× base d'XP de l'équipe) | 18 % → 0 | 60 % → 0,3–0,8 | 18 % → 0,8–1,5 | 4 % → 1,5–3,0 |
+| **Pertes** (× effectif de l'équipe) | 55 % → 0 | 33 % → 2–10 % | 10 % → 10–30 % | **2 % → 60–100 % (échec critique)** |
 
-### Règles générales d'exploration
+> Probabilités et plages = **placeholders raisonnables**, à caler à la passe économie. Repères mesurés sur ce jeu de valeurs : ~36 % de missions « tranquilles rentables » (0 perte, XP + ressources), ~2 % de bredouilles totales, ~12 % de coups durs dont ~2 % d'effacement quasi-total.
 
-- **Chance de gagner des ressources : 20%** peu importe les unités envoyées. La quantité varie entre 50% et 100% de la capacité de transport de l'équipe.
-- **Règle de sécurité PvE** : une équipe d'exploration **ne peut jamais être totalement exterminée**. Si une seule unité est envoyée, aucune perte possible. Les unités de type reconnaissance ne subissent **jamais de pertes** en exploration (trait intrinsèque). _Cette règle est spécifique à l'exploration et ne s'applique pas au combat PvP._
-- La quantité de pertes est égale au pourcentage de risque calculé.
-- Les XP gagnés ont une **variation de ±5%** (résultat non déterministe).
-- En présence de Scientifiques, les 30 XP des combattants et transports **ne sont pas comptabilisés** (annulés).
+### Magnitude selon la composition de l'équipe
 
-### Calcul du risque — Scientifiques
+- **XP** ← porté principalement par les **Scientifiques** (les autres unités apportent une contribution fixe mineure).
+- **Ressources** ← proportionnelles à la **capacité de transport** de l'équipe (Sonde 150, Mule 350, etc.), réparties sur les **trois ressources** (chaque ressource tire sa propre magnitude entre 0 et la capacité).
+- **Pertes** ← une **fraction de l'effectif** engagé, **réduite par l'escorte** (unités de combat) et par la **meilleure survie de la reconnaissance** (Sonde/Spectre = risque réduit, **pas** d'immunité).
+- **Pas de plancher PvE** : il n'y a plus de garantie qu'une unité survive. Un échec critique (~2 %) peut effacer l'équipe entière. Les anciennes règles « la reconnaissance ne subit jamais de pertes », « 1 unité seule = aucune perte » et « jamais totalement exterminé » sont **supprimées**.
 
-- 1 Scientifique seul = 11% de risque de pertes → 33 XP
-- Chaque Scientifique supplémentaire = +1% de risque
-- 90 Scientifiques = 100% de risque → 300 XP
-- Au-delà de 100% : +3 XP par Scientifique supplémentaire
-- **Formule XP** : `% de risque × 3 = XP`
-- Les unités combattantes d'escorte réduisent le risque global selon leur proportion dans l'équipe
+### Calibration « le butin compense les pertes »
+
+Pertes et gains sont décorrélés mission par mission, mais on règle leurs **espérances** pour que l'exploration soit neutre en ressources :
+
+```
+E[butin sur 3 ressources]  ≈  E[coût des pertes]
+3 × E[frac_ressource] × transport_unité  ≈  E[frac_pertes] × coût_unité
+```
+
+Avec les paliers ci-dessus : `E[frac_ressource] = 0,19`, `E[frac_pertes] = 0,056`. Pour une équipe de Sonde (transport 150), la neutralité parfaite implique un **coût ≈ 1 530 ressources par Sonde** ; à coût fixé, on ajuste plutôt les magnitudes de ressources. Le **revenu net en ressources ≈ 0** (on récolte ce qu'on perd) et le **brut reste sous celui d'une mine**. Les chiffres exacts (coûts d'unités, magnitudes) sont fixés à la **passe économie**.
+
+### Unités et leurs rôles en exploration
+
+| Unité | Rôle en exploration |
+| ----- | ------------------- |
+| **Scientifique** | Principal générateur de **points d'exploration** ; transport modéré |
+| **Sonde** (recon-exploration) | Gros transport (butin), **risque réduit** ; contribution XP fixe |
+| **Spectre** (recon-espionnage) | **Risque réduit**, aucun transport ; surtout dédié à l'espionnage |
+| **Maraudeur / Régulier / Sentinelle** (combat) | **Escorte** : réduisent la fraction de pertes de l'équipe |
+| **Mule** (transport) | Capacité de butin maximale, **aucune réduction de risque, aucun XP** — l'archétype « run de butin » risqué |
 
 ### Niveaux d'exploration
 
-- L'XP d'exploration est associée **au joueur**, pas aux unités.
-- Les niveaux d'exploration peuvent servir de **prérequis pour certaines technologies**.
-- Niveau 1 : 400 XP requis
-- Chaque niveau suivant : XP requis × 1.2
-- Gains d'XP par exploration multipliés par 1.0292 à chaque passage de niveau
-- **L'XP se cumule** — l'excédent au passage de niveau n'est pas perdu
+- L'XP d'exploration est associée **au joueur**, pas aux unités. Elle sert de **prérequis** aux technologies du palier avancé (Cœur de thorium, Colonisation, future Régénération cellulaire — voir `tech_reference.md`).
+- Niveau 1 = **400 XP** ; chaque niveau suivant ×1,2 ; gains d'XP ×1,0292 par passage de niveau ; **XP cumulée** (l'excédent n'est pas perdu).
 
-### Points d'exploration et technologies
+### Répétabilité
 
-- L'exploration de planètes vides génère des **points d'exploration** qui alimentent les **niveaux d'exploration** du joueur.
-- Les niveaux d'exploration peuvent être un **prérequis** pour la recherche de certaines technologies.
-- Les niveaux d'exploration servent de **prérequis aux technologies du palier avancé** (Cœur de thorium, Colonisation, et la future Régénération cellulaire) — voir `tech_reference.md`.
+- **Illimitée pour l'instant** : il y a toujours un pool de planètes vides suffisant pour explorer. Un **cooldown par planète** est noté comme **levier futur** si l'on veut tempérer le farm d'une même cible.
 
----
 
 ## 8. Factions IA
 
@@ -588,11 +591,14 @@ Ces points sont intentionnellement non tranchés dans cette version du document.
 | Unité officier (niv 7-10 military_camp)         | **Idée future**  | Unité survivable dont l'intelligence mènerait le tempo de l'armée (initiative = INT max)                                         |
 | Contenu exact du rapport de combat              | À définir        | Pertes, butin, XP, survivants + volet narratif IA                                                                                |
 | Formule exacte de l'espionnage                  | À implémenter    | Stat furtivité + quantité → détection/révélation                                                                                 |
+| Modèle d'exploration                            | **Tranché**      | 3 tirages indépendants (XP / ressources / pertes), paliers asymétriques, butin ≈ coût des pertes — voir §7                        |
+| Calibration exploration (paliers, coûts Sonde)  | Passe économie   | Probas/plages des paliers + coût des unités ; butin net ≈ 0, brut ≪ mines                                                         |
+| Cooldown par planète (exploration)              | **Levier futur** | Répétabilité illimitée pour l'instant ; cooldown si farm d'une cible à tempérer                                                   |
 | Formule exacte du repli (delta intelligence)    | **Tranché (v1)** | Auto à 55 % de pertes + plafond de statu quo à 18 rounds ; volée d'adieu = `clamp(0,5 − Δ/8, 0, 1,5)` (cf. `combat_reference.md`)                                                                |
 | Monétisation                                    | À définir en v2  | Hors scope pour le développement initial                                                                                         |
 | Arbre technologique complet                     | **Structuré**    | Structure et roster validés — voir `tech_reference.md`. Reste : valeurs d'équilibrage                                            |
 | Liste complète des vaisseaux                    | À construire     | Voir Annexes                                                                                                                     |
-| Roster complet des unités terrestres            | **En cours**     | Voir `unit_reference.md`                                                                                                         |
+| Roster complet des unités terrestres            | **Défini**       | 7 unités, stats v2.1 — voir `unit_reference.md` et `combat_reference.md`                                                         |
 | Mécaniques d'alliance avancées                  | À définir en v2  | Partage radar, attaques coordonnées, etc.                                                                                        |
 
 ---

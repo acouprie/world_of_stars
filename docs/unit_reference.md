@@ -1,6 +1,6 @@
 # World of Stars — Référence des unités terrestres
 
-> Version 0.4 — Document de conception
+> Version 0.5 — Document de conception
 > Complément au `game_design.md`, `combat_reference.md` et `building_reference.md`
 > Statut : principes validés · roster, stats v2.1, coûts, transport, durées **proposés et validés en coût-équivalent** (échelle absolue = curseur libre)
 > **La mécanique de combat a été déplacée dans `combat_reference.md` (source de vérité). Le §6 ci-dessous n'en garde que le volet « unités ».**
@@ -89,17 +89,17 @@ ATQ 0 (ne combat jamais), DEF faible, **transport très élevé**. Une troupe de
 
 ### Transport / exploration / espionnage
 
-| Unité        | Transport | Explo          | Espion |
-| ------------ | --------- | -------------- | ------ |
-| Maraudeur    | 50        | 30 (fixe)\*    | 0      |
-| Régulier     | 80        | 30 (fixe)\*    | 0      |
-| Sentinelle   | 30        | 30 (fixe)\*    | 0      |
-| Scientifique | 60        | 33 → croissant | 0      |
-| Sonde        | 150       | 30             | 3      |
-| Spectre      | 0         | 30             | 12     |
-| Mule         | 350       | 0              | 0      |
+| Unité        | Transport | Explo (contrib. XP)   | Espion |
+| ------------ | --------- | --------------------- | ------ |
+| Maraudeur    | 50        | mineure (fixe)        | 0      |
+| Régulier     | 80        | mineure (fixe)        | 0      |
+| Sentinelle   | 30        | mineure (fixe)        | 0      |
+| Scientifique | 60        | **principale**        | 0      |
+| Sonde        | 150       | faible                | 3      |
+| Spectre      | 0         | faible                | 12     |
+| Mule         | 350       | nulle                 | 0      |
 
-\* 30 XP fixes en exploration, **annulés** en présence de Scientifiques (cf. §7). Transport « par ressource » : une Mule porte 350 métal **et** 350 nourriture **et** 350 thorium.
+\* La colonne Explo indique la **contribution à la base d'XP** de l'équipe : les **Scientifiques** en sont le moteur principal, les autres unités n'ajoutent qu'une part fixe mineure (les Mules, aucune). Le gain d'XP réel d'une mission est un **tirage** autour de cette base (cf. `game_design.md` §7). Transport « par ressource » : une Mule porte 350 métal **et** 350 nourriture **et** 350 thorium. Les valeurs chiffrées seront calées à la passe économie.
 
 > **XP à la destruction** (classement, sans effet mécanique) : à fixer **proportionnellement au coût** de l'unité.
 
@@ -184,9 +184,21 @@ Durée proportionnelle à la distance ; franchit la couche orbitale. Un **vaisse
 
 ## 7. Exploration
 
-_Résumé. Référence : `game_design.md` §7._
+_Modèle complet (source de vérité) : `game_design.md` §7. Ici, seul le volet « unités »._
 
-Planètes vides explorables (portail implicite). Mission : **20 min + 1 min/unité** ; **plancher PvE** (jamais exterminé) ; Sonde/Spectre sans pertes. Scientifique : `% risque × 3 = XP`, 1 seul = 11 % → 33 XP, 90 = 100 % → 300 XP, puis +3 XP/unité ; annule les 30 XP fixes des autres unités. Niveaux d'exploration : niv 1 = 400 XP, ×1,2/niveau, XP cumulée.
+L'exploration tire **trois résultats indépendants** par mission — points d'exploration, ressources, pertes — chacun le plus souvent modeste, parfois nul, rarement extrême. **But premier : les points d'exploration** (débloquent les technos avancées) ; les ressources sont un bonus calibré pour **compenser en moyenne le coût des unités perdues**. Mission : **20 min + 1 min/unité**, **une seule à la fois**.
+
+Contribution des unités :
+
+| Unité | Apport en exploration |
+| ----- | --------------------- |
+| **Scientifique** | Principal générateur de points d'exploration ; transport modéré (60) |
+| **Sonde** | Transport élevé (150) pour le butin ; **risque de pertes réduit** (pas immunisé) |
+| **Spectre** | Aucun transport ; **risque réduit** ; surtout une unité d'espionnage |
+| **Maraudeur / Régulier / Sentinelle** | **Escorte** : réduisent la fraction de pertes de l'équipe |
+| **Mule** | Transport maximal (350) ; **aucune réduction de risque, aucun XP** — run de butin risqué |
+
+> **Changements actés (remplacent l'ancien modèle linéaire) :** plus de plancher PvE (« jamais exterminé », « 1 unité = aucune perte »), plus d'immunité de la reconnaissance, plus de formule `% risque × 3 = XP`. Toutes les unités risquent des pertes (recon = risque réduit) ; XP et pertes sont deux tirages **séparés** ; un échec critique (~2 %) peut effacer l'équipe.
 
 ---
 
@@ -227,11 +239,12 @@ Mission **5 min**. Plus d'unités = plus d'info mais plus de risque ; la **furti
 | Iris                                      | **Tranché**         | +10 / +15 / +20 % DEF (niv 1/2/3) vs assaut portail ; +10 min sortant |
 | Calendrier de déblocage (military_camp)   | **À refaire**       | Prochain chantier ; cohérence avec l'économie                         |
 | XP par unité détruite                     | À définir           | ∝ coût de production                                                  |
-| Technos de combat                         | Architecture posée  | Modificateurs % sur ATQ/DEF/INT/repli ; à chiffrer                    |
+| Modèle d'exploration                      | **Tranché**         | 3 tirages indépendants (XP/ressources/pertes) ; voir `game_design.md` §7 |
+| Technos de combat                         | **Modèle acté**     | Multiplicatif additif `×(1+r·niv)`, delta-only (`combat_reference.md` §9) ; `r` à chiffrer |
 | Repli paramétrable par le joueur          | **Idée future**     | Seuil choisi avant l'envoi (v2+)                                      |
 | Unité officier (niv 7-10 military_camp)   | **Idée future**     | INT mène le tempo (modèle « initiative = INT max »)                   |
 | Bombardement orbital / défenses statiques | Reporté / réflexion | Avec les vaisseaux                                                    |
 
 ---
 
-_Document vivant v0.3 — à maintenir avec game_design.md et building_reference.md_
+_Document vivant v0.5 — à maintenir avec `game_design.md`, `combat_reference.md` et `building_reference.md`_

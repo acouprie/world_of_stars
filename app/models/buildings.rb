@@ -319,7 +319,8 @@ module Buildings
       description: "Entraîne les unités de combat",
       requires: { command_center: 1 },
       # energy_consumed increases by ~15 per level (20 → 150).
-      # Each level unlocks a new unit type
+      # Reduces unit FORMATION TIME as it levels up; does NOT unlock unit types.
+      # Unit types are unlocked by military_camp (which also gates some military techs).
       levels: [
         { metal: 250,   food: 250,   thorium: 100,   energy_consumed: 20,  production: 0, time: 45    },
         { metal: 500,   food: 500,   thorium: 128,   energy_consumed: 35,  production: 0, time: 86    },
