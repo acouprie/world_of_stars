@@ -112,7 +112,7 @@ function usePixiApp(containerRef) {
       resizeTo: container,
     }).then(() => {
       if (destroyed) { pixi.destroy(true, { children: true }); return }
-      pixi.canvas.style.cssText = 'position:absolute;top:0;left:0;'
+      pixi.canvas.style.cssText = 'position:absolute;top:0;left:0;touch-action:none;'
       container.appendChild(pixi.canvas)
       instance = pixi
       setApp(pixi)
@@ -145,9 +145,15 @@ function useGalaxyRenderer(app, planets, currentUserId) {
   useEffect(() => {
     if (!app || planets.length === 0) return
 
-    // ── World container ───────────────────────────────────────────────────────
-    const world = new Container()
-    app.stage.addChild(world)
+    // ── Containers séparés — nécessaire pour le tore toroïdal ───────────────
+    // Le fond (3×3 tuiles) et les planètes (repositionnées par modulo) ne
+    // peuvent pas partager un world container transformé globalement.
+    const bgContainer     = new Container()
+    const planetContainer = new Container()
+    const selRing         = new Graphics()
+    app.stage.addChild(bgContainer)
+    app.stage.addChild(planetContainer)
+    app.stage.addChild(selRing)
 
     let scale = Math.max(getZoomMin(app.screen.width, app.screen.height), 0.5)
     let offX  = 0
@@ -157,40 +163,44 @@ function useGalaxyRenderer(app, planets, currentUserId) {
     const focus = mine ?? { coord_x: 50, coord_y: 50 }
     const fpx   = (focus.coord_x / COORD_MAX) * WORLD_SIZE
     const fpy   = (focus.coord_y / COORD_MAX) * WORLD_SIZE
-    const sw0   = app.screen.width
-    const sh0   = app.screen.height
-    offX = sw0 / 2 - fpx * scale
-    offY = sh0 / 2 - fpy * scale
-    ;({ x: offX, y: offY } = clampOffset(offX, offY, scale, sw0, sh0))
+    offX = app.screen.width  / 2 - fpx * scale
+    offY = app.screen.height / 2 - fpy * scale
+    // Pas de clampOffset ici — l'offset défile librement, le modulo gère le wrap
 
-    // ── Stars ─────────────────────────────────────────────────────────────────
-    const rand    = makeLcg(42)
-    const starGfx = new Graphics()
-    for (let i = 0; i < 300; i++) {
-      const x = rand() * WORLD_SIZE
-      const y = rand() * WORLD_SIZE
-      const r = [0.5, 1, 1.5][Math.floor(rand() * 3)]
-      const a = 0.06 + rand() * 0.06
-      starGfx.circle(x, y, r)
-      starGfx.fill({ color: 0xFFFFFF, alpha: a })
+    // ── Background (stars + grid) — 3×3 tuiles pour le scroll toroïdal ───────
+    function buildBackground() {
+      const g    = new Graphics()
+      const rand = makeLcg(42)
+      for (let i = 0; i < 300; i++) {
+        const x = rand() * WORLD_SIZE
+        const y = rand() * WORLD_SIZE
+        const r = [0.5, 1, 1.5][Math.floor(rand() * 3)]
+        const a = 0.06 + rand() * 0.06
+        g.circle(x, y, r)
+        g.fill({ color: 0xFFFFFF, alpha: a })
+      }
+      const step = WORLD_SIZE / 10
+      for (let i = 0; i <= 10; i++) {
+        const p = i * step
+        g.moveTo(p, 0); g.lineTo(p, WORLD_SIZE)
+        g.moveTo(0, p); g.lineTo(WORLD_SIZE, p)
+      }
+      g.stroke({ color: 0xFFFFFF, alpha: 0.04, width: 1 })
+      return g
     }
-    world.addChild(starGfx)
 
-    // ── Grid ──────────────────────────────────────────────────────────────────
-    const gridGfx = new Graphics()
-    const step    = WORLD_SIZE / 10
-    for (let i = 0; i <= 10; i++) {
-      const p = i * step
-      gridGfx.moveTo(p, 0);    gridGfx.lineTo(p, WORLD_SIZE)
-      gridGfx.moveTo(0, p);    gridGfx.lineTo(WORLD_SIZE, p)
+    const bgTiles = []
+    for (let cy = -1; cy <= 1; cy++) {
+      for (let cx = -1; cx <= 1; cx++) {
+        const g = buildBackground()
+        bgContainer.addChild(g)
+        bgTiles.push({ cx, cy, g })
+      }
     }
-    gridGfx.stroke({ color: 0xFFFFFF, alpha: 0.04, width: 1 })
-    world.addChild(gridGfx)
 
     // ── Planets ───────────────────────────────────────────────────────────────
-    const objs    = []
-    const selRing = new Graphics()
-    world.addChild(selRing)
+    const objs        = []
+    const CULL_BUFFER = 100
     let planetTapHandled = false
 
     for (const planet of planets) {
@@ -227,16 +237,15 @@ function useGalaxyRenderer(app, planets, currentUserId) {
       label.visible = false
       c.addChild(label)
 
-      world.addChild(c)
-      objs.push({ planet, cfg, label })
+      // Pas de position fixe — repositionné dynamiquement par modulo dans applyTransform
+      planetContainer.addChild(c)
+      objs.push({ planet, cfg, container: c, label })
 
       c.on('pointertap', e => {
         e.stopPropagation()
         planetTapHandled = true
         setSelectedPlanet(planet)
       })
-      c.on('pointerover', () => setHoveredCoords({ x: planet.coord_x, y: planet.coord_y }))
-      c.on('pointerout',  () => setHoveredCoords(null))
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
@@ -244,6 +253,16 @@ function useGalaxyRenderer(app, planets, currentUserId) {
     function updateLabels(sc) {
       const vis = sc > 1.5
       for (const { label } of objs) label.visible = vis
+    }
+
+    function screenToWorld(sx, sy) {
+      const ww = WORLD_SIZE * scale
+      const wh = WORLD_SIZE * scale
+      const wx = (sx - offX) / scale
+      const wy = (sy - offY) / scale
+      const cx = Math.floor(((wx / WORLD_SIZE) * COORD_MAX % COORD_MAX + COORD_MAX) % COORD_MAX)
+      const cy = Math.floor(((wy / WORLD_SIZE) * COORD_MAX % COORD_MAX + COORD_MAX) % COORD_MAX)
+      return { x: cx, y: cy }
     }
 
     function drawMinimap() {
@@ -258,23 +277,60 @@ function useGalaxyRenderer(app, planets, currentUserId) {
         ctx.globalAlpha = cfg.alpha
         ctx.fillStyle   = '#' + cfg.color.toString(16).padStart(6, '0')
         ctx.beginPath()
-        ctx.arc((planet.coord_x / COORD_MAX) * W, (planet.coord_y / COORD_MAX) * H, 1.5, 0, Math.PI * 2)
+        ctx.arc((planet.coord_x / COORD_MAX) * W, (planet.coord_y / COORD_MAX) * H, 2, 0, Math.PI * 2)
         ctx.fill()
       }
       ctx.globalAlpha = 1
       const sw = app.screen.width, sh = app.screen.height
-      const vx = (-offX / scale / WORLD_SIZE) * W
-      const vy = (-offY / scale / WORLD_SIZE) * H
-      const vw = (sw / scale / WORLD_SIZE) * W
-      const vh = (sh / scale / WORLD_SIZE) * H
+      const ww = WORLD_SIZE * scale, wh = WORLD_SIZE * scale
+      // Viewport en espace monde normalisé [0,1) — avec wrap toroïdal
+      const vx0 = (((-offX / ww) % 1) + 1) % 1
+      const vy0 = (((-offY / wh) % 1) + 1) % 1
+      const vw  = sw / ww
+      const vh  = sh / wh
+      const mx = vx0 * W, my = vy0 * H
+      const mw = vw * W,  mh = vh * H
       ctx.strokeStyle = 'rgba(200,169,110,0.6)'
       ctx.lineWidth   = 1
-      ctx.strokeRect(vx, vy, vw, vh)
+      const mw1 = Math.min(mw, W - mx), mw2 = mw - mw1
+      const mh1 = Math.min(mh, H - my), mh2 = mh - mh1
+      ctx.strokeRect(mx, my, mw1, mh1)
+      if (mw2 > 0)             ctx.strokeRect(0,  my, mw2, mh1)
+      if (mh2 > 0)             ctx.strokeRect(mx, 0,  mw1, mh2)
+      if (mw2 > 0 && mh2 > 0) ctx.strokeRect(0,  0,  mw2, mh2)
     }
 
     function applyTransform() {
-      world.position.set(offX, offY)
-      world.scale.set(scale)
+      const ww = WORLD_SIZE * scale
+      const wh = WORLD_SIZE * scale
+      const sw = app.screen.width
+      const sh = app.screen.height
+
+      // Offset normalisé dans [0, ww[ pour les tuiles de fond
+      const nx = ((offX % ww) + ww) % ww
+      const ny = ((offY % wh) + wh) % wh
+
+      // Tuiles de fond 3×3
+      for (const { cx, cy, g } of bgTiles) {
+        g.position.set(nx + cx * ww, ny + cy * wh)
+        g.scale.set(scale)
+      }
+
+      // Planètes : repositionnement par modulo + frustum culling
+      for (const { planet, cfg, container } of objs) {
+        const basePx = (planet.coord_x / COORD_MAX) * WORLD_SIZE
+        const basePy = (planet.coord_y / COORD_MAX) * WORLD_SIZE
+        const sx = ((basePx * scale + offX) % ww + ww) % ww
+        const sy = ((basePy * scale + offY) % wh + wh) % wh
+        const onScreen = sx > -CULL_BUFFER && sx < sw + CULL_BUFFER
+                      && sy > -CULL_BUFFER && sy < sh + CULL_BUFFER
+        container.visible = onScreen
+        if (onScreen) {
+          container.position.set(sx, sy)
+          container.scale.set(scale)
+        }
+      }
+
       updateLabels(scale)
       drawMinimap()
     }
@@ -286,7 +342,6 @@ function useGalaxyRenderer(app, planets, currentUserId) {
       const sw = app.screen.width, sh = app.screen.height
       const zoomMin = getZoomMin(sw, sh)
       if (scale < zoomMin) scale = zoomMin
-      ;({ x: offX, y: offY } = clampOffset(offX, offY, scale, sw, sh))
       applyTransform()
     }
     app.renderer.on('resize', onResize)
@@ -300,10 +355,15 @@ function useGalaxyRenderer(app, planets, currentUserId) {
       if (!sid) return
       const obj = objs.find(o => o.planet.id === sid)
       if (!obj) return
-      const r = obj.cfg.radius + 6 + Math.sin(elapsed * 0.003) * 2
-      const wx = (obj.planet.coord_x / COORD_MAX) * WORLD_SIZE
-      const wy = (obj.planet.coord_y / COORD_MAX) * WORLD_SIZE
-      selRing.circle(wx, wy, r)
+      // Position en screen-space via modulo (même logique que applyTransform)
+      const basePx = (obj.planet.coord_x / COORD_MAX) * WORLD_SIZE
+      const basePy = (obj.planet.coord_y / COORD_MAX) * WORLD_SIZE
+      const ww = WORLD_SIZE * scale
+      const wh = WORLD_SIZE * scale
+      const sx = ((basePx * scale + offX) % ww + ww) % ww
+      const sy = ((basePy * scale + offY) % wh + wh) % wh
+      const r = obj.cfg.radius * scale + 6 + Math.sin(elapsed * 0.003) * 2
+      selRing.circle(sx, sy, r)
       selRing.stroke({ color: obj.cfg.color, alpha: 0.85, width: 1.5 })
     }
     app.ticker.add(tickerFn)
@@ -318,7 +378,6 @@ function useGalaxyRenderer(app, planets, currentUserId) {
       offX = cx - sf * (cx - offX)
       offY = cy - sf * (cy - offY)
       scale = ns
-      ;({ x: offX, y: offY } = clampOffset(offX, offY, scale, sw, sh))
       applyTransform()
     }
 
@@ -330,7 +389,6 @@ function useGalaxyRenderer(app, planets, currentUserId) {
         scale = Math.max(getZoomMin(sw, sh), 0.5)
         offX  = sw / 2 - (f.coord_x / COORD_MAX) * WORLD_SIZE * scale
         offY  = sh / 2 - (f.coord_y / COORD_MAX) * WORLD_SIZE * scale
-        ;({ x: offX, y: offY } = clampOffset(offX, offY, scale, sw, sh))
         applyTransform()
       },
     }
@@ -364,6 +422,10 @@ function useGalaxyRenderer(app, planets, currentUserId) {
       e.preventDefault()
       ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY })
 
+      // Coordonnées monde pour le bandeau — toujours, même hors planète
+      const rect = canvas.getBoundingClientRect()
+      setHoveredCoords(screenToWorld(e.clientX - rect.left, e.clientY - rect.top))
+
       if (ptrs.size === 2) {
         const [a, b] = [...ptrs.values()]
         const dist   = Math.hypot(b.x - a.x, b.y - a.y)
@@ -382,10 +444,9 @@ function useGalaxyRenderer(app, planets, currentUserId) {
       const dy = e.clientY - dragStart.y
       if (!hasMoved && Math.hypot(dx, dy) > 5) hasMoved = true
       if (!hasMoved) return
-      const sw = app.screen.width, sh = app.screen.height
       offX = dragOffStart.x + dx
       offY = dragOffStart.y + dy
-      ;({ x: offX, y: offY } = clampOffset(offX, offY, scale, sw, sh))
+      // Pas de clampOffset — l'offset défile librement, le modulo gère le wrap
       applyTransform()
     }
 
@@ -395,8 +456,8 @@ function useGalaxyRenderer(app, planets, currentUserId) {
 
       if (!hasMoved && ptrs.size === 0 && !planetTapHandled) {
         setSelectedPlanet(null)
-        setHoveredCoords(null)
       }
+      if (ptrs.size === 0) setHoveredCoords(null)
 
       isDragging = ptrs.size === 1
       if (isDragging) {
@@ -433,7 +494,9 @@ function useGalaxyRenderer(app, planets, currentUserId) {
       canvas.removeEventListener('wheel',         onWheel)
       app.renderer.off('resize', onResize)
       app.ticker.remove(tickerFn)
-      world.destroy({ children: true })
+      bgContainer.destroy({ children: true })
+      planetContainer.destroy({ children: true })
+      selRing.destroy()
       controlsRef.current = null
     }
   }, [app, planets, currentUserId]) // eslint-disable-line react-hooks/exhaustive-deps
