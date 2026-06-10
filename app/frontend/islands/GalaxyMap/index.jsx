@@ -30,7 +30,8 @@ function InfoPanel({ planet, currentUserId, onClose, isMobile }) {
 
   const desktopStyle = {
     width: open ? '280px' : '0',
-    overflow: 'hidden',
+    overflowX: 'hidden',
+    overflowY: 'hidden',
     transition: 'width 0.2s ease',
     flexShrink: 0,
     background: 'var(--color-surface)',
@@ -41,7 +42,8 @@ function InfoPanel({ planet, currentUserId, onClose, isMobile }) {
     position: 'absolute',
     bottom: 0, left: 0, right: 0,
     maxHeight: open ? '50vh' : '0',
-    overflow: 'hidden',
+    overflowX: 'hidden',
+    overflowY: 'hidden',
     transition: 'max-height 0.2s ease',
     background: 'var(--color-surface)',
     borderTop: '1px solid var(--color-border)',
