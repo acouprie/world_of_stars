@@ -243,8 +243,8 @@ export default function GalaxyMap() {
         {/* Minimap */}
         <canvas
           ref={minimapCanvasRef}
-          width={200}
-          height={200}
+          width={250}
+          height={250}
           style={{
             position: 'absolute', bottom: 12, left: 12, zIndex: 10,
             border: '0.5px solid var(--color-border)', borderRadius: 8, opacity: 0.85,

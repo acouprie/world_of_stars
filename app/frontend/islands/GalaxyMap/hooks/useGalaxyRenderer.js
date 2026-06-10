@@ -411,20 +411,14 @@ export function useGalaxyRenderer(app, planets, currentUserId) {
       const mx  = vx0 * W, my = vy0 * H
       const mw  = vw  * W, mh = vh  * H
       ctx.strokeStyle = '#' + HUD.VIEWPORT_STROKE.toString(16).padStart(6, '0')
-      ctx.globalAlpha = 0.6
-      ctx.lineWidth   = 1
+      ctx.globalAlpha = 0.85
+      ctx.lineWidth   = 1.5
       const mw1 = Math.min(mw, W - mx), mw2 = mw - mw1
       const mh1 = Math.min(mh, H - my), mh2 = mh - mh1
       ctx.strokeRect(mx, my, mw1, mh1)
       if (mw2 > 0)             ctx.strokeRect(0,  my, mw2, mh1)
       if (mh2 > 0)             ctx.strokeRect(mx, 0,  mw1, mh2)
       if (mw2 > 0 && mh2 > 0) ctx.strokeRect(0,  0,  mw2, mh2)
-
-      // ── "RADAR" label ────────────────────────────────────────────────────────
-      ctx.globalAlpha = HUD.RADAR_LABEL_ALPHA
-      ctx.fillStyle   = cyanHex
-      ctx.font        = '8px Courier New, monospace'
-      ctx.fillText('RADAR', 4, 10)
       ctx.globalAlpha = 1
     }
 
