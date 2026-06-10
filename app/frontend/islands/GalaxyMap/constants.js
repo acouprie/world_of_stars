@@ -38,6 +38,29 @@ export const PLANET_STYLE = {
   },
 }
 
+// ── HUD / radar colours and layout constants ──────────────────────────────────
+export const HUD = {
+  // Radar minimap
+  RADAR_BG:            'rgba(9,11,16,0.92)',
+  RADAR_SWEEP:         0x5bc4d4,  // cyan — same as nebula / hex grid tint
+  RADAR_LABEL_ALPHA:   0.40,
+  VIEWPORT_STROKE:     0xC8A96E,  // gold — same as galactic-axis lines
+
+  // Planet labels
+  LABEL_EMPTY_FILL:    0xA09E96,  // muted grey for unclaimed planets
+
+  // Selection ring
+  SEL_RING_ALPHA:      0.85,      // pulsing circle stroke alpha
+
+  // Reticle arcs (N/S/E/W, ~20° each, fixed radius)
+  SEL_RETICLE_ALPHA:   0.50,
+  SEL_RETICLE_OFFSET:  8,         // px added to selRing radius
+
+  // Crosshair lines
+  SEL_CROSSHAIR_ALPHA: 0.15,
+  SEL_CROSSHAIR_LEN:   30,        // half-length in pixels
+}
+
 export const BIOME_COLORS = {
   oceanic:     '#2860c8',
   arid:        '#d49840',

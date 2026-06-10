@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Graphics, Container, Text, TextStyle, Circle } from 'pixi.js'
-import { PLANET_COLORS, PLANET_STYLE, COORD_MAX, WORLD_SIZE, ZOOM_MAX, getZoomMin, makeLcg } from '../constants'
+import { PLANET_COLORS, PLANET_STYLE, HUD, COORD_MAX, WORLD_SIZE, ZOOM_MAX, getZoomMin, makeLcg } from '../constants'
 
 export function useGalaxyRenderer(app, planets, currentUserId) {
   const [selectedPlanet, _setSelectedPlanet] = useState(null)
@@ -239,32 +239,6 @@ export function useGalaxyRenderer(app, planets, currentUserId) {
         width: 1,
       })
 
-      // ─────────────────────────────────────────────
-      // Couche 6 : lignes de navigation
-      // ─────────────────────────────────────────────
-
-      for (let i = 0; i < 12; i++) {
-        const x1 = rand() * WORLD_SIZE
-        const y1 = rand() * WORLD_SIZE
-
-        const x2 =
-          x1 +
-          (rand() - 0.5) * 1200
-
-        const y2 =
-          y1 +
-          (rand() - 0.5) * 1200
-
-        g.moveTo(x1, y1)
-        g.lineTo(x2, y2)
-      }
-
-      g.stroke({
-        color: 0x5bc4d4,
-        alpha: 0.015,
-        width: 1,
-      })
-
       return g
     }
 
@@ -334,7 +308,11 @@ export function useGalaxyRenderer(app, planets, currentUserId) {
 
       const label = new Text({
         text: planet.name,
-        style: new TextStyle({ fontSize: 10, fill: 0xA09E96, fontFamily: 'Courier New, monospace' }),
+        style: new TextStyle({
+          fontSize: 9,
+          fill: isColonized ? cfg.color : HUD.LABEL_EMPTY_FILL,
+          fontFamily: 'Orbitron, Courier New, monospace',
+        }),
       })
       label.position.set(cfg.radius + 3, -5)
       label.visible = false
@@ -376,32 +354,49 @@ export function useGalaxyRenderer(app, planets, currentUserId) {
       return { x: cx, y: cy }
     }
 
+    let elapsed        = 0
+    let hudText        = null
+    let hudTextLastSid = null
+
     function drawMinimap() {
       const mc = minimapCanvasRef.current
       if (!mc) return
       const ctx = mc.getContext('2d')
       const W = mc.width, H = mc.height
+
       ctx.clearRect(0, 0, W, H)
-      ctx.fillStyle = 'rgba(20,21,28,0.85)'
+      ctx.fillStyle = HUD.RADAR_BG
       ctx.fillRect(0, 0, W, H)
+
+      // ── Canvas border ────────────────────────────────────────────────────────
+      const cyanHex = '#' + HUD.RADAR_SWEEP.toString(16).padStart(6, '0')
+      ctx.strokeStyle = cyanHex
+      ctx.globalAlpha = 0.4
+      ctx.lineWidth   = 1
+      ctx.strokeRect(0.5, 0.5, W - 1, H - 1)
+
+      // ── Planet dots ──────────────────────────────────────────────────────────
       for (const { planet, cfg } of objs) {
+        const dotR = planet.planet_type === 'player' ? 2.5 : 1.5
         ctx.globalAlpha = cfg.alpha
         ctx.fillStyle   = '#' + cfg.color.toString(16).padStart(6, '0')
         ctx.beginPath()
-        ctx.arc((planet.coord_x / COORD_MAX) * W, (planet.coord_y / COORD_MAX) * H, 2, 0, Math.PI * 2)
+        ctx.arc((planet.coord_x / COORD_MAX) * W, (planet.coord_y / COORD_MAX) * H, dotR, 0, Math.PI * 2)
         ctx.fill()
       }
+
+      // ── Viewport rectangle ───────────────────────────────────────────────────
       ctx.globalAlpha = 1
       const sw = app.screen.width, sh = app.screen.height
       const ww = WORLD_SIZE * scale, wh = WORLD_SIZE * scale
-      // Viewport en espace monde normalisé [0,1) — avec wrap toroïdal
       const vx0 = (((-offX / ww) % 1) + 1) % 1
       const vy0 = (((-offY / wh) % 1) + 1) % 1
       const vw  = sw / ww
       const vh  = sh / wh
-      const mx = vx0 * W, my = vy0 * H
-      const mw = vw * W,  mh = vh * H
-      ctx.strokeStyle = 'rgba(200,169,110,0.6)'
+      const mx  = vx0 * W, my = vy0 * H
+      const mw  = vw  * W, mh = vh  * H
+      ctx.strokeStyle = '#' + HUD.VIEWPORT_STROKE.toString(16).padStart(6, '0')
+      ctx.globalAlpha = 0.6
       ctx.lineWidth   = 1
       const mw1 = Math.min(mw, W - mx), mw2 = mw - mw1
       const mh1 = Math.min(mh, H - my), mh2 = mh - mh1
@@ -409,6 +404,13 @@ export function useGalaxyRenderer(app, planets, currentUserId) {
       if (mw2 > 0)             ctx.strokeRect(0,  my, mw2, mh1)
       if (mh2 > 0)             ctx.strokeRect(mx, 0,  mw1, mh2)
       if (mw2 > 0 && mh2 > 0) ctx.strokeRect(0,  0,  mw2, mh2)
+
+      // ── "RADAR" label ────────────────────────────────────────────────────────
+      ctx.globalAlpha = HUD.RADAR_LABEL_ALPHA
+      ctx.fillStyle   = cyanHex
+      ctx.font        = '8px Courier New, monospace'
+      ctx.fillText('RADAR', 4, 10)
+      ctx.globalAlpha = 1
     }
 
     function applyTransform() {
@@ -458,25 +460,66 @@ export function useGalaxyRenderer(app, planets, currentUserId) {
     }
     app.renderer.on('resize', onResize)
 
-    // ── Ticker — selection ring pulse ─────────────────────────────────────────
-    let elapsed = 0
+    // ── Ticker — selRing pulse + réticule + HUD text ─────────────────────────
     const tickerFn = ticker => {
       elapsed += ticker.deltaMS
       selRing.clear()
+
       const sid = selIdRef.current
-      if (!sid) return
+      if (!sid) {
+        if (hudText) hudText.visible = false
+        return
+      }
       const obj = objs.find(o => o.planet.id === sid)
-      if (!obj) return
-      // Position en screen-space via modulo (même logique que applyTransform)
+      if (!obj) {
+        if (hudText) hudText.visible = false
+        return
+      }
+
+      // Screen-space position via modulo (même logique que applyTransform)
       const basePx = (obj.planet.coord_x / COORD_MAX) * WORLD_SIZE
       const basePy = (obj.planet.coord_y / COORD_MAX) * WORLD_SIZE
-      const ww = WORLD_SIZE * scale
-      const wh = WORLD_SIZE * scale
-      const sx = ((basePx * scale + offX) % ww + ww) % ww
-      const sy = ((basePy * scale + offY) % wh + wh) % wh
+      const ww     = WORLD_SIZE * scale
+      const wh     = WORLD_SIZE * scale
+      const sx     = ((basePx * scale + offX) % ww + ww) % ww
+      const sy     = ((basePy * scale + offY) % wh + wh) % wh
+
+      // ── Cercle pulsé (existant) ─────────────────────────────────────────────
       const r = obj.cfg.radius * scale + 6 + Math.sin(elapsed * 0.003) * 2
       selRing.circle(sx, sy, r)
-      selRing.stroke({ color: obj.cfg.color, alpha: 0.85, width: 1.5 })
+      selRing.stroke({ color: obj.cfg.color, alpha: HUD.SEL_RING_ALPHA, width: 1.5 })
+
+      // ── Réticule — 4 arcs de ~20° aux positions N/S/E/O, rayon fixe ─────────
+      const rr       = r + HUD.SEL_RETICLE_OFFSET
+      const halfSpan = Math.PI / 18  // 10° → arc total = 20°
+      const dirs     = [0, Math.PI / 2, Math.PI, 3 * Math.PI / 2]
+      for (const dir of dirs) {
+        selRing.moveTo(sx + rr * Math.cos(dir - halfSpan), sy + rr * Math.sin(dir - halfSpan))
+        selRing.arc(sx, sy, rr, dir - halfSpan, dir + halfSpan)
+        selRing.stroke({ color: obj.cfg.color, alpha: HUD.SEL_RETICLE_ALPHA, width: 1 })
+      }
+
+      // ── Lignes de visée ─────────────────────────────────────────────────────
+      const L = HUD.SEL_CROSSHAIR_LEN
+      selRing.moveTo(sx - L, sy)
+      selRing.lineTo(sx + L, sy)
+      selRing.moveTo(sx, sy - L)
+      selRing.lineTo(sx, sy + L)
+      selRing.stroke({ color: obj.cfg.color, alpha: HUD.SEL_CROSSHAIR_ALPHA, width: 1 })
+
+      // ── HUD coord text — recréé uniquement si la sélection change ────────────
+      if (sid !== hudTextLastSid) {
+        if (hudText) { app.stage.removeChild(hudText); hudText.destroy() }
+        hudText = new Text({
+          text: `[${obj.planet.coord_x}:${obj.planet.coord_y}]`,
+          style: new TextStyle({ fontSize: 9, fill: obj.cfg.color, fontFamily: 'Courier New, monospace' }),
+        })
+        app.stage.addChild(hudText)
+        hudTextLastSid = sid
+      }
+      hudText.visible = true
+      hudText.x = sx - hudText.width / 2
+      hudText.y = sy - r - 20
     }
     app.ticker.add(tickerFn)
 
@@ -609,6 +652,7 @@ export function useGalaxyRenderer(app, planets, currentUserId) {
       bgContainer.destroy({ children: true })
       planetContainer.destroy({ children: true })
       selRing.destroy()
+      if (hudText) { app.stage.removeChild(hudText); hudText.destroy() }
       controlsRef.current = null
     }
   }, [app, planets, currentUserId]) // eslint-disable-line react-hooks/exhaustive-deps
