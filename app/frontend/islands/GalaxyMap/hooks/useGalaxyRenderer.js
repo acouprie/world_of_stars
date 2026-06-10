@@ -239,6 +239,21 @@ export function useGalaxyRenderer(app, planets, currentUserId) {
         width: 1,
       })
 
+      // ─────────────────────────────────────────────
+      // Couche 6 : clusters d'étoiles
+      // ─────────────────────────────────────────────
+
+      for (let i = 0; i < 5; i++) {
+        const cx = rand() * WORLD_SIZE
+        const cy = rand() * WORLD_SIZE
+        for (let s = 0; s < 160; s++) {
+          const ox = (rand() + rand() + rand() - 1.5) * 250
+          const oy = (rand() + rand() + rand() - 1.5) * 250
+          g.circle(cx + ox, cy + oy, 0.7 + rand() * 0.5)
+          g.fill({ color: 0xf6f0d0, alpha: 0.20 + rand() * 0.10 })
+        }
+      }
+
       return g
     }
 

@@ -1,7 +1,7 @@
 // ── Planet / biome colour constants (Pixi can't read CSS vars) ────────────────
 
 export const PLANET_COLORS = {
-  empty:        { color: 0xE8E4D8, alpha: 0.5, radius: 6 },
+  empty:        { color: 0xFFFFFF, alpha: 0.7, radius: 6 },
   player_other: { color: 0x7A9EC4, alpha: 1.0, radius: 7 },
   player_mine:  { color: 0x4CAF7A, alpha: 1.0, radius: 9 },
 }
@@ -21,7 +21,7 @@ export const PLANET_STYLE = {
 
   // Minimal glow for unclaimed planets — keeps readability at low zoom
   GLOW_LAYERS_EMPTY: [
-    { radiusMul: 2.2, alpha: 0.08 },
+    { radiusMul: 1.8, alpha: 0.06 },
   ],
 
   // Thin orbit ring drawn around colonised planets only
