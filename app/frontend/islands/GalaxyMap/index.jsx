@@ -105,7 +105,7 @@ function usePixiApp(containerRef) {
 
     const pixi = new Application()
     pixi.init({
-      background: 0x0d0e12,
+      background: 0x090b10,
       antialias: true,
       resolution: window.devicePixelRatio || 1,
       autoDensity: true,
@@ -168,24 +168,230 @@ function useGalaxyRenderer(app, planets, currentUserId) {
     // Pas de clampOffset ici — l'offset défile librement, le modulo gère le wrap
 
     // ── Background (stars + grid) — 3×3 tuiles pour le scroll toroïdal ───────
+    function drawHex(
+      graphics,
+      cx,
+      cy,
+      radius
+    ) {
+      for (let i = 0; i < 6; i++) {
+        const a1 =
+          ((Math.PI * 2) / 6) * i
+
+        const a2 =
+          ((Math.PI * 2) / 6) * (i + 1)
+
+        const x1 =
+          cx + Math.cos(a1) * radius
+
+        const y1 =
+          cy + Math.sin(a1) * radius
+
+        const x2 =
+          cx + Math.cos(a2) * radius
+
+        const y2 =
+          cy + Math.sin(a2) * radius
+
+        graphics.moveTo(x1, y1)
+        graphics.lineTo(x2, y2)
+      }
+    }
+
     function buildBackground() {
-      const g    = new Graphics()
+      const g = new Graphics()
       const rand = makeLcg(42)
-      for (let i = 0; i < 300; i++) {
+
+      // ─────────────────────────────────────────────
+      // Couche 1 : étoiles lointaines
+      // ─────────────────────────────────────────────
+
+      for (let i = 0; i < 1800; i++) {
         const x = rand() * WORLD_SIZE
         const y = rand() * WORLD_SIZE
-        const r = [0.5, 1, 1.5][Math.floor(rand() * 3)]
-        const a = 0.06 + rand() * 0.06
-        g.circle(x, y, r)
-        g.fill({ color: 0xFFFFFF, alpha: a })
+
+        const radius =
+          rand() < 0.85
+            ? 0.4
+            : rand() < 0.95
+              ? 0.8
+              : 1.2
+
+        const alpha =
+          0.04 +
+          rand() * 0.08
+
+        g.circle(x, y, radius)
+        g.fill({
+          color: 0xffffff,
+          alpha,
+        })
       }
-      const step = WORLD_SIZE / 10
-      for (let i = 0; i <= 10; i++) {
-        const p = i * step
-        g.moveTo(p, 0); g.lineTo(p, WORLD_SIZE)
-        g.moveTo(0, p); g.lineTo(WORLD_SIZE, p)
+
+      // ─────────────────────────────────────────────
+      // Couche 2 : étoiles brillantes
+      // ─────────────────────────────────────────────
+
+      for (let i = 0; i < 140; i++) {
+        const x = rand() * WORLD_SIZE
+        const y = rand() * WORLD_SIZE
+
+        const radius = 1.8 + rand() * 2.5
+
+        g.circle(x, y, radius)
+        g.fill({
+          color: 0xf6f0d0,
+          alpha: 0.25,
+        })
+
+        g.circle(x, y, radius * 2.8)
+        g.fill({
+          color: 0xf6f0d0,
+          alpha: 0.04,
+        })
       }
-      g.stroke({ color: 0xFFFFFF, alpha: 0.04, width: 1 })
+
+      // ─────────────────────────────────────────────
+      // Couche 3 : nébuleuses
+      // ─────────────────────────────────────────────
+
+      const nebulaColors = [
+        0x5bc4d4, // Elyrans
+        0xb87fe8, // Nexhianti
+        0x4e8faf, // secondaire
+      ]
+
+      for (let i = 0; i < 8; i++) {
+        const centerX = rand() * WORLD_SIZE
+        const centerY = rand() * WORLD_SIZE
+
+        const color =
+          nebulaColors[
+            Math.floor(rand() * nebulaColors.length)
+          ]
+
+        const cloudCount = 15 + Math.floor(rand() * 10)
+
+        for (let c = 0; c < cloudCount; c++) {
+          const ox = (rand() - 0.5) * 500
+          const oy = (rand() - 0.5) * 500
+
+          const radius =
+            80 +
+            rand() * 220
+
+          g.circle(
+            centerX + ox,
+            centerY + oy,
+            radius
+          )
+
+          g.fill({
+            color,
+            alpha: 0.012,
+          })
+        }
+      }
+
+      // ─────────────────────────────────────────────
+      // Couche 4 : grille hexagonale
+      // ─────────────────────────────────────────────
+
+      const hexRadius = 120
+
+      const hexWidth = Math.sqrt(3) * hexRadius
+      const hexHeight = hexRadius * 2
+
+      const vertSpacing = hexHeight * 0.75
+
+      for (
+        let row = -2;
+        row < WORLD_SIZE / vertSpacing + 2;
+        row++
+      ) {
+        for (
+          let col = -2;
+          col < WORLD_SIZE / hexWidth + 2;
+          col++
+        ) {
+          const cx =
+            col * hexWidth +
+            (row % 2) * (hexWidth / 2)
+
+          const cy =
+            row * vertSpacing
+
+          drawHex(
+            g,
+            cx,
+            cy,
+            hexRadius
+          )
+        }
+      }
+
+      g.stroke({
+        color: 0x5bc4d4,
+        alpha: 0.025,
+        width: 1,
+      })
+
+      // ─────────────────────────────────────────────
+      // Couche 5 : axes galactiques
+      // ─────────────────────────────────────────────
+
+      for (let i = 0; i < 5; i++) {
+        const y =
+          WORLD_SIZE *
+          (i + 1) /
+          6
+
+        g.moveTo(0, y)
+        g.lineTo(WORLD_SIZE, y)
+      }
+
+      for (let i = 0; i < 5; i++) {
+        const x =
+          WORLD_SIZE *
+          (i + 1) /
+          6
+
+        g.moveTo(x, 0)
+        g.lineTo(x, WORLD_SIZE)
+      }
+
+      g.stroke({
+        color: 0xc8a96e,
+        alpha: 0.015,
+        width: 1,
+      })
+
+      // ─────────────────────────────────────────────
+      // Couche 6 : lignes de navigation
+      // ─────────────────────────────────────────────
+
+      for (let i = 0; i < 12; i++) {
+        const x1 = rand() * WORLD_SIZE
+        const y1 = rand() * WORLD_SIZE
+
+        const x2 =
+          x1 +
+          (rand() - 0.5) * 1200
+
+        const y2 =
+          y1 +
+          (rand() - 0.5) * 1200
+
+        g.moveTo(x1, y1)
+        g.lineTo(x2, y2)
+      }
+
+      g.stroke({
+        color: 0x5bc4d4,
+        alpha: 0.015,
+        width: 1,
+      })
+
       return g
     }
 
