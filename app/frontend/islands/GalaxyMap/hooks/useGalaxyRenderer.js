@@ -28,7 +28,7 @@ export function useGalaxyRenderer(app, planets, currentUserId) {
     app.stage.addChild(planetContainer)
     app.stage.addChild(selRing)
 
-    let scale = Math.max(getZoomMin(app.screen.width, app.screen.height), 0.5)
+    let scale = Math.max(getZoomMin(app.screen.width, app.screen.height), 1.6)
     let offX  = 0
     let offY  = 0
 
@@ -541,7 +541,7 @@ export function useGalaxyRenderer(app, planets, currentUserId) {
       resetView() {
         const f  = mine ?? { coord_x: 50, coord_y: 50 }
         const sw = app.screen.width, sh = app.screen.height
-        scale = Math.max(getZoomMin(sw, sh), 0.5)
+        scale = Math.max(getZoomMin(sw, sh), 1.6)
         offX  = sw / 2 - (f.coord_x / COORD_MAX) * WORLD_SIZE * scale
         offY  = sh / 2 - (f.coord_y / COORD_MAX) * WORLD_SIZE * scale
         applyTransform()
