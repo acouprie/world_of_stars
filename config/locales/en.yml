@@ -73,6 +73,7 @@ en:
   layouts:
     header:
       documentation: "Documentation"
+      galaxy: "Galaxy"
       home_planet: "My planet"
 
   docs:
