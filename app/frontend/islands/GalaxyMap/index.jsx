@@ -636,6 +636,46 @@ function InfoPanel({ planet, currentUserId, onClose, isMobile }) {
   )
 }
 
+// ── MapLegend ─────────────────────────────────────────────────────────────────
+
+function MapLegend() {
+  const items = [
+    { color: '#E8E4D8', alpha: 0.5, label: 'Libre' },
+    { color: '#4CAF7A', alpha: 1.0, label: 'Ma planète' },
+    { color: '#7A9EC4', alpha: 1.0, label: 'Autre joueur' },
+  ]
+  return (
+    <div style={{
+      position: 'absolute', bottom: 12, right: 12, zIndex: 10,
+      background: 'rgba(20,21,28,0.75)',
+      border: '0.5px solid var(--color-border)',
+      borderRadius: 8,
+      padding: '8px 10px',
+      display: 'flex', flexDirection: 'column', gap: 6,
+      pointerEvents: 'none',
+      backdropFilter: 'blur(4px)',
+    }}>
+      {items.map(({ color, alpha, label }) => (
+        <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+          <span style={{
+            width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
+            background: color,
+            opacity: alpha,
+            boxShadow: alpha === 1.0 ? `0 0 4px ${color}88` : 'none',
+          }} />
+          <span style={{
+            fontSize: 11, color: 'var(--color-text-muted)',
+            fontFamily: 'Courier New, monospace', letterSpacing: '0.04em',
+            userSelect: 'none',
+          }}>
+            {label}
+          </span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 // ── GalaxyMap ─────────────────────────────────────────────────────────────────
 
 export default function GalaxyMap() {
@@ -675,6 +715,8 @@ export default function GalaxyMap() {
             Erreur : {error}
           </div>
         )}
+
+        <MapLegend />
 
         {/* Coordinate display */}
         <div style={{ position: 'absolute', top: 8, left: 8, zIndex: 10, color: 'var(--color-text-subtle)', fontSize: '11px', fontFamily: 'Courier New, monospace', pointerEvents: 'none', letterSpacing: '0.05em', userSelect: 'none' }}>
