@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { BIOME_COLORS, PLANET_COLORS, HUD } from './constants'
+import { BIOME_COLORS, PLANET_COLORS, HUD, WORLD_SIZE } from './constants'
 import { useIsMobile } from './hooks/useIsMobile'
 import { usePlanets } from './hooks/usePlanets'
 import { usePixiApp } from './hooks/usePixiApp'
@@ -248,6 +248,18 @@ export default function GalaxyMap() {
           style={{
             position: 'absolute', bottom: 12, left: 12, zIndex: 10,
             border: '0.5px solid var(--color-border)', borderRadius: 8, opacity: 0.85,
+            cursor: 'crosshair',
+          }}
+          onClick={e => {
+            const mc = minimapCanvasRef.current
+            if (!mc || !controlsRef.current?.centerOnWorld) return
+            const rect = mc.getBoundingClientRect()
+            const mx = e.clientX - rect.left
+            const my = e.clientY - rect.top
+            controlsRef.current.centerOnWorld(
+              (mx / mc.width)  * WORLD_SIZE,
+              (my / mc.height) * WORLD_SIZE,
+            )
           }}
         />
       </div>

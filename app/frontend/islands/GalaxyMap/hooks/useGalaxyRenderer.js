@@ -546,6 +546,12 @@ export function useGalaxyRenderer(app, planets, currentUserId) {
         offY  = sh / 2 - (f.coord_y / COORD_MAX) * WORLD_SIZE * scale
         applyTransform()
       },
+      centerOnWorld(wx, wy) {
+        const sw = app.screen.width, sh = app.screen.height
+        offX = sw / 2 - wx * scale
+        offY = sh / 2 - wy * scale
+        applyTransform()
+      },
     }
 
     // ── Pointer interaction ───────────────────────────────────────────────────
