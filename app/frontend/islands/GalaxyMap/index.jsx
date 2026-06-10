@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { BIOME_COLORS } from './constants'
+import { BIOME_COLORS, PLANET_COLORS, HUD } from './constants'
 import { useIsMobile } from './hooks/useIsMobile'
 import { usePlanets } from './hooks/usePlanets'
 import { usePixiApp } from './hooks/usePixiApp'
@@ -65,6 +65,13 @@ function InfoPanel({ planet, currentUserId, onClose, isMobile }) {
   else if (isother)    subtitle = 'Planète joueur'
   else                 subtitle = 'Planète libre'
 
+  const toCSS = n => '#' + n.toString(16).padStart(6, '0')
+  const nameColor = isempty
+    ? toCSS(HUD.LABEL_EMPTY_FILL)
+    : ismine
+      ? toCSS(PLANET_COLORS.player_mine.color)
+      : toCSS(PLANET_COLORS.player_other.color)
+
   const statusColor = isempty ? 'var(--color-text-subtle)' : ismine ? 'var(--color-quantum)' : 'var(--color-secondary)'
   const statusLabel = isempty ? 'Non colonisée' : ismine ? 'Colonisée — vous' : 'Colonisée'
 
@@ -72,7 +79,7 @@ function InfoPanel({ planet, currentUserId, onClose, isMobile }) {
     <div style={{ ...panelStyle, padding: '16px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px', color: 'var(--color-text)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <div style={{ fontFamily: 'Orbitron, sans-serif', fontSize: '13px', fontWeight: 700, color: 'var(--color-primary)', letterSpacing: '0.05em' }}>
+          <div style={{ fontFamily: 'Orbitron, sans-serif', fontSize: '13px', fontWeight: 700, color: nameColor, letterSpacing: '0.05em' }}>
             {planet.name}
           </div>
           <div style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginTop: '2px' }}>{subtitle}</div>
