@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Graphics, Container, Text, TextStyle, Circle } from 'pixi.js'
-import { PLANET_COLORS, COORD_MAX, WORLD_SIZE, ZOOM_MAX, getZoomMin, makeLcg } from '../constants'
+import { PLANET_COLORS, PLANET_STYLE, COORD_MAX, WORLD_SIZE, ZOOM_MAX, getZoomMin, makeLcg } from '../constants'
 
 export function useGalaxyRenderer(app, planets, currentUserId) {
   const [selectedPlanet, _setSelectedPlanet] = useState(null)
@@ -296,17 +296,41 @@ export function useGalaxyRenderer(app, planets, currentUserId) {
       c.cursor    = 'pointer'
       c.hitArea   = new Circle(0, 0, cfg.radius + 10)
 
+      const isColonized = planet.planet_type === 'player'
+
+      // ── Glow layers — static, built once, hidden by LOD below threshold ──────
+      const glowLayers = isColonized ? PLANET_STYLE.GLOW_LAYERS : PLANET_STYLE.GLOW_LAYERS_EMPTY
+      const glow = new Graphics()
+      for (const layer of glowLayers) {
+        glow.circle(0, 0, cfg.radius * layer.radiusMul)
+        glow.fill({ color: cfg.color, alpha: layer.alpha })
+      }
+      glow.visible = false
+      c.addChild(glow)
+
+      // ── Home halo — behind the core, improved radius/alpha ───────────────────
       if (planet.is_home) {
         const halo = new Graphics()
-        halo.circle(0, 0, cfg.radius + 5)
-        halo.fill({ color: cfg.color, alpha: 0.25 })
+        halo.circle(0, 0, cfg.radius * PLANET_STYLE.HOME_HALO.radiusMul)
+        halo.fill({ color: cfg.color, alpha: PLANET_STYLE.HOME_HALO.alpha })
         c.addChild(halo)
       }
 
+      // ── Core ─────────────────────────────────────────────────────────────────
       const dot = new Graphics()
       dot.circle(0, 0, cfg.radius)
       dot.fill({ color: cfg.color, alpha: cfg.alpha })
       c.addChild(dot)
+
+      // ── Orbit ring — colonised planets only, hidden by LOD below threshold ───
+      let ring = null
+      if (isColonized) {
+        ring = new Graphics()
+        ring.circle(0, 0, cfg.radius * PLANET_STYLE.RING.radiusMul)
+        ring.stroke({ color: cfg.color, alpha: PLANET_STYLE.RING.alpha, width: PLANET_STYLE.RING.width })
+        ring.visible = false
+        c.addChild(ring)
+      }
 
       const label = new Text({
         text: planet.name,
@@ -318,7 +342,7 @@ export function useGalaxyRenderer(app, planets, currentUserId) {
 
       // Pas de position fixe — repositionné dynamiquement par modulo dans applyTransform
       planetContainer.addChild(c)
-      objs.push({ planet, cfg, container: c, label })
+      objs.push({ planet, cfg, container: c, label, glow, ring })
 
       c.on('pointertap', e => {
         e.stopPropagation()
@@ -332,6 +356,14 @@ export function useGalaxyRenderer(app, planets, currentUserId) {
     function updateLabels(sc) {
       const vis = sc > 1.5
       for (const { label } of objs) label.visible = vis
+    }
+
+    function updateLOD(sc) {
+      const detailed = sc > PLANET_STYLE.LOD_THRESHOLD
+      for (const { glow, ring } of objs) {
+        glow.visible = detailed
+        if (ring) ring.visible = detailed
+      }
     }
 
     function screenToWorld(sx, sy) {
@@ -411,6 +443,7 @@ export function useGalaxyRenderer(app, planets, currentUserId) {
       }
 
       updateLabels(scale)
+      updateLOD(scale)
       drawMinimap()
     }
 

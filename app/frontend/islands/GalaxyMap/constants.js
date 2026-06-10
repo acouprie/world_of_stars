@@ -6,6 +6,38 @@ export const PLANET_COLORS = {
   player_mine:  { color: 0x4CAF7A, alpha: 1.0, radius: 9 },
 }
 
+// ── Visual style for planet rendering (Star Citizen / Mass Effect aesthetic) ──
+// All values are relative to cfg.radius so they scale uniformly with planet size.
+export const PLANET_STYLE = {
+  // LOD threshold: below this zoom scale, only the core is rendered
+  LOD_THRESHOLD: 1.5,
+
+  // Glow layers for colonised planets (player_mine, player_other) — outermost first
+  GLOW_LAYERS: [
+    { radiusMul: 4.0, alpha: 0.04 },
+    { radiusMul: 2.8, alpha: 0.10  },
+    { radiusMul: 1.5, alpha: 0.22  },
+  ],
+
+  // Minimal glow for unclaimed planets — keeps readability at low zoom
+  GLOW_LAYERS_EMPTY: [
+    { radiusMul: 2.2, alpha: 0.08 },
+  ],
+
+  // Thin orbit ring drawn around colonised planets only
+  RING: {
+    radiusMul: 1.55, // ring radius = cfg.radius * radiusMul
+    alpha:     0.35,
+    width:     0.6,
+  },
+
+  // Halo behind the home planet
+  HOME_HALO: {
+    radiusMul: 1.7, // was cfg.radius + 5 for player_mine (r=9) ≈ 14 → 9 * 1.7 = 15.3
+    alpha:     0.20,
+  },
+}
+
 export const BIOME_COLORS = {
   oceanic:     '#2860c8',
   arid:        '#d49840',
