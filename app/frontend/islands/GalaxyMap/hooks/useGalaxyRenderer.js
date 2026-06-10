@@ -452,9 +452,16 @@ export function useGalaxyRenderer(app, planets, currentUserId) {
     applyTransform()
 
     // ── Resize handler ────────────────────────────────────────────────────────
+    let lastSw = app.screen.width
+    let lastSh = app.screen.height
+
     const onResize = () => {
-      const sw = app.screen.width, sh = app.screen.height
-      const zoomMin = getZoomMin(sw, sh)
+      const newSw = app.screen.width, newSh = app.screen.height
+      const zoomMin = getZoomMin(newSw, newSh)
+      offX += (newSw - lastSw) / 2
+      offY += (newSh - lastSh) / 2
+      lastSw = newSw
+      lastSh = newSh
       if (scale < zoomMin) scale = zoomMin
       applyTransform()
     }

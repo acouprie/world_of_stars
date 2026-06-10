@@ -19,7 +19,11 @@ export function usePixiApp(containerRef) {
       resizeTo: container,
     }).then(() => {
       if (destroyed) { pixi.destroy(true, { children: true }); return }
-      pixi.canvas.style.cssText = 'position:absolute;top:0;left:0;touch-action:none;'
+      const cs = pixi.canvas.style
+      cs.position   = 'absolute'
+      cs.top        = '0'
+      cs.left       = '0'
+      cs.touchAction = 'none'
       container.appendChild(pixi.canvas)
       instance = pixi
       setApp(pixi)
