@@ -57,6 +57,7 @@ L'absence de factions IA dans les jeux du genre crée un vide au lancement : pas
 - **Une galaxie = un serveur de jeu.** Si plusieurs serveurs coexistent à terme, chacun constitue une galaxie indépendante.
 - La galaxie est générée à l'initialisation : un maillage fixe de planètes réparties sur une carte 2D avec des coordonnées **(x, y)**.
 - La carte est visualisable en **vue galaxie** : chaque joueur voit sa planète et toutes les autres, et peut naviguer sur la carte.
+- Les coordonnées sont des entiers dans `[0, 99]`. Le placement des planètes est pseudo-aléatoire avec une distance minimale garantie entre planètes (pas de grille régulière).
 
 ### Planètes
 
@@ -86,6 +87,14 @@ Chaque planète possède également un **biome** (propriété `biome`, stockée 
 | `barren`      | Roche nue cratérisée, gris bleuté très sombre, quasi sans atmosphère |
 
 Le biome est assigné à la génération de la galaxie de façon déterministe (`(coord_x + coord_y) % 12`), garantissant une distribution régulière sur la carte.
+
+### Topologie de la carte
+
+La galaxie est un **tore** : le bord droit de la carte est adjacent au bord gauche, et le bord supérieur est adjacent au bord inférieur. Il n'existe pas de "coin" ni de position périphérique avantageuse — tous les joueurs sont à égalité de voisinage théorique.
+
+Techniquement, `coord_x` et `coord_y` sont des entiers dans `[0, 99]`. La distance entre deux planètes est toujours calculée via `Planet.toric_distance`, qui prend en compte le raccourci par les bords. La distance maximale possible est `√(50² + 50²) ≈ 70.7` unités.
+
+Visuellement, la carte s'affiche comme un rectangle plat standard — la connexion des bords n'est pas représentée graphiquement dans la vue galaxie.
 
 ### Bonus de production par biome
 
@@ -122,7 +131,7 @@ Le k total par biome est identique (3.0), garantissant l'équilibre entre biomes
 
 ### Déplacements
 
-- **Par vaisseau** : durée calculée en fonction de la distance euclidienne entre les coordonnées (x, y) des deux planètes. Implique un aller et un retour.
+- **Par vaisseau** : durée calculée en fonction de la **distance euclidienne toroïdale** entre les coordonnées (x, y) des deux planètes. Implique un aller et un retour. Voir `Planet.toric_distance` dans `planet.rb`.
 - **Par portail quantique** : durée fixe, indépendante de la distance. Nécessite un Portail Quantique construit sur la planète de départ **et** sur la planète de destination.
 
 ---

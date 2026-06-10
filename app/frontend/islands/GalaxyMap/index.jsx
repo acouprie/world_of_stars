@@ -26,9 +26,13 @@ const BIOME_COLORS = {
 
 // ── World constants ───────────────────────────────────────────────────────────
 
+const COORD_MAX  = 100 // must match Planet::COORD_MAX in Ruby
 const WORLD_SIZE = 4000
-const ZOOM_MIN   = 0.15
 const ZOOM_MAX   = 4.0
+
+function getZoomMin(sw, sh) {
+  return Math.max(sw / WORLD_SIZE, sh / WORLD_SIZE)
+}
 
 // ── LCG — deterministic star positions ───────────────────────────────────────
 
@@ -42,10 +46,17 @@ function makeLcg(seed) {
 function clampOffset(x, y, scale, sw, sh) {
   const ww = WORLD_SIZE * scale
   const wh = WORLD_SIZE * scale
-  let minX = sw - ww, maxX = 0
-  let minY = sh - wh, maxY = 0
-  if (ww < sw) { const cx = (sw - ww) / 2; minX = cx; maxX = cx }
-  if (wh < sh) { const cy = (sh - wh) / 2; minY = cy; maxY = cy }
+  let minX, maxX, minY, maxY
+  if (ww <= sw) {
+    const cx = (sw - ww) / 2; minX = maxX = cx
+  } else {
+    maxX = 0; minX = sw - ww
+  }
+  if (wh <= sh) {
+    const cy = (sh - wh) / 2; minY = maxY = cy
+  } else {
+    maxY = 0; minY = sh - wh
+  }
   return { x: Math.max(minX, Math.min(maxX, x)), y: Math.max(minY, Math.min(maxY, y)) }
 }
 
@@ -138,14 +149,14 @@ function useGalaxyRenderer(app, planets, currentUserId) {
     const world = new Container()
     app.stage.addChild(world)
 
-    let scale = 0.5
+    let scale = Math.max(getZoomMin(app.screen.width, app.screen.height), 0.5)
     let offX  = 0
     let offY  = 0
 
     const mine  = planets.find(p => p.planet_type === 'player' && p.user_id === currentUserId)
     const focus = mine ?? { coord_x: 50, coord_y: 50 }
-    const fpx   = (focus.coord_x / 100) * WORLD_SIZE
-    const fpy   = (focus.coord_y / 100) * WORLD_SIZE
+    const fpx   = (focus.coord_x / COORD_MAX) * WORLD_SIZE
+    const fpy   = (focus.coord_y / COORD_MAX) * WORLD_SIZE
     const sw0   = app.screen.width
     const sh0   = app.screen.height
     offX = sw0 / 2 - fpx * scale
@@ -183,8 +194,8 @@ function useGalaxyRenderer(app, planets, currentUserId) {
     let planetTapHandled = false
 
     for (const planet of planets) {
-      const px  = (planet.coord_x / 100) * WORLD_SIZE
-      const py  = (planet.coord_y / 100) * WORLD_SIZE
+      const px  = (planet.coord_x / COORD_MAX) * WORLD_SIZE
+      const py  = (planet.coord_y / COORD_MAX) * WORLD_SIZE
       const isM = planet.user_id === currentUserId
       const cfg = isM
         ? PLANET_COLORS.player_mine
@@ -247,7 +258,7 @@ function useGalaxyRenderer(app, planets, currentUserId) {
         ctx.globalAlpha = cfg.alpha
         ctx.fillStyle   = '#' + cfg.color.toString(16).padStart(6, '0')
         ctx.beginPath()
-        ctx.arc((planet.coord_x / 100) * W, (planet.coord_y / 100) * H, 1.5, 0, Math.PI * 2)
+        ctx.arc((planet.coord_x / COORD_MAX) * W, (planet.coord_y / COORD_MAX) * H, 1.5, 0, Math.PI * 2)
         ctx.fill()
       }
       ctx.globalAlpha = 1
@@ -270,6 +281,16 @@ function useGalaxyRenderer(app, planets, currentUserId) {
 
     applyTransform()
 
+    // ── Resize handler ────────────────────────────────────────────────────────
+    const onResize = () => {
+      const sw = app.screen.width, sh = app.screen.height
+      const zoomMin = getZoomMin(sw, sh)
+      if (scale < zoomMin) scale = zoomMin
+      ;({ x: offX, y: offY } = clampOffset(offX, offY, scale, sw, sh))
+      applyTransform()
+    }
+    app.renderer.on('resize', onResize)
+
     // ── Ticker — selection ring pulse ─────────────────────────────────────────
     let elapsed = 0
     const tickerFn = ticker => {
@@ -280,8 +301,8 @@ function useGalaxyRenderer(app, planets, currentUserId) {
       const obj = objs.find(o => o.planet.id === sid)
       if (!obj) return
       const r = obj.cfg.radius + 6 + Math.sin(elapsed * 0.003) * 2
-      const wx = (obj.planet.coord_x / 100) * WORLD_SIZE
-      const wy = (obj.planet.coord_y / 100) * WORLD_SIZE
+      const wx = (obj.planet.coord_x / COORD_MAX) * WORLD_SIZE
+      const wy = (obj.planet.coord_y / COORD_MAX) * WORLD_SIZE
       selRing.circle(wx, wy, r)
       selRing.stroke({ color: obj.cfg.color, alpha: 0.85, width: 1.5 })
     }
@@ -291,7 +312,8 @@ function useGalaxyRenderer(app, planets, currentUserId) {
 
     function applyZoom(factor, cx, cy) {
       const sw = app.screen.width, sh = app.screen.height
-      const ns = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, scale * factor))
+      const zoomMin = getZoomMin(sw, sh)
+      const ns = Math.max(zoomMin, Math.min(ZOOM_MAX, scale * factor))
       const sf = ns / scale
       offX = cx - sf * (cx - offX)
       offY = cy - sf * (cy - offY)
@@ -305,9 +327,9 @@ function useGalaxyRenderer(app, planets, currentUserId) {
       resetView() {
         const f  = mine ?? { coord_x: 50, coord_y: 50 }
         const sw = app.screen.width, sh = app.screen.height
-        scale = 0.5
-        offX  = sw / 2 - (f.coord_x / 100) * WORLD_SIZE * scale
-        offY  = sh / 2 - (f.coord_y / 100) * WORLD_SIZE * scale
+        scale = Math.max(getZoomMin(sw, sh), 0.5)
+        offX  = sw / 2 - (f.coord_x / COORD_MAX) * WORLD_SIZE * scale
+        offY  = sh / 2 - (f.coord_y / COORD_MAX) * WORLD_SIZE * scale
         ;({ x: offX, y: offY } = clampOffset(offX, offY, scale, sw, sh))
         applyTransform()
       },
@@ -409,6 +431,7 @@ function useGalaxyRenderer(app, planets, currentUserId) {
       canvas.removeEventListener('pointerup',     onPtrUp)
       canvas.removeEventListener('pointercancel', onPtrCancel)
       canvas.removeEventListener('wheel',         onWheel)
+      app.renderer.off('resize', onResize)
       app.ticker.remove(tickerFn)
       world.destroy({ children: true })
       controlsRef.current = null

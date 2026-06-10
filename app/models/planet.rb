@@ -1,5 +1,6 @@
 class Planet < ApplicationRecord
   PLANET_TYPES  = %w[player ai_faction empty].freeze
+  COORD_MAX     = 100
   BIOMES = %w[
     oceanic arid volcanic glacial forest
     temperate tundra crystalline fungal toxic irradiated barren
@@ -30,6 +31,20 @@ class Planet < ApplicationRecord
   validates :coord_x, :coord_y, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :is_home, inclusion: { in: [true, false] }
   validates :metal_stock, :food_stock, :thorium_stock, numericality: { greater_than_or_equal_to: 0 }
+
+  # == Géographie ==
+
+  def self.toric_distance(p1, p2)
+    dx = (p1.coord_x - p2.coord_x).abs
+    dy = (p1.coord_y - p2.coord_y).abs
+    dx = COORD_MAX - dx if dx > COORD_MAX / 2.0
+    dy = COORD_MAX - dy if dy > COORD_MAX / 2.0
+    Math.sqrt(dx**2 + dy**2)
+  end
+
+  def toric_distance_to(other)
+    self.class.toric_distance(self, other)
+  end
 
   def total_energy_produced
     buildings.sum { |b| Buildings::Calculator.energy_produced(b.building_type, b.level) }
