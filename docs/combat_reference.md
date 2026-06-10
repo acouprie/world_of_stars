@@ -1,6 +1,6 @@
 # World of Stars — Référence du combat
 
-> Version 1.0 — Document de conception
+> Version 1.1 — Document de conception
 > Complément au `game_design.md`, `unit_reference.md`, `tech_reference.md`, `building_reference.md`
 > Statut : **modèle validé par simulation Monte-Carlo · décisions de game feel actées (juin 2026)**
 
@@ -100,7 +100,7 @@ Deux sources d'aléa, à deux échelles :
 
 ## 6. Initiative
 
-- **INT du camp** = moyenne d'INT **pondérée par l'ATQ**, calculée sur les **seuls combattants survivants**, **recalculée à chaque round**. Les unités à ATQ nulle (Mule, Sonde, Spectre) **n'influencent pas** l'INT du camp.
+- **INT du camp** = moyenne d'INT **pondérée par l'ATQ**, calculée sur les **seuls combattants survivants**, **recalculée à chaque round**. Les unités **non-combattantes** (Mule, Sonde, Spectre, et le Scientifique malgré son ATQ 2) **n'influencent pas** l'INT du camp : le filtre est `combat?`, pas `atk > 0`.
 - Le camp à l'INT la plus élevée **tire en premier** ; ses pertes infligées retirent des unités **avant** la riposte.
 - **À INT égale**, les deux salves sont **simultanées** (calculées sur l'effectif de début de round).
 - L'INT est une **stat de combat uniquement** (initiative + efficacité du repli, cf. §7). Les technologies modifiant l'INT (bonus à soi / malus à l'ennemi) déplacent le delta et donc l'avantage d'initiative et le repli.
@@ -216,9 +216,9 @@ SIGMA = 0.25       # écart-type du swing global (ACTÉ)
 EJ2   = 1.0075     # E[jitter^2] pour jitter ~ U[0.85, 1.15]
 CAP   = 18         # plafond de statu quo (rounds) — ACTÉ
 
-def army_int(counts)               # moyenne INT pondérée par l'ATQ
+def army_int(counts)               # moyenne INT pondérée par l'ATQ (filtre combat?, pas atk>0)
   num = den = 0.0
-  counts.each { |t, c| next unless c > 0 && t.atk > 0
+  counts.each { |t, c| next unless c > 0 && t.combat?
                        num += t.int * t.atk * c; den += t.atk * c }
   den > 0 ? num / den : 0.0
 end

@@ -1,6 +1,6 @@
 # World of Stars — Référence des technologies
 
-> Version 0.2 — Document de conception
+> Version 0.3 — Document de conception
 > Complément au `game_design.md`, `combat_reference.md`, `building_reference.md` et `unit_reference.md`
 > Statut : structure validée, valeurs d'équilibrage à définir
 
@@ -60,6 +60,8 @@ niveau_max_utile = min(plafond_labo, niveau_max_techno)
 | 10                 | 18                       |
 
 > Rappel : le `research_lab` est lui-même plafonné par le `command_center` (labo niv 1 à CC niv 2, labo niv 10 à CC niv 9 — voir `building_reference.md`). La progression de recherche est donc indirectement cadencée par le Centre de Commandement.
+>
+> **Amorçage** : construire le `research_lab` exige un **petit niveau d'exploration** (cf. `game_design.md` §7). On explore donc d'abord à la **Sonde**, et les premiers points d'exploration ouvrent la recherche. Le labo débloque aussi l'unité **Scientifique** (moteur principal d'XP d'exploration).
 
 ---
 
@@ -105,7 +107,7 @@ Le palier initial reste accessible **sans explorer** : l'exploration ouvre le se
 
 Chaque niveau d'une technologie coûte des ressources (**métal, nourriture, thorium**) et un **temps de recherche**. Modèle :
 
-- **Coût géométrique** par niveau (comme les bâtiments), facteur de progression à équilibrer.
+- **Coût géométrique** par niveau (comme les bâtiments). **Progression lente voulue** : facteur de progression élevé et coûts de base supérieurs à un bâtiment de palier équivalent, pour que grimper l'arbre soit un objectif de long terme. Les paliers avancés sont en plus **gatés par les niveaux d'exploration**.
 - **Pas de coût en énergie** pour la recherche.
 - **Pas d'entretien** : le bonus est permanent une fois recherché.
 - Les **tables de coûts par niveau** seront établies en phase d'équilibrage (Annexe D du `game_design.md`), une fois la structure validée.
@@ -130,7 +132,7 @@ Technologies dont les fonctionnalités support existent ou sont en cours de cons
 | **Chaîne de production**   | Logistique  | + 1 file de production d'unités par niveau                   | 4       | —                         |
 | **Cartographie stellaire** | Exploration | + gains XP & ressources d'exploration, − risque de pertes    | 10      | —                         |
 
-> **Bonus de combat — modèle acté.** Armement, Blindage tactique et Guerre électronique appliquent un bonus **multiplicatif à accumulation additive** sur la stat : `stat_eff = stat_base × (1 + r·niveau)`. En agrégé, l'effet est **lisse** (pas de falaise) et **seul le delta de techno entre les camps compte** — monter la même techno des deux côtés ne change rien. Le couple `(r, niveau_max)` est borné pour garder le combat **≥ ~3 rounds au differentiel maximal** (sinon l'initiative décide tout en un round). Détail et validation : `combat_reference.md` §9. Valeur de travail : `r ≈ 0,04–0,05`.
+> **Bonus de combat — modèle acté.** Armement, Blindage tactique et Guerre électronique appliquent un bonus **multiplicatif à accumulation additive** sur la stat : `stat_eff = stat_base × (1 + r·niveau)`. En agrégé, l'effet est **lisse** (pas de falaise) et **seul le delta de techno entre les camps compte** — monter la même techno des deux côtés ne change rien. Le couple `(r, niveau_max)` est borné pour garder le combat **≥ ~3 rounds au differentiel maximal** (sinon l'initiative décide tout en un round). Détail et validation : `combat_reference.md` §9. **Valeur figée : `r = 0,04`** (vérifié : au delta de techno maximal, le combat reste ≥ ~3 rounds). De plus, **ces trois technos débloquent des unités** (en complément du niveau de `military_camp`) : **Armement → Régulier**, **Blindage tactique → Sentinelle**, **Guerre électronique → Spectre** (cf. `unit_reference.md` §4).
 
 ---
 
@@ -233,17 +235,17 @@ module Technologies
     armement: {
       category: :military, scope: :initial, max_level: 18,
       requires: { research_lab: 1 },
-      effect: { type: :unit_attack_bonus, per_level: 0.04 } # ×(1+0.04·niv) ATQ — multiplicatif additif, à calibrer (combat_reference §9)
+      effect: { type: :unit_attack_bonus, per_level: 0.04 } # ×(1+0.04·niv) ATQ — r figé (combat_reference §9) ; unlocks Régulier
     },
     blindage_tactique: {
       category: :military, scope: :initial, max_level: 18,
       requires: { research_lab: 1 },
-      effect: { type: :unit_defense_bonus, per_level: 0.04 } # ×(1+0.04·niv) DEF — idem
+      effect: { type: :unit_defense_bonus, per_level: 0.04 } # ×(1+0.04·niv) DEF — r figé ; unlocks Sentinelle
     },
     guerre_electronique: {
       category: :military, scope: :initial, max_level: 15,
       requires: { research_lab: 1 },
-      effect: { type: :unit_intelligence_bonus, per_level: 0.04 } # ×(1+0.04·niv) INT — idem
+      effect: { type: :unit_intelligence_bonus, per_level: 0.04 } # ×(1+0.04·niv) INT — r figé ; unlocks Spectre
     },
     ingenierie_parallele: {
       category: :logistics, scope: :initial, max_level: 3,
@@ -302,7 +304,7 @@ end
 | Sujet                                          | État          | Note                                                                          |
 | ---------------------------------------------- | ------------- | ----------------------------------------------------------------------------- |
 | Valeurs `per_level` des bonus                  | À équilibrer  | Additif vs multiplicatif, % par niveau                                        |
-| Bonus de combat (Armement/Blindage/G. élec.)   | **Modèle acté** | Multiplicatif additif `×(1+r·niv)`, lisse, **delta-only** (`combat_reference.md` §9). `r≈0,04–0,05` + plafonds à calibrer pour garder ≥ ~3 rounds au delta max |
+| Bonus de combat (Armement/Blindage/G. élec.)   | **Figé**        | Multiplicatif additif `×(1+r·niv)`, **r = 0,04**, delta-only (`combat_reference.md` §9). Ces technos débloquent aussi des unités |
 | Tables de coûts de recherche                   | À construire  | Coût géométrique métal/nourriture/thorium + temps (Annexe D)                  |
 | Effet exact de Cartographie stellaire          | À définir     | Répartition entre + XP, + chance de ressources, − risque de pertes            |
 | Seuils d'exploration de Colonisation           | À équilibrer  | Niv 2 / niv 4 proposés, à ajuster                                             |

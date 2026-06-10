@@ -252,7 +252,11 @@ module Buildings
     research_lab: {
       category: :infrastructure,
       description: "Développe de nouvelles technologies",
-      requires: { command_center: 2 },
+      # NOTE: exploration_level is a PLAYER stat (not a building level). The registry/
+      # prerequisite checker must support this prereq type. Bootstrap intent: explore
+      # first with Sondes to earn a few exploration levels, then unlock the lab, which
+      # in turn unlocks the Scientifique unit and research. Value is a tunable placeholder.
+      requires: { command_center: 2, exploration_level: 3 },
       levels: [
         { metal: 300,    food: 100,   thorium: 250,    energy_consumed: 0, production: 0, time: 60    },
         { metal: 600,    food: 200,   thorium: 500,    energy_consumed: 0, production: 0, time: 114   },
@@ -298,7 +302,7 @@ module Buildings
       #   7 → ~35% of incoming composition revealed
       #   8 → ~65% of incoming composition revealed
       #   9 → ~85% of incoming composition revealed
-      #  10 → 100% full vision, no fog of war (requires Command Center level 11)
+      #  10 → 100% of incoming-fleet composition revealed; applies ONLY to fleets incoming to this planet (not the galaxy map or other players' planets) (requires Command Center level 11)
       levels: [
         { metal: 8_000,     food: 8_000,     thorium: 16_000,    energy_consumed: 0, production: 0, time: 90     },
         { metal: 16_000,    food: 16_000,    thorium: 32_000,    energy_consumed: 0, production: 0, time: 171    },

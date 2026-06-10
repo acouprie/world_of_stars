@@ -1,6 +1,6 @@
 # World of Stars — Document de Game Design
 
-> Version 0.8 — Document de référence projet
+> Version 1.0 — Document de référence projet
 > Auteur : Antoine Couprie
 > Statut : En cours — annexes à compléter
 
@@ -288,17 +288,42 @@ L'énergie n'est **pas un stock consommable** : c'est une **capacité installée
 
 ### Espionnage
 
-Deux types d'unités de reconnaissance aux profils distincts : l'une orientée exploration (remplace l'ancien « Malp »), l'autre orientée espionnage (remplace l'ancien « UAV »). Voir `unit_reference.md` pour les noms définitifs.
+L'espionnage sert à **scouter une planète avant d'attaquer** : connaître la garnison adverse et le butin disponible avant de s'engager. C'est un **contest** entre la furtivité de l'attaquant (unité + techno Renseignement) et le contre-espionnage du défenseur (sa propre techno Renseignement). Une mission dure **5 minutes** et n'est réalisable que par les unités de reconnaissance : le **Spectre** (furtivité 12) est le seul espion sérieux, la **Sonde** (furtivité 3) étant marginale.
 
-- Une mission d'espionnage dure **5 minutes**.
-- **Quantité d'unités vs furtivité** : plus on envoie d'unités, plus on obtient d'informations (bâtiments → unités → ressources → technologies → vaisseaux en orbite). Mais plus on en envoie, plus le **risque de détection** augmente. Si détecté, le joueur ciblé reçoit une notification dans sa messagerie.
-- La stat d'**espionnage** des unités limite le risque de détection — une unité avec un espionnage élevé est plus discrète.
-- L'envoi de **5 unités** est généralement un bon compromis (bonne visibilité, risque de détection limité).
-- Les vaisseaux en orbite ne sont visibles que par l'unité de type espionnage (pas par l'unité type exploration).
-- L'espionnage des **technologies** ennemies nécessite un niveau de technologie d'espionnage ≥ celui de la cible.
-- 10 niveaux de technologie d'espionnage.
+**Tension centrale :** plus on envoie d'unités, plus on voit profond et complet, mais plus on risque d'être détecté. Une furtivité élevée et une avance de techno Renseignement réduisent ce risque.
 
-_Formule exacte de détection et de révélation d'information à définir lors de l'implémentation._
+**Modèle (constantes calibrables) :**
+
+```
+m_atq = 1 + a·ta        m_def = 1 + b·td        (a = b = 0,10 ; ta, td = niveau Renseignement attaquant / défenseur)
+
+Détection            : p_dét = clamp( D0 × (n / furtivité_moy) × m_def / m_atq , 0 , 1 )
+Pertes (si détecté)  : n × clamp( L0 × m_def / (furtivité_moy × m_atq) , 0 , 1 )
+Information          : profondeur débloquée par le nombre d'unités n ;
+                       complétude q = clamp( Q0 × m_atq / m_def × n/5 , 0 , 1 ), dégradée pour les catégories profondes.
+```
+
+Placeholders : `D0 = 0,45`, `L0 = 2,5`, `Q0 = 0,70`.
+
+**Trois sorties par mission :**
+
+1. **Détection** (tirage sur `p_dét`). Si détecté, le défenseur reçoit une **notification** ; le pseudo de l'attaquant n'est révélé que si `td ≥ ta` (sinon « espion non identifié »).
+2. **Pertes d'unités** : seulement en cas de détection. Un espion furtif ou bien teché en perd peu ; un mauvais espion (Sonde) se fait décimer.
+3. **Information révélée**, par catégorie, possiblement **lacunaire** (complétude < 100 %, plus un léger bruit sur les valeurs) :
+
+| Profondeur (n unités) | Catégorie | Condition |
+| --------------------- | --------- | --------- |
+| 1 | Bâtiments + niveaux | aucune |
+| 2 | Unités (types + nombre) | aucune |
+| 3 | Ressources | aucune |
+| 4 | Technologies | techno Renseignement `ta ≥ td` |
+| 5 | Vaisseaux orbitaux | Spectre présent (dormant tant que la couche orbitale n'existe pas) |
+
+**Le contest a des dents :** un défenseur qui investit dans Renseignement augmente la détection et les pertes de l'attaquant, dégrade son rapport, lui bloque l'accès aux technologies et le démasque. La même techno sert donc en attaque et en défense, sans bâtiment dédié (10 niveaux de techno Renseignement).
+
+> **Radar vs espionnage :** le radar (`building_reference.md`) détecte les **flottes entrantes vers ta planète** (parade aux attaques) ; l'espionnage révèle l'intérieur des **autres** planètes. Les deux ne se recouvrent pas.
+
+> Comportement validé par simulation : 1 Spectre seul, environ 4 % de détection mais ne voit presque rien ; 5 Spectres, environ 19 % de détection et voient tout (lacunaire) ; 5 Sondes, environ 75 % de détection et décimées ; avantage techno attaquant : discret et complet ; avantage techno défenseur : détecté, dégradé, technologies bloquées.
 
 ---
 
@@ -309,6 +334,7 @@ _Formule exacte de détection et de révélation d'information à définir lors 
 - Les planètes vides (non assignées) sont **explorables** (portail implicite). Une mission envoie une équipe d'unités.
 - **But premier : récolter des points d'exploration** qui débloquent les technologies du palier avancé. Les **ressources sont un bonus** qui **s'auto-finance** (en moyenne, le butin compense le coût des unités perdues) et reste **très en dessous du revenu des mines**. L'exploration ne concurrence donc jamais l'économie minière : ce sont deux moteurs distincts (mines = ressources, exploration = progression techno).
 - **Une seule mission à la fois** (file d'exploration dédiée). Combiné à la durée croissante avec la taille d'équipe, cela borne naturellement le débit.
+- **Bootstrap :** au lancement, on explore d'abord à la **Sonde** (dispo dès military_camp 1). Les premiers points d'exploration débloquent la construction du **`research_lab`** (qui exige un petit niveau d'exploration), lequel ouvre le **Scientifique** (moteur principal d'XP) et la recherche. L'exploration amorce donc tout l'arbre technologique.
 - L'exploration est **plus rapide par portail**. Pour les joueurs sans portail, un **vaisseau d'exploration unique** est disponible dès le lancement (plus lent, plus sûr, peu de points).
 - Chaque mission produit un **rapport narratif généré par IA**, écrit à partir du résultat chiffré (cf. ci-dessous).
 
@@ -322,7 +348,7 @@ Chaque mission tire **séparément** trois résultats : **points d'exploration (
 
 | Tirage | rien | modeste | bon | extrême |
 | ------ | ---- | ------- | --- | ------- |
-| **Ressources** (× capacité de transport de l'équipe) | 20 % → 0 | 58 % → 5–25 % | 18 % → 25–55 % | 4 % → 55–100 % |
+| **Ressources** (total 3 ressources, **× coût de l'équipe**, plafonné par le transport) | 20 % → 0 | 58 % → 1–6 % | 18 % → 6–12 % | 4 % → 12–25 % |
 | **XP** (× base d'XP de l'équipe) | 18 % → 0 | 60 % → 0,3–0,8 | 18 % → 0,8–1,5 | 4 % → 1,5–3,0 |
 | **Pertes** (× effectif de l'équipe) | 55 % → 0 | 33 % → 2–10 % | 10 % → 10–30 % | **2 % → 60–100 % (échec critique)** |
 
@@ -331,20 +357,20 @@ Chaque mission tire **séparément** trois résultats : **points d'exploration (
 ### Magnitude selon la composition de l'équipe
 
 - **XP** ← porté principalement par les **Scientifiques** (les autres unités apportent une contribution fixe mineure).
-- **Ressources** ← proportionnelles à la **capacité de transport** de l'équipe (Sonde 150, Mule 350, etc.), réparties sur les **trois ressources** (chaque ressource tire sa propre magnitude entre 0 et la capacité).
+- **Ressources** ← calées sur le **coût total de l'équipe** (pour compenser en moyenne ~0,8× les pertes attendues), réparties sur les **trois ressources**, le tout **plafonné par la capacité de transport** (Sonde 150, Mule 350, etc.). Lier le butin au coût plutôt qu'au transport garantit la neutralité **quelle que soit la composition** (une équipe de Mules ne devient pas une pompe à butin).
 - **Pertes** ← une **fraction de l'effectif** engagé, **réduite par l'escorte** (unités de combat) et par la **meilleure survie de la reconnaissance** (Sonde/Spectre = risque réduit, **pas** d'immunité).
 - **Pas de plancher PvE** : il n'y a plus de garantie qu'une unité survive. Un échec critique (~2 %) peut effacer l'équipe entière. Les anciennes règles « la reconnaissance ne subit jamais de pertes », « 1 unité seule = aucune perte » et « jamais totalement exterminé » sont **supprimées**.
 
 ### Calibration « le butin compense les pertes »
 
-Pertes et gains sont décorrélés mission par mission, mais on règle leurs **espérances** pour que l'exploration soit neutre en ressources :
+Pertes et gains sont décorrélés mission par mission, mais on règle leurs **espérances** pour que l'exploration soit **neutre à légèrement négative** en ressources :
 
 ```
-E[butin sur 3 ressources]  ≈  E[coût des pertes]
-3 × E[frac_ressource] × transport_unité  ≈  E[frac_pertes] × coût_unité
+E[butin sur 3 ressources]  ≈  k_butin × E[coût des pertes]        (k_butin ≈ 0,8)
+E[coût des pertes]         =  E[frac_pertes] × coût total de l'équipe   (E[frac_pertes] ≈ 0,056)
 ```
 
-Avec les paliers ci-dessus : `E[frac_ressource] = 0,19`, `E[frac_pertes] = 0,056`. Pour une équipe de Sonde (transport 150), la neutralité parfaite implique un **coût ≈ 1 530 ressources par Sonde** ; à coût fixé, on ajuste plutôt les magnitudes de ressources. Le **revenu net en ressources ≈ 0** (on récolte ce qu'on perd) et le **brut reste sous celui d'une mine**. Les chiffres exacts (coûts d'unités, magnitudes) sont fixés à la **passe économie**.
+Le butin est calé sur le **coût** de l'équipe, pas sur sa capacité de transport (qui ne sert plus que de **plafond**). Ça rend l'exploration neutre-à-négative pour **n'importe quelle composition** (les Mules, transport élevé mais coût faible, ne deviennent pas une pompe à butin). Repère : une équipe de 10 Sondes (coût ~1 500) récolte en moyenne ~45 par ressource et par heure, soit **~7 % d'une mine** (~600/h), pour un coût de pertes légèrement supérieur. Le revenu ressources est donc un **bonus mineur, net-négatif** ; la vraie récompense reste l'**XP d'exploration**. Les magnitudes exactes des paliers se calent sur cette équation à l'implémentation.
 
 ### Unités et leurs rôles en exploration
 
@@ -599,10 +625,11 @@ Ces points sont intentionnellement non tranchés dans cette version du document.
 | Seuil de repli paramétrable par le joueur       | **Idée future**  | En v1 le seuil est automatique (55 %) ; le rendre choisi avant l'envoi en v2+                                                    |
 | Unité officier (niv 7-10 military_camp)         | **Idée future**  | Unité survivable dont l'intelligence mènerait le tempo de l'armée (initiative = INT max)                                         |
 | Contenu exact du rapport de combat              | À définir        | Pertes, butin, XP, survivants + volet narratif IA                                                                                |
-| Formule exacte de l'espionnage                  | À implémenter    | Stat furtivité + quantité → détection/révélation                                                                                 |
+| Modèle d'espionnage                             | **Tranché**      | Contest furtivité vs techno Renseignement ; 3 sorties (détection / pertes / info lacunaire) - voir §6                             |
 | Modèle d'exploration                            | **Tranché**      | 3 tirages indépendants (XP / ressources / pertes), paliers asymétriques, butin ≈ coût des pertes — voir §7                        |
 | Calibration exploration (paliers, coûts Sonde)  | Passe économie   | Probas/plages des paliers + coût des unités ; butin net ≈ 0, brut ≪ mines                                                         |
 | Cooldown par planète (exploration)              | **Levier futur** | Répétabilité illimitée pour l'instant ; cooldown si farm d'une cible à tempérer                                                   |
+| Valeur des niveaux military_camp 4 / 7-10       | **Point d'attention** | Ne débloquent aucune unité (déblocage : Sonde/Maraudeur 1, Mule 2, Régulier 3+Armement, Sentinelle 5+Blindage, Spectre 6+Guerre élec) ; à enrichir |
 | Formule exacte du repli (delta intelligence)    | **Tranché (v1)** | Auto à 55 % de pertes + plafond de statu quo à 18 rounds ; volée d'adieu = `clamp(0,5 − Δ/8, 0, 1,5)` (cf. `combat_reference.md`)                                                                |
 | Monétisation                                    | À définir en v2  | Hors scope pour le développement initial                                                                                         |
 | Arbre technologique complet                     | **Structuré**    | Structure et roster validés — voir `tech_reference.md`. Reste : valeurs d'équilibrage                                            |
