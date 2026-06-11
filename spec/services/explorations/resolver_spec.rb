@@ -137,6 +137,30 @@ RSpec.describe Explorations::Resolver do
     expect(ratio_recon).to be < ratio_combat
   end
 
+  # ── Calibration — §7 property: E[loot] ≤ E[cost_of_losses] ─────────────────
+
+  it "E[loot] / E[cost_of_losses] ≈ k_butin: exploration stays net-negative in resources (§7 anti-pump)" do
+    # Sonde-only: no escort (escort_mult = 1), transport cap never binds at these magnitudes.
+    # Tests the tier calibration in isolation from escort and transport effects.
+    # Theoretical: E[frac_resource] = 4.39%, E[frac_loss] = 5.58% → ratio ≈ 0.787 ≈ k_butin (0.8).
+    n     = 2_000
+    force = { sonde: 50 }
+
+    total_loot      = 0.0
+    total_loss_cost = 0.0
+
+    n.times do |seed|
+      r = resolve(force, seed: seed)
+      total_loot += r.resources.values.sum.to_f
+      r.losses.each { |type, lost| total_loss_cost += Units.cost_for(type).values.sum * lost }
+    end
+
+    ratio = (total_loot / n) / (total_loss_cost / n)
+
+    expect(ratio).to be_within(0.15).of(Explorations::Resolver::CONFIG[:k_butin])
+    expect(ratio).to be <= 1.0
+  end
+
   # ── String key normalisation ───────────────────────────────────────────────
 
   it "accepts string keys" do
