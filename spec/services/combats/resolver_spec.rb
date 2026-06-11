@@ -278,27 +278,24 @@ RSpec.describe Combats::Resolver do
       expect(r.xp[:attacker]).to eq(killed * 100)
     end
 
-    it "applies no XP multiplier when the winner suffered losses" do
-      # Close fight: at ratio ~1, both sides take losses → multiplier = 1
-      r = resolve({ maraudeur: 100 }, { regulier: 100 }, seed: 3)
-      expect(r.xp[:attacker]).to be >= 0
-      expect(r.xp[:defender]).to be >= 0
+    it "XP = base × 1 when winner has losses, even at ratio < 5× (§11 zero-loss condition)" do
+      # ratio = 120/100 = 1.2 < 5× — would give ×15 if zero losses, but attacker takes losses here
+      r = resolve({ maraudeur: 120 }, { regulier: 100 }, seed: 5)
+      expect(r.outcome).to eq(:attacker_wins)
+      expect(r.losses[:attacker]).not_to be_empty
+      base = r.losses[:defender].sum { |t, n| Units.cost_for(t).values.sum * n }
+      expect(r.xp[:attacker]).to eq(base)
     end
 
-    it "applies x15 multiplier on zero-loss victory at ratio < 5x" do
-      # Tiny defender, attacker wins without any losses in most seeds
-      r = resolve({ maraudeur: 200 }, { maraudeur: 10 }, seed: 42)
-      if r.losses[:attacker].empty? && r.outcome == :attacker_wins
-        # att/def = 20, exactly 20 → >20 check: ratio 200/10=20, exactly at boundary
-        # The table is > 20 → ×1, ≤ 20 → ×3 if > 15; ratio == 20.0 falls in >20 → ×1
-        # Let's use a ratio clearly < 5
-        r2 = resolve({ maraudeur: 400 }, { maraudeur: 10 }, seed: 1)
-        if r2.losses[:attacker].empty? && r2.outcome == :attacker_wins
-          def_killed = r2.losses[:defender].fetch(:maraudeur, 0)
-          expected = def_killed * 100 * 1  # ratio > 20 → ×1
-          expect(r2.xp[:attacker]).to eq(expected)
-        end
-      end
+    it "XP = base × 15 when zero losses at ratio < 5× (§11 table)" do
+      # Mule-only defense: mules have ATQ 0 and are non-combat — they cannot fire back.
+      # Zero attacker losses are guaranteed. ratio = 60/20 = 3 < 5× → tier ×15.
+      r = resolve({ maraudeur: 60 }, { mule: 20 }, seed: 1)
+      expect(r.outcome).to eq(:attacker_wins)
+      expect(r.losses[:attacker]).to be_empty
+      mule_cost = Units.cost_for(:mule).values.sum  # 70 + 40 + 0 = 110
+      killed    = r.losses[:defender].fetch(:mule, 0)
+      expect(r.xp[:attacker]).to eq(killed * mule_cost * 15)
     end
   end
 
@@ -318,12 +315,14 @@ RSpec.describe Combats::Resolver do
       expect(r.pillage_capacity).to eq(0)
     end
 
-    it "equals sum of transport × surviving units when attacker wins" do
+    it "equals Σ(transport_stat × survivor_count) per attacker unit type (§10)" do
+      # maraudeur transport=50, mule transport=350 — verify the formula directly.
       r = resolve({ maraudeur: 200, mule: 50 }, { maraudeur: 10 }, seed: 42)
       expect(r.outcome).to eq(:attacker_wins)
       survivors = r.rounds_log.last[:attacker]
-      expected = survivors.sum { |type, n| Units::REGISTRY[type][:stats][:transport].to_i * n }
+      expected  = survivors.sum { |type, n| Units::REGISTRY[type][:stats][:transport].to_i * n }
       expect(r.pillage_capacity).to eq(expected)
+      expect(r.pillage_capacity).to be > 0
     end
   end
 
