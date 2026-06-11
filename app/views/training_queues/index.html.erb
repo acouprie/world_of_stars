@@ -1,0 +1,145 @@
+<% provide(:title, "World of Stars — #{t('training_queues.page_title')}") %>
+
+<%= render 'planets/resources_bar', planet: @planet %>
+
+<div class="scifi-text flex items-center gap-3 px-5 py-4">
+  <%= link_to planet_path(@planet), class: "text-[11px] text-text-subtle hover:text-text transition-colors" do %>
+    ← <%= @planet.name %>
+  <% end %>
+  <span class="text-text-subtle opacity-30">/</span>
+  <span class="text-[13px] text-text"><%= t("training_queues.page_title") %></span>
+</div>
+
+<div class="px-5 pb-4">
+  <%= render "training_queues/queues_bar", planet: @planet %>
+</div>
+
+<div class="px-5 pb-8 flex flex-col gap-4 scifi-text">
+
+  <%# Unlocked units %>
+  <% unlocked = @units_data.select { |u| u[:unlocked] } %>
+  <% locked   = @units_data.reject { |u| u[:unlocked] } %>
+
+  <% if unlocked.any? %>
+    <p class="text-[11px] uppercase tracking-wider text-text-muted"><%= t("training_queues.available_units") %></p>
+
+    <% unlocked.each do |u| %>
+      <div class="rounded border border-border bg-space-bg-2 p-3 flex flex-col gap-2">
+        <div class="flex items-start justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="text-lg leading-none <%= unit_category_color_class(u[:type]) %>"><%= unit_icon(u[:type]) %></span>
+            <div class="flex flex-col gap-0.5">
+              <span class="text-[13px] font-medium text-text"><%= unit_name(u[:type]) %></span>
+              <span class="rounded border px-1.5 py-0.5 text-[9px] font-medium inline-flex w-fit <%= unit_category_badge_classes(u[:type]) %>">
+                <%= t("units.categories.#{u[:config][:category]}") %>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <%# Non-combat warning — shown for all units with combat: false %>
+        <% unless u[:combat] %>
+          <div class="flex items-center gap-1.5 rounded border border-alert/30 bg-alert/5 px-2 py-1 text-[11px] text-alert">
+            <span class="opacity-70">⚠</span>
+            <span><%= t("units.non_combat_warning") %></span>
+          </div>
+        <% end %>
+
+        <%# Stats %>
+        <% stats = u[:config][:stats] %>
+        <div class="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-text-muted">
+          <span><%= t("units.stats.atk") %> <span class="text-text"><%= stats[:atk] %></span></span>
+          <span><%= t("units.stats.def") %> <span class="text-text"><%= stats[:def] %></span></span>
+          <span><%= t("units.stats.int") %> <span class="text-text"><%= stats[:int] %></span></span>
+          <span><%= t("units.stats.transport") %> <span class="text-text"><%= stats[:transport] %></span></span>
+          <% if stats[:espionage].to_i > 0 %>
+            <span><%= t("units.stats.espionage") %> <span class="text-text"><%= stats[:espionage] %></span></span>
+          <% end %>
+        </div>
+
+        <div class="border-t border-border"></div>
+
+        <%# Cost per unit %>
+        <div class="flex flex-wrap gap-x-3 gap-y-1 text-[12px]">
+          <% if u[:cost][:food].to_i > 0 %>
+            <span class="flex items-center gap-1">
+              <%= image_tag "icons/food.png", alt: t("resources.food"), class: "h-3 w-3" %>
+              <span class="<%= u[:can_food] ? 'text-quantum' : 'text-alert' %>"><%= number_with_delimiter(u[:cost][:food]) %></span>
+            </span>
+          <% end %>
+          <% if u[:cost][:metal].to_i > 0 %>
+            <span class="flex items-center gap-1">
+              <%= image_tag "icons/metal.png", alt: t("resources.metal"), class: "h-3 w-3" %>
+              <span class="<%= u[:can_metal] ? 'text-quantum' : 'text-alert' %>"><%= number_with_delimiter(u[:cost][:metal]) %></span>
+            </span>
+          <% end %>
+          <% if u[:cost][:thorium].to_i > 0 %>
+            <span class="flex items-center gap-1">
+              <%= image_tag "icons/thorium.png", alt: t("resources.thorium"), class: "h-3 w-3" %>
+              <span class="<%= u[:can_thorium] ? 'text-quantum' : 'text-alert' %>"><%= number_with_delimiter(u[:cost][:thorium]) %></span>
+            </span>
+          <% end %>
+          <span class="text-text-muted text-[11px] flex items-center gap-1">
+            <span class="opacity-60">⏱</span>
+            <%= format_duration(u[:config][:base_time]) %> / <%= t("units.per_unit") %>
+          </span>
+        </div>
+
+        <%# Training form %>
+        <%= form_with url: planet_training_queues_path(@planet), method: :post, class: "flex items-center gap-2 mt-1" do |f| %>
+          <%= f.hidden_field :unit_type, value: u[:type] %>
+          <%= f.number_field :quantity, value: 1, min: 1, max: 999, class: "w-16 rounded border border-border bg-surface text-text text-[12px] px-2 py-1.5 text-center" %>
+          <%= f.submit t("training_queues.train"),
+                class: "flex-1 rounded border px-3 py-1.5 text-[12px] font-medium transition-opacity " +
+                       (u[:can_afford] ? "border-military text-military cursor-pointer hover:bg-military/10" : "border-border text-text-subtle opacity-40 cursor-not-allowed"),
+                disabled: !u[:can_afford] %>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <%# Locked units %>
+  <% if locked.any? %>
+    <p class="text-[11px] uppercase tracking-wider text-text-muted mt-2"><%= t("training_queues.locked_units") %></p>
+    <% locked.each do |u| %>
+      <div class="rounded border border-border/50 bg-space-bg-2/50 p-3 flex flex-col gap-2 opacity-60">
+        <div class="flex items-center gap-2">
+          <span class="text-lg leading-none text-text-muted"><%= unit_icon(u[:type]) %></span>
+          <div class="flex flex-col gap-0.5">
+            <span class="text-[13px] font-medium text-text-muted"><%= unit_name(u[:type]) %></span>
+            <span class="rounded border px-1.5 py-0.5 text-[9px] font-medium inline-flex w-fit border-border text-text-subtle">
+              <%= t("units.categories.#{u[:config][:category]}") %>
+            </span>
+          </div>
+        </div>
+
+        <%# Unlock requirements %>
+        <div class="flex flex-col gap-1 text-[11px] text-text-muted">
+          <% u[:missing_requires].each do |req| %>
+            <% if req[:type] == :building %>
+              <span>⊘ <%= t("training_queues.requires_building", building: building_name_for_requires(req[:key]), level: req[:level]) %></span>
+            <% else %>
+              <span>⊘ <%= t("training_queues.requires_technology", tech: technology_name_for_requires(req[:key])) %></span>
+            <% end %>
+          <% end %>
+        </div>
+
+        <%# Non-combat warning even for locked units %>
+        <% unless u[:combat] %>
+          <div class="flex items-center gap-1.5 text-[11px] text-alert/60">
+            <span>⚠</span>
+            <span><%= t("units.non_combat_warning") %></span>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <% if @units_data.empty? %>
+    <div class="flex flex-col items-center justify-center gap-2 py-12 text-center">
+      <span class="text-2xl opacity-30">⊘</span>
+      <span class="text-[12px] text-text-subtle"><%= t("training_queues.no_units") %></span>
+    </div>
+  <% end %>
+
+</div>

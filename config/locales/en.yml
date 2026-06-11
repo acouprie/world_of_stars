@@ -36,6 +36,13 @@ en:
     energy: "Energy"
 
   flash:
+    trainings:
+      created: "Training started"
+      completed: "Units trained"
+      queue_full: "Production queue is full"
+      prerequisite_missing: "Prerequisites not met"
+      insufficient_resources: "Insufficient resources"
+      invalid_quantity: "Invalid quantity"
     sessions:
       invalid_credentials: "Invalid email address or password."
       too_many_attempts: "Too many attempts, try again in a few minutes."
@@ -59,6 +66,48 @@ en:
   ui:
     cancel: "Cancel"
     confirm: "Confirm"
+
+  training_queues:
+    page_title: "Unit Production"
+    manage_link: "Unit Production →"
+    queue_label: "Training queue"
+    empty: "No training in progress"
+    available_units: "Available units"
+    locked_units: "Locked units"
+    no_units: "No units available"
+    train: "Train"
+    requires_building: "%{building} level %{level} required"
+    requires_technology: "Technology %{tech} required"
+
+  units:
+    types:
+      maraudeur: "Marauder"
+      regulier: "Regular"
+      sentinelle: "Sentinel"
+      scientifique: "Scientist"
+      sonde: "Probe"
+      spectre: "Spectre"
+      mule: "Mule"
+    categories:
+      combat: "Combat"
+      exploration: "Exploration"
+      reconnaissance: "Recon"
+      transport: "Transport"
+    stats:
+      atk: "ATK"
+      def: "DEF"
+      int: "INT"
+      transport: "Transport"
+      espionage: "Espionage"
+    non_combat_warning: "This unit does not influence combat"
+    per_unit: "unit"
+
+  technologies:
+    names:
+      armement: "Armament"
+      blindage_tactique: "Tactical Armour"
+      guerre_electronique: "Electronic Warfare"
+      chaine_de_production: "Production Line"
 
   construction_queues:
     cancel_button: "Cancel"

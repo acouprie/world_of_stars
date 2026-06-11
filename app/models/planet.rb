@@ -24,6 +24,8 @@ class Planet < ApplicationRecord
   belongs_to :user, optional: true
   has_many :buildings, dependent: :destroy
   has_one  :construction_queue, dependent: :destroy
+  has_many :units, dependent: :destroy
+  has_many :training_queues, dependent: :destroy
 
   validates :planet_type,  inclusion: { in: PLANET_TYPES }
   validates :biome,  inclusion: { in: BIOMES }
@@ -105,6 +107,13 @@ class Planet < ApplicationRecord
         built_levels.fetch(req_type, 0) >= req_level
       }
     end.keys
+  end
+
+  # Number of parallel training queue slots available to this planet's owner.
+  # Defaults to 1; each level of the chaine_de_production technology adds one slot.
+  # TODO: remove the stub guard once Technologies are implemented (tech_reference §6)
+  def training_queue_slots
+    1 + (user&.technology_level(:chaine_de_production) || 0)
   end
 
   # Must be called inside a with_lock block.

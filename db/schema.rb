@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_30_100003) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_11_000002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -67,6 +67,30 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_30_100003) do
     t.index ["user_id"], name: "index_sessions_on_user_id"
   end
 
+  create_table "training_queues", force: :cascade do |t|
+    t.datetime "completes_at", null: false
+    t.datetime "created_at", null: false
+    t.bigint "planet_id", null: false
+    t.integer "quantity", null: false
+    t.string "sidekiq_job_id"
+    t.datetime "started_at", null: false
+    t.string "status", default: "pending", null: false
+    t.string "unit_type", null: false
+    t.datetime "updated_at", null: false
+    t.index ["planet_id"], name: "index_training_queues_on_planet_id"
+    t.index ["status"], name: "index_training_queues_on_status"
+  end
+
+  create_table "units", force: :cascade do |t|
+    t.integer "count", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.bigint "planet_id", null: false
+    t.string "unit_type", null: false
+    t.datetime "updated_at", null: false
+    t.index ["planet_id", "unit_type"], name: "index_units_on_planet_id_and_unit_type", unique: true
+    t.index ["planet_id"], name: "index_units_on_planet_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email_address", null: false
@@ -82,4 +106,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_30_100003) do
   add_foreign_key "construction_queues", "planets"
   add_foreign_key "planets", "users"
   add_foreign_key "sessions", "users"
+  add_foreign_key "training_queues", "planets"
+  add_foreign_key "units", "planets"
 end

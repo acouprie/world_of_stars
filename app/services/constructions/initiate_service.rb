@@ -84,6 +84,9 @@ module Constructions
         h[b.building_type.to_sym] = b.level
       end
       config = Buildings::REGISTRY[@building_type.to_sym]
+      # TODO: :exploration_level in requires (e.g. research_lab) is a PLAYER stat, not a building level.
+      # built_levels.fetch(:exploration_level, 0) always returns 0, so research_lab can never be built
+      # until the Exploration feature (player exploration level tracking) is implemented.
       return false unless (config[:requires] || {}).all? { |req_type, req_level|
         built_levels.fetch(req_type, 0) >= req_level
       }

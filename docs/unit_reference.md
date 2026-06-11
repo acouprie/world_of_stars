@@ -117,13 +117,13 @@ Principe : le coût des unités de combat **suit leur puissance** (ratio de puis
 
 | Unité        | Métal | Nourr. | Thorium | Total | ×Mar | Temps de base |
 | ------------ | ----- | ------ | ------- | ----- | ---- | ------------- |
-| Maraudeur    | 70    | 30     | 0       | 100   | 1,00 | 1 min 30      |
-| Régulier     | 75    | 30     | 10      | 115   | 1,15 | 3 min 00      |
-| Sentinelle   | 95    | 35     | 30      | 160   | 1,60 | 4 min 30      |
-| Scientifique | 60    | 45     | 25      | 130   | 1,30 | 2 min 30      |
-| Sonde        | 80    | 40     | 30      | 150   | 1,50 | 3 min 30      |
-| Spectre      | 70    | 25     | 40      | 135   | 1,35 | 3 min 30      |
-| Mule         | 70    | 40     | 0       | 110   | 1,10 | 2 min 00      |
+| Maraudeur    | 70    | 30     | 0       | 100   | 1,00 | 7 min 30      |
+| Régulier     | 75    | 30     | 10      | 115   | 1,15 | 10 min 00     |
+| Sentinelle   | 95    | 35     | 30      | 160   | 1,60 | 12 min 30     |
+| Scientifique | 60    | 45     | 25      | 130   | 1,30 | 12 min 30     |
+| Sonde        | 80    | 40     | 30      | 150   | 1,50 | 12 min 30     |
+| Spectre      | 70    | 25     | 40      | 135   | 1,35 | 15 min 00     |
+| Mule         | 70    | 40     | 0       | 110   | 1,10 | 12 min 30     |
 
 Validation coût-équivalent (budget identique, victoire attaquant) — avantage défenseur cohérent, aucune domination :
 

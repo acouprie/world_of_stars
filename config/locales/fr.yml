@@ -36,6 +36,13 @@ fr:
     energy: "Énergie"
 
   flash:
+    trainings:
+      created: "Formation lancée"
+      completed: "Unités formées"
+      queue_full: "File de production pleine"
+      prerequisite_missing: "Prérequis non rempli"
+      insufficient_resources: "Ressources insuffisantes"
+      invalid_quantity: "Quantité invalide"
     sessions:
       invalid_credentials: "Adresse e-mail ou mot de passe incorrect."
       too_many_attempts: "Trop de tentatives, réessayez dans quelques minutes."
@@ -59,6 +66,48 @@ fr:
   ui:
     cancel: "Annuler"
     confirm: "Confirmer"
+
+  training_queues:
+    page_title: "Production d'unités"
+    manage_link: "Production d'unités →"
+    queue_label: "File de formation"
+    empty: "Aucune formation en cours"
+    available_units: "Unités disponibles"
+    locked_units: "Unités verrouillées"
+    no_units: "Aucune unité disponible"
+    train: "Former"
+    requires_building: "%{building} niveau %{level} requis"
+    requires_technology: "Techno %{tech} requise"
+
+  units:
+    types:
+      maraudeur: "Maraudeur"
+      regulier: "Régulier"
+      sentinelle: "Sentinelle"
+      scientifique: "Scientifique"
+      sonde: "Sonde"
+      spectre: "Spectre"
+      mule: "Mule"
+    categories:
+      combat: "Combat"
+      exploration: "Exploration"
+      reconnaissance: "Reconnaissance"
+      transport: "Transport"
+    stats:
+      atk: "ATQ"
+      def: "DEF"
+      int: "INT"
+      transport: "Transport"
+      espionage: "Espionnage"
+    non_combat_warning: "Cette unité n'influence pas le combat"
+    per_unit: "unité"
+
+  technologies:
+    names:
+      armement: "Armement"
+      blindage_tactique: "Blindage tactique"
+      guerre_electronique: "Guerre électronique"
+      chaine_de_production: "Chaîne de production"
 
   construction_queues:
     cancel_button: "Annuler"
