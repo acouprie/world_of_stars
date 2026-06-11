@@ -113,7 +113,11 @@ module Units
     end
   end
 
-  # Stub hooks — to be implemented in dedicated prompts.
-  def self.explore(units) = {}
-  def self.spy(units) = {}
+  def self.explore(units, context = {})
+    Explorations::Resolver.new(units, context).call
+  end
+
+  def self.spy(units, context = {}, defender_state = {})
+    Espionnages::Resolver.new(units, context, defender_state).call
+  end
 end

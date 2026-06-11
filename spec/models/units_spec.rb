@@ -103,13 +103,15 @@ RSpec.describe Units do
     end
   end
 
-  describe "stub hooks" do
-    it "explore returns an empty hash" do
-      expect(Units.explore({})).to eq({})
+  describe "delegation hooks" do
+    it "explore delegates to Explorations::Resolver and returns a Result" do
+      r = Units.explore({ sonde: 1 }, seed: 1)
+      expect(r).to be_a(Explorations::Resolver::Result)
     end
 
-    it "spy returns an empty hash" do
-      expect(Units.spy({})).to eq({})
+    it "spy delegates to Espionnages::Resolver and returns a Result" do
+      r = Units.spy({ spectre: 1 }, { seed: 1 })
+      expect(r).to be_a(Espionnages::Resolver::Result)
     end
   end
 end
