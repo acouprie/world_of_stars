@@ -5,6 +5,7 @@
 > Statut : En cours — annexes à compléter
 
 > **Structure de la documentation.** Ce GDD est le **hub** : vision, univers, économie, progression, factions, alliances, UI, architecture. Les systèmes les plus détaillés vivent dans des documents de référence dédiés, sources de vérité de leur domaine :
+>
 > - [`combat_reference.md`](combat_reference.md) — système de combat au sol (modèle, aléa, repli, technos de combat, algorithme, validation)
 > - [`unit_reference.md`](unit_reference.md) — roster, stats, production, exploration & espionnage des unités
 > - [`tech_reference.md`](tech_reference.md) — arbre technologique, pacing, coûts
@@ -311,13 +312,13 @@ Placeholders : `D0 = 0,45`, `L0 = 2,5`, `Q0 = 0,70`.
 2. **Pertes d'unités** : seulement en cas de détection. Un espion furtif ou bien teché en perd peu ; un mauvais espion (Sonde) se fait décimer.
 3. **Information révélée**, par catégorie, possiblement **lacunaire** (complétude < 100 %, plus un léger bruit sur les valeurs) :
 
-| Profondeur (n unités) | Catégorie | Condition |
-| --------------------- | --------- | --------- |
-| 1 | Bâtiments + niveaux | aucune |
-| 2 | Unités (types + nombre) | aucune |
-| 3 | Ressources | aucune |
-| 4 | Technologies | techno Renseignement `ta ≥ td` |
-| 5 | Vaisseaux orbitaux | Spectre présent (dormant tant que la couche orbitale n'existe pas) |
+| Profondeur (n unités) | Catégorie               | Condition                                                          |
+| --------------------- | ----------------------- | ------------------------------------------------------------------ |
+| 1                     | Bâtiments + niveaux     | aucune                                                             |
+| 2                     | Unités (types + nombre) | aucune                                                             |
+| 3                     | Ressources              | aucune                                                             |
+| 4                     | Technologies            | techno Renseignement `ta ≥ td`                                     |
+| 5                     | Vaisseaux orbitaux      | Spectre présent (dormant tant que la couche orbitale n'existe pas) |
 
 **Le contest a des dents :** un défenseur qui investit dans Renseignement augmente la détection et les pertes de l'attaquant, dégrade son rapport, lui bloque l'accès aux technologies et le démasque. La même techno sert donc en attaque et en défense, sans bâtiment dédié (10 niveaux de techno Renseignement).
 
@@ -346,11 +347,11 @@ Placeholders : `D0 = 0,45`, `L0 = 2,5`, `Q0 = 0,70`.
 
 Chaque mission tire **séparément** trois résultats : **points d'exploration (XP)**, **ressources**, **pertes d'unités**. Chaque tirage choisit d'abord un **palier** (par probabilité), puis une **magnitude uniforme dans le palier**. La distribution est **asymétrique** : le plus souvent modeste, parfois nulle, rarement extrême. Les trois tirages sont **décorrélés** — toutes les combinaisons surviennent (pertes sans ressources, ressources sans XP, etc.), et c'est le **débrief IA qui tisse le récit** reliant ce qui est tombé.
 
-| Tirage | rien | modeste | bon | extrême |
-| ------ | ---- | ------- | --- | ------- |
-| **Ressources** (total 3 ressources, **× coût de l'équipe**, plafonné par le transport) | 20 % → 0 | 58 % → 1–6 % | 18 % → 6–12 % | 4 % → 12–25 % |
-| **XP** (× base d'XP de l'équipe) | 18 % → 0 | 60 % → 0,3–0,8 | 18 % → 0,8–1,5 | 4 % → 1,5–3,0 |
-| **Pertes** (× effectif de l'équipe) | 55 % → 0 | 33 % → 2–10 % | 10 % → 10–30 % | **2 % → 60–100 % (échec critique)** |
+| Tirage                                                                                 | rien     | modeste        | bon            | extrême                             |
+| -------------------------------------------------------------------------------------- | -------- | -------------- | -------------- | ----------------------------------- |
+| **Ressources** (total 3 ressources, **× coût de l'équipe**, plafonné par le transport) | 20 % → 0 | 58 % → 1–6 %   | 18 % → 6–12 %  | 4 % → 12–25 %                       |
+| **XP** (× base d'XP de l'équipe)                                                       | 18 % → 0 | 60 % → 0,3–0,8 | 18 % → 0,8–1,5 | 4 % → 1,5–3,0                       |
+| **Pertes** (× effectif de l'équipe)                                                    | 55 % → 0 | 33 % → 2–10 %  | 10 % → 10–30 % | **2 % → 60–100 % (échec critique)** |
 
 > Probabilités et plages = **placeholders raisonnables**, à caler à la passe économie. Repères mesurés sur ce jeu de valeurs : ~36 % de missions « tranquilles rentables » (0 perte, XP + ressources), ~2 % de bredouilles totales, ~12 % de coups durs dont ~2 % d'effacement quasi-total.
 
@@ -374,13 +375,13 @@ Le butin est calé sur le **coût** de l'équipe, pas sur sa capacité de transp
 
 ### Unités et leurs rôles en exploration
 
-| Unité | Rôle en exploration |
-| ----- | ------------------- |
-| **Scientifique** | Principal générateur de **points d'exploration** ; transport modéré |
-| **Sonde** (recon-exploration) | Gros transport (butin), **risque réduit** ; contribution XP fixe |
-| **Spectre** (recon-espionnage) | **Risque réduit**, aucun transport ; surtout dédié à l'espionnage |
-| **Maraudeur / Régulier / Sentinelle** (combat) | **Escorte** : réduisent la fraction de pertes de l'équipe |
-| **Mule** (transport) | Capacité de butin maximale, **aucune réduction de risque, aucun XP** — l'archétype « run de butin » risqué |
+| Unité                                          | Rôle en exploration                                                                                        |
+| ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| **Scientifique**                               | Principal générateur de **points d'exploration** ; transport modéré                                        |
+| **Sonde** (recon-exploration)                  | Gros transport (butin), **risque réduit** ; contribution XP fixe                                           |
+| **Spectre** (recon-espionnage)                 | **Risque réduit**, aucun transport ; surtout dédié à l'espionnage                                          |
+| **Maraudeur / Régulier / Sentinelle** (combat) | **Escorte** : réduisent la fraction de pertes de l'équipe                                                  |
+| **Mule** (transport)                           | Capacité de butin maximale, **aucune réduction de risque, aucun XP** — l'archétype « run de butin » risqué |
 
 ### Niveaux d'exploration
 
@@ -390,7 +391,6 @@ Le butin est calé sur le **coût** de l'équipe, pas sur sa capacité de transp
 ### Répétabilité
 
 - **Illimitée pour l'instant** : il y a toujours un pool de planètes vides suffisant pour explorer. Un **cooldown par planète** est noté comme **levier futur** si l'on veut tempérer le farm d'une même cible.
-
 
 ## 8. Factions IA
 
@@ -606,72 +606,70 @@ L'IA est utilisée comme outil de développement à tous les niveaux, au-delà d
 
 Ces points sont intentionnellement non tranchés dans cette version du document. Ils seront résolus lors des phases de développement et de test.
 
-| Sujet                                           | État             | Note                                                                                                                             |
-| ----------------------------------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------- | --- |
-| Coût d'utilisation du Portail quantique         | À définir        | Coût fixe ou variable en Thorium ? Favorise les décisions stratégiques                                                           |
-| Iris — bonus de défense portail                 | Design retenu    | Bonus de défense aux unités en défense contre un assaut **par portail**, croissant avec le niveau du portail. Valeurs à chiffrer |     |
-| Nombre maximum de planètes                      | Base : 3         | À réévaluer lors des tests d'équilibrage                                                                                         |
-| Capacité du bunker                              | À équilibrer     | Doit protéger sans éliminer tout le risque                                                                                       |
-| Modificateur alliance sur la réputation Elyrans | À définir        | Principe acté, valeurs à équilibrer                                                                                              |
-| Seuil minimum de planètes Varek/Elyrans         | À définir        | Garantit la survie des factions, valeur à fixer selon la taille du serveur                                                       |
-| Seuils de déclenchement des vagues Nexhianti    | À définir        | Basé sur nombre de planètes contrôlées ou temps                                                                                  |
-| Fenêtre de vulnérabilité                        | **Supprimée**    | Remplacée par le système bunker                                                                                                  |
-| Archéologue et or                               | **Reporté**      | Mécanique retirée du scope actuel, à reconsidérer en v2                                                                          |
-| Bombardement orbital                            | À définir        | Flottes sans troupes au sol : dégâts purs sans butin ? À définir avec les vaisseaux                                              |
-| Bâtiments de défense statique                   | En réflexion     | Toute la défense passe par les unités pour l'instant ; tourelles/structures possibles plus tard                                  |
-| Capacité de garnison (military_camp)            | Reporté          | Limiter le nombre d'unités stationnées par planète selon le niveau du camp                                                       |
-| Unité d'escorte dédiée                          | **Écartée (v1)** | Les combattants remplissent ce rôle ; pas d'escorte dédiée au lancement                                                          |
-| Modèle de combat au sol                         | **Tranché**      | Tir agrégé + paliers d'armure, sans PV — validé par simulation. Source de vérité : `combat_reference.md`              |
-| Seuil de repli paramétrable par le joueur       | **Idée future**  | En v1 le seuil est automatique (55 %) ; le rendre choisi avant l'envoi en v2+                                                    |
-| Unité officier (niv 7-10 military_camp)         | **Idée future**  | Unité survivable dont l'intelligence mènerait le tempo de l'armée (initiative = INT max)                                         |
-| Contenu exact du rapport de combat              | À définir        | Pertes, butin, XP, survivants + volet narratif IA                                                                                |
-| Modèle d'espionnage                             | **Tranché**      | Contest furtivité vs techno Renseignement ; 3 sorties (détection / pertes / info lacunaire) - voir §6                             |
-| Modèle d'exploration                            | **Tranché**      | 3 tirages indépendants (XP / ressources / pertes), paliers asymétriques, butin ≈ coût des pertes — voir §7                        |
-| Calibration exploration (paliers, coûts Sonde)  | Passe économie   | Probas/plages des paliers + coût des unités ; butin net ≈ 0, brut ≪ mines                                                         |
-| Cooldown par planète (exploration)              | **Levier futur** | Répétabilité illimitée pour l'instant ; cooldown si farm d'une cible à tempérer                                                   |
+| Sujet                                           | État                  | Note                                                                                                                                               |
+| ----------------------------------------------- | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
+| Coût d'utilisation du Portail quantique         | À définir             | Coût fixe ou variable en Thorium ? Favorise les décisions stratégiques                                                                             |
+| Iris — bonus de défense portail                 | Design retenu         | Bonus de défense aux unités en défense contre un assaut **par portail**, croissant avec le niveau du portail. Valeurs à chiffrer                   |     |
+| Nombre maximum de planètes                      | Base : 3              | À réévaluer lors des tests d'équilibrage                                                                                                           |
+| Capacité du bunker                              | À équilibrer          | Doit protéger sans éliminer tout le risque                                                                                                         |
+| Modificateur alliance sur la réputation Elyrans | À définir             | Principe acté, valeurs à équilibrer                                                                                                                |
+| Seuil minimum de planètes Varek/Elyrans         | À définir             | Garantit la survie des factions, valeur à fixer selon la taille du serveur                                                                         |
+| Seuils de déclenchement des vagues Nexhianti    | À définir             | Basé sur nombre de planètes contrôlées ou temps                                                                                                    |
+| Fenêtre de vulnérabilité                        | **Supprimée**         | Remplacée par le système bunker                                                                                                                    |
+| Archéologue et or                               | **Reporté**           | Mécanique retirée du scope actuel, à reconsidérer en v2                                                                                            |
+| Bombardement orbital                            | À définir             | Flottes sans troupes au sol : dégâts purs sans butin ? À définir avec les vaisseaux                                                                |
+| Bâtiments de défense statique                   | En réflexion          | Toute la défense passe par les unités pour l'instant ; tourelles/structures possibles plus tard                                                    |
+| Capacité de garnison (military_camp)            | Reporté               | Limiter le nombre d'unités stationnées par planète selon le niveau du camp                                                                         |
+| Unité d'escorte dédiée                          | **Écartée (v1)**      | Les combattants remplissent ce rôle ; pas d'escorte dédiée au lancement                                                                            |
+| Modèle de combat au sol                         | **Tranché**           | Tir agrégé + paliers d'armure, sans PV — validé par simulation. Source de vérité : `combat_reference.md`                                           |
+| Seuil de repli paramétrable par le joueur       | **Idée future**       | En v1 le seuil est automatique (55 %) ; le rendre choisi avant l'envoi en v2+                                                                      |
+| Unité officier (niv 7-10 military_camp)         | **Idée future**       | Unité survivable dont l'intelligence mènerait le tempo de l'armée (initiative = INT max)                                                           |
+| Contenu exact du rapport de combat              | À définir             | Pertes, butin, XP, survivants + volet narratif IA                                                                                                  |
+| Modèle d'espionnage                             | **Tranché**           | Contest furtivité vs techno Renseignement ; 3 sorties (détection / pertes / info lacunaire) - voir §6                                              |
+| Modèle d'exploration                            | **Tranché**           | 3 tirages indépendants (XP / ressources / pertes), paliers asymétriques, butin ≈ coût des pertes — voir §7                                         |
+| Calibration exploration (paliers, coûts Sonde)  | Passe économie        | Probas/plages des paliers + coût des unités ; butin net ≈ 0, brut ≪ mines                                                                          |
+| Cooldown par planète (exploration)              | **Levier futur**      | Répétabilité illimitée pour l'instant ; cooldown si farm d'une cible à tempérer                                                                    |
 | Valeur des niveaux military_camp 4 / 7-10       | **Point d'attention** | Ne débloquent aucune unité (déblocage : Sonde/Maraudeur 1, Mule 2, Régulier 3+Armement, Sentinelle 5+Blindage, Spectre 6+Guerre élec) ; à enrichir |
-| Formule exacte du repli (delta intelligence)    | **Tranché (v1)** | Auto à 55 % de pertes + plafond de statu quo à 18 rounds ; volée d'adieu = `clamp(0,5 − Δ/8, 0, 1,5)` (cf. `combat_reference.md`)                                                                |
-| Monétisation                                    | À définir en v2  | Hors scope pour le développement initial                                                                                         |
-| Arbre technologique complet                     | **Structuré**    | Structure et roster validés — voir `tech_reference.md`. Reste : valeurs d'équilibrage                                            |
-| Liste complète des vaisseaux                    | À construire     | Voir Annexes                                                                                                                     |
-| Roster complet des unités terrestres            | **Défini**       | 7 unités, stats v2.1 — voir `unit_reference.md` et `combat_reference.md`                                                         |
-| Mécaniques d'alliance avancées                  | À définir en v2  | Partage radar, attaques coordonnées, etc.                                                                                        |
+| Formule exacte du repli (delta intelligence)    | **Tranché (v1)**      | Auto à 55 % de pertes + plafond de statu quo à 18 rounds ; volée d'adieu = `clamp(0,5 − Δ/8, 0, 1,5)` (cf. `combat_reference.md`)                  |
+| Monétisation                                    | À définir en v2       | Hors scope pour le développement initial                                                                                                           |
+| Arbre technologique complet                     | **Structuré**         | Structure et roster validés — voir `tech_reference.md`. Reste : valeurs d'équilibrage                                                              |
+| Liste complète des vaisseaux                    | À construire          | Voir Annexes                                                                                                                                       |
+| Roster complet des unités terrestres            | **Défini**            | 7 unités, stats v2.1 — voir `unit_reference.md` et `combat_reference.md`                                                                           |
+| Mécaniques d'alliance avancées                  | À définir en v2       | Partage radar, attaques coordonnées, etc.                                                                                                          |
 
 ---
 
 ## 13. Annexes
 
-### Annexe A — Arbre technologique
+### Annexe A - Arbre technologique
 
-_Structure validée — voir `tech_reference.md` pour le document de référence complet (roster, prérequis, structure de données)._
+_Structure validée - voir `tech_reference.md` (v1.0) pour le document de référence complet (roster, réseau de dépendances, checkpoints, structure de données)._
 
-**Principes :** arbre **hybride** de technologies **à niveaux** (on améliore plusieurs fois la même techno). Chaque technologie a son propre niveau maximum. Bonus de combat **globaux** (toutes unités) pour l'instant. **Pas d'orientation stratégique imposée** : tous les joueurs accèdent au même arbre, les prérequis créent un ordre de progression naturel.
+**Philosophie :** la profondeur vient du **réseau de dépendances**, pas de bonus numériques empilés : techno→bâtiment, bâtiment→techno, techno→techno, techno→unité, exploration→techno. Technologies **indépendantes, à niveaux** (on améliore plusieurs fois la même techno), chacune avec son propre niveau maximum. **Pas de doublons d'effet** (le modèle de combat agrégé ne porte qu'un nombre limité de leviers : ATQ, DEF, INT, plus quelques mécaniques spéciales). Bonus de combat **globaux** (toutes unités) pour l'instant. **Pas d'orientation stratégique imposée.**
 
-**Pacing :** le niveau du `research_lab` **plafonne le niveau maximum de chaque technologie**, comme le `command_center` plafonne les bâtiments. `niveau_utile = min(plafond_labo, niveau_max_techno)`.
+**Pacing - checkpoints :** l'ancienne table de plafond uniforme du laboratoire (`LAB_CAP`) est **supprimée**. Chaque techno a son propre gating : un palier de labo débloque le niveau 1, puis 2-3 **checkpoints** de labo conditionnent les niveaux supérieurs. Le plafond émerge du checkpoint le plus haut. Les technos militaires ont en plus des checkpoints de `military_camp` (niveaux 4 / 7 / 9).
 
-**Prérequis (3 leviers superposés) :**
+**Exploration - deuxième axe de gate (quasi universel) :** chaque techno exige un niveau d'exploration à son déblocage et à ses checkpoints (bases à explo ~1, breakthrough à explo ~8-10). Lore : explorer des planètes ramène de la technologie. Boucle vertueuse : Cartographie stellaire entre tôt et augmente les gains d'exploration, qui ouvrent le reste de l'arbre. **Règle de calibration gravée** : la courbe des paliers requis reste sous la courbe d'XP d'un joueur qui explore régulièrement (jusqu'à 5 missions simultanées) - le gate aiguille, il ne péage pas.
 
-- **Niveau de laboratoire** — plafond global.
-- **Cross-dépendances** — une techno peut exiger un niveau minimum d'une autre techno.
-- **Exploration** — appliqué directement sur certaines technologies « breakthrough ». L'exploration (découverte scientifique) est la **porte d'entrée du palier avancé** ; le palier initial reste accessible sans explorer.
-
-**File de recherche :** propre au `research_lab`, distincte des files de construction et de production. Une recherche à la fois.
+**File de recherche :** propre au `research_lab`, une recherche à la fois. Les technos de files (`Ingénierie parallèle`, `Chaîne de production`) sont **sorties du périmètre** (risque de burst, parallélisme déjà offert par la colonisation).
 
 Les technologies servent à :
 
-- Augmenter la production de ressources (métal, nourriture, thorium) et l'énergie
-- Réduire la consommation énergétique des bâtiments
-- Améliorer les capacités de combat (attaque, défense, intelligence — bonus globaux)
-- Ajouter des files de construction et de production d'unités
+- Augmenter la production de ressources (métal, nourriture, thorium) et l'énergie ; réduire la consommation énergétique
+- Améliorer les capacités de combat (attaque, défense, intelligence - bonus globaux, `r = 0,04` figé)
 - Améliorer les gains et la sécurité de l'exploration
-- _(Anticipé)_ Débloquer la colonisation de planètes supplémentaires (jusqu'à 3 max)
-- _(Anticipé)_ Améliorer les capacités d'espionnage
+- **Débloquer des bâtiments** (Technologie Cristal → Bunker dès le niveau 1 ; Conversion énergétique → Centrale nucléaire) **et des unités** (Armement → Régulier ; Cartographie stellaire + labo → Scientifique ; Renseignement → Spectre ; Colonisation → Vaisseau de colonie)
+- _(Anticipé)_ Coloniser jusqu'à 3 planètes ; améliorer l'espionnage ; ressusciter une fraction des pertes post-combat (Régénération cellulaire, breakthrough exploration 8-10)
 
-**Périmètre initial** (11 technos) : Conversion énergétique, Supraconductivité, Forage cristallin, Hydroponie, Raffinage du thorium, Armement, Blindage tactique, Guerre électronique, Ingénierie parallèle, Chaîne de production, Cartographie stellaire.
+**Périmètre initial** (10 technos) : Forage cristallin, Hydroponie, Raffinage du thorium, Conversion énergétique, Supraconductivité, Armement, Blindage tactique, Guerre électronique, Cartographie stellaire, Technologie Cristal.
 
-**Anticipé** (conçu, implémenté avec la fonctionnalité) : Cœur de thorium (exploration), Renseignement (espionnage), Colonisation (colonisation + vaisseau).
+**Anticipé** (conçu, implémenté avec sa fonctionnalité) : Renseignement (espionnage), Colonisation (colonisation + vaisseau), Régénération cellulaire (breakthrough).
 
-**Évolutions futures notées** : Régénération cellulaire (résurrection d'unités post-combat), vitesse de recherche, capacité de stockage, files de recherche parallèles, bonus de combat ciblés par type, branche spatiale/vaisseaux, technologies exclusives via diplomatie Elyrans.
+**Supprimé / sorti du périmètre** : Cœur de thorium (doublon d'effet avec Conversion énergétique), Ingénierie parallèle et Chaîne de production (idées futures).
+
+**Roster de départ des unités** : Maraudeur, Sentinelle, Sonde, Mule dès le `military_camp` seul (offense + défense + recon + transport). La « fenêtre de vulnérabilité » est abandonnée. Calendrier exact à refaire dans `unit_reference.md`.
+
+**Évolutions futures notées** : Ingénierie parallèle, Chaîne de production, unité Officier (← Guerre électronique), étiquettes de paliers (noms originaux), vitesse de recherche, capacité de stockage, files de recherche parallèles, bonus de combat par type, branche spatiale/vaisseaux, technologies exclusives via diplomatie Elyrans.
 
 ### Annexe B — Vaisseaux
 
