@@ -118,7 +118,7 @@ class Planet < ApplicationRecord
 
   # Must be called inside a with_lock block.
   def calculate_resources!(now: Time.current)
-    elapsed = (now - resources_updated_at).to_f
+    elapsed = (now - resources_updated_at).to_f * GameSpeed::MULTIPLIER
     elapsed = 0.0 if elapsed < 0
 
     self.metal_stock   = [[metal_stock.to_f   + metal_rate   * elapsed, 0].max, metal_capacity].min

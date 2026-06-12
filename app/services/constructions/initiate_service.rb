@@ -47,8 +47,7 @@ module Constructions
         return failure("insufficient_resources") unless can_afford?(cost)
 
         deduct_resources!(cost)
-
-        duration     = Buildings::Calculator.construction_time(@building_type, target)
+        duration     = Buildings::Calculator.construction_time(@building_type, target) / GameSpeed::MULTIPLIER
         now          = Time.current
         cq = ConstructionQueue.find_or_initialize_by(planet_id: planet.id)
         cq.assign_attributes(

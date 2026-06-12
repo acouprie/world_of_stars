@@ -26,7 +26,7 @@ module Trainings
 
         camp_level    = building_level(:training_camp)
         time_per_unit = Units.training_time(@unit_type, camp_level)
-        duration      = time_per_unit * @quantity
+        duration      = time_per_unit * @quantity / GameSpeed::MULTIPLIER
 
         now   = Time.current
         queue = planet.training_queues.create!(
