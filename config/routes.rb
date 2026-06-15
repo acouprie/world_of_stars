@@ -36,6 +36,10 @@ Rails.application.routes.draw do
     resources :buildings, only: [:new, :create, :show]
     resource  :construction_queue, only: [:destroy]
     resources :training_queues, only: [:index, :create]
+
+    get  'research',       to: 'research#index',              as: :research
+    post 'research/queue', to: 'researches/queue#create',     as: :research_queue
+    delete 'research/queue', to: 'researches/queue#destroy'
   end
 
   # Documentation routes
