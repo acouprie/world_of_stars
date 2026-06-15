@@ -10,6 +10,27 @@ class User < ApplicationRecord
   validates :password, length: { minimum: 8 }, allow_nil: true
   validate :password_complexity
 
+  EXPLORATION_LEVEL_BASE_XP = 1000
+  EXPLORATION_LEVEL_FACTOR  = 1.2
+
+  def exploration_level
+    return 0 if exploration_xp < EXPLORATION_LEVEL_BASE_XP
+    level     = 1
+    threshold = EXPLORATION_LEVEL_BASE_XP.to_f
+    loop do
+      next_threshold = threshold * EXPLORATION_LEVEL_FACTOR
+      return level if exploration_xp < next_threshold
+      threshold = next_threshold
+      level += 1
+    end
+  end
+
+  def self.exploration_xp_for_level(n)
+    return 0 if n <= 0
+    (EXPLORATION_LEVEL_BASE_XP * (EXPLORATION_LEVEL_FACTOR**(n - 1) - 1) /
+      (EXPLORATION_LEVEL_FACTOR - 1)).round
+  end
+
   # TODO: Returns 0 for all technologies until Technologies are implemented (tech_reference §6, §10).
   # When the Technologies feature lands, replace this with a DB lookup on the player's researched
   # technology levels (e.g. :armement, :blindage_tactique, :renseignement, :cartographie_stellaire).
