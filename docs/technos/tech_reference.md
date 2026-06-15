@@ -1,8 +1,8 @@
 # World of Stars - Référence des technologies
 
-> Version 1.0 - Document de conception (refonte)
+> Version 1.1 - Document de conception
 > Complément au `game_design.md`, `combat_reference.md`, `building_reference.md` et `unit_reference.md`
-> Statut : structure, roster, réseau de dépendances et modèle de gating **validés**. Valeurs numériques (paliers labo/exploration, `per_level`, coûts) = placeholders, à caler en passe d'équilibrage.
+> Statut : structure, roster, réseau de dépendances, checkpoints et barème des effets **calibrés v1 (passe économie)**. Tables de coûts par niveau : voir Annexe D du `game_design.md`.
 
 ---
 
@@ -14,11 +14,11 @@
 4. [Le réseau de dépendances](#4-le-réseau-de-dépendances)
 5. [File de recherche](#5-file-de-recherche)
 6. [Coût des technologies](#6-coût-des-technologies)
-7. [Roster - périmètre initial](#7-roster--périmètre-initial)
-8. [Roster - anticipé](#8-roster--anticipé)
+7. [Roster - périmètre initial](#7-roster---périmètre-initial)
+8. [Roster - anticipé](#8-roster---anticipé)
 9. [Barème des effets](#9-barème-des-effets)
 10. [Déblocages d'unités et de bâtiments](#10-déblocages-dunités-et-de-bâtiments)
-11. [Évolutions futures](#11-évolutions-futures)
+11. [Backlog d'enrichissement](#11-backlog-denrichissement)
 12. [Correspondance World of Stargate](#12-correspondance-world-of-stargate)
 13. [Structure de données](#13-structure-de-données)
 14. [Questions ouvertes](#14-questions-ouvertes)
@@ -33,14 +33,14 @@ Les technologies sont recherchées dans le **`research_lab`**. Chaque technologi
 
 - **techno → bâtiment** (ex : Technologie Cristal débloque le Bunker)
 - **bâtiment → techno** (ex : le `research_lab` et le `military_camp` jalonnent les niveaux de technos)
-- **techno → techno** (ex : Supraconductivité exige Conversion énergétique 3)
+- **techno → techno** (ex : Raffinage du thorium exige Forage cristallin 5)
 - **techno → unité** (ex : Armement débloque le Régulier)
 - **exploration → techno** (chaque techno est jalonnée par des paliers d'exploration, cf. §3)
 
 Règles structurantes :
 
 - **Pas de doublons d'effet.** Le modèle de combat agrégé (pas de PV, puissance de feu cumulée) ne porte qu'un nombre limité de leviers distincts (ATQ, DEF, INT, plus quelques mécaniques spéciales). Chaque levier appartient à une seule technologie.
-- **Bonus de combat globaux** : les technologies de combat s'appliquent à toutes les unités sans distinction de type. Les bonus ciblés par type sont une évolution future (§11).
+- **Bonus de combat globaux** : les technologies de combat s'appliquent à toutes les unités sans distinction de type. Les bonus ciblés par type sont dans le backlog (§11).
 - **Pas d'orientation stratégique imposée** : tous les joueurs accèdent au même arbre. Les prérequis créent un ordre de progression naturel, pas des branches mutuellement exclusives.
 - L'arbre est découpé en deux périmètres : **initial** (fonctionnalités existantes ou en cours) et **anticipé** (conçu maintenant, implémenté avec la fonctionnalité dont il dépend).
 
@@ -56,7 +56,7 @@ Le plafonnement par le laboratoire est désormais **propre à chaque technologie
 - Ensuite, **2 ou 3 checkpoints de labo** conditionnent l'accès à certains niveaux supérieurs (pas un checkpoint par niveau). Format : `LEVEL_PREREQUISITES`, identique à `Buildings::LEVEL_PREREQUISITES`.
 - Le « plafond » **émerge du checkpoint le plus haut** : les derniers niveaux d'une techno profonde exigent le labo 10.
 
-Exemple (Armement, 18 niveaux) : labo 1 ouvre le niveau 1 ; les niveaux 7+, 13+ et 17+ exigent respectivement labo 4, 7 et 10 (valeurs placeholders).
+Exemple (Armement, 18 niveaux) : labo 1 ouvre le niveau 1 ; les niveaux 7+, 13+ et 17+ exigent respectivement labo 4, 7 et 10.
 
 > Rappel : le `research_lab` est lui-même plafonné par le `command_center` (labo 1 à CC 2, labo 10 à CC 9, voir `building_reference.md`), et sa **construction exige un petit niveau d'exploration** (`game_design.md` §7). La progression de recherche est donc cadencée par trois rythmes superposés : Centre de Commandement, laboratoire, exploration.
 
@@ -78,7 +78,9 @@ explorer → gagner des niveaux d'exploration → franchir les paliers de recher
 
 ### Règle de calibration (gravée)
 
-**La courbe des paliers d'exploration requis doit rester sous la courbe d'XP naturelle d'un joueur qui explore régulièrement.** Un joueur actif (quelques missions par jour, jusqu'à **5 missions simultanées**) ne doit presque jamais buter sur le gate exploration ; un joueur qui ignore l'exploration doit être bloqué net. Le gate est un aiguillage (« explore pour chercher »), pas un péage qui ralentit tout le monde. Les valeurs exactes des paliers sont des **placeholders relatifs**, à caler avec la passe de magnitude d'exploration.
+**La courbe des paliers d'exploration requis doit rester sous la courbe d'XP naturelle d'un joueur qui explore régulièrement.** Un joueur actif (quelques missions par jour, jusqu'à **5 missions simultanées**) ne doit presque jamais buter sur le gate exploration ; un joueur qui ignore l'exploration doit être bloqué net. Le gate est un aiguillage (« explore pour chercher »), pas un péage qui ralentit tout le monde.
+
+> Courbe d'exploration retenue : **paliers ×1,7/niveau** (niveau 1 = 1 000 XP cumulés). Voir `research_costs_v1.md` §3 pour la justification complète.
 
 ---
 
@@ -92,16 +94,14 @@ research_lab ──► toutes les technos (déblocage + checkpoints)
 military_camp ──► technos militaires (checkpoints niv 4 / 7 / 9)
 
 Technologie Cristal ──► Bunker (bâtiment, dès le niveau 1)
-Conversion énergétique ──► Centrale nucléaire (bâtiment)
+Conversion énergétique ──► Centrale nucléaire (bâtiment, niv 4)
 
 Forage cristallin 5 ──► Raffinage du thorium
-Conversion énergétique 3 ──► Supraconductivité
 
 Armement ──► Régulier (unité)
 Cartographie stellaire + research_lab ──► Scientifique (unité)
 Renseignement ──► Spectre (unité)
-Colonisation ──► Vaisseau de colonie (unité)
-Guerre électronique ──► Officier (unité future)
+Colonisation ──► Vaisseau de colonie (unité, + chantier spatial 10 placeholder)
 ```
 
 **Convention d'implémentation** : un déblocage est toujours déclaré **côté consommateur** (le Bunker porte `requires: { technologie_cristal: 1 }` dans `Buildings::REGISTRY` ; le Régulier porte sa techno requise dans le registre des unités), comme les bâtiments déclarent leurs prérequis de `command_center`. `Technologies::REGISTRY` ne duplique pas ces liens : ce document en est la carte lisible.
@@ -111,8 +111,8 @@ Guerre électronique ──► Officier (unité future)
 ## 5. File de recherche
 
 - La recherche dispose de sa **propre file**, distincte de la file de construction des bâtiments et de la production d'unités.
-- **Une seule recherche à la fois.** Les files de recherche parallèles sont hors périmètre (évolution future, §11).
-- Les anciennes technologies de files (`Ingénierie parallèle`, `Chaîne de production`) sont **sorties du périmètre** : risque de déséquilibre (burst, casse la priorisation forcée de la file unique, parallélisme déjà offert par la colonisation). Notées en idées futures (§11).
+- **Une seule recherche à la fois.** Les files de recherche parallèles sont dans le backlog (§11).
+- Les anciennes technologies de files (`Ingénierie parallèle`, `Chaîne de production`) sont **sorties du périmètre** : risque de déséquilibre (burst, casse la priorisation forcée de la file unique, parallélisme déjà offert par la colonisation). Notées en backlog (§11).
 
 ---
 
@@ -121,74 +121,69 @@ Guerre électronique ──► Officier (unité future)
 Chaque niveau coûte des ressources (**métal, nourriture, thorium**) et un **temps de recherche** :
 
 - **Coût géométrique** par niveau, **progression lente voulue** : facteur élevé et coûts de base supérieurs à un bâtiment de palier équivalent. Grimper l'arbre est un objectif de long terme.
+- **Portée : compte entier** — une technologie s'applique à toutes les planètes du joueur. Les hauts niveaux ont un mauvais payback sur 1 planète mais rentrent dans la fenêtre cible (72-168 h) avec 2-3 planètes colonisées.
 - **Pas de coût en énergie** pour la recherche.
 - **Pas d'entretien** : le bonus est permanent une fois recherché.
-- Les **tables de coûts par niveau** seront établies en phase d'équilibrage (Annexe D du `game_design.md`).
+- Les tables de coûts par niveau sont dans l'Annexe D du `game_design.md` (issues de `research_costs_v1.md`).
 
 ---
 
 ## 7. Roster - périmètre initial
 
-10 technologies. Effets exprimés en intentions ; valeurs au §9 (placeholders sauf combat).
+9 technologies (Supraconductivité retirée — voir §11).
 
-| Technologie                | Catégorie   | Effet                                           | Niv max | Déblocage (labo / explo) | Cross-dépendance         | Débloque              |
-| -------------------------- | ----------- | ----------------------------------------------- | ------- | ------------------------ | ------------------------ | --------------------- |
-| **Forage cristallin**      | Production  | + production de métal                           | 18      | labo 1 / explo 1         | -                        | -                     |
-| **Hydroponie**             | Production  | + production de nourriture                      | 18      | labo 1 / explo 1         | -                        | -                     |
-| **Raffinage du thorium**   | Production  | + production de thorium                         | 15      | labo 2 / explo 2         | Forage cristallin 5      | -                     |
-| **Conversion énergétique** | Énergie     | + production d'énergie des centrales            | 15      | labo 1 / explo 1         | -                        | Centrale nucléaire    |
-| **Supraconductivité**      | Énergie     | - consommation énergétique des bâtiments        | 13      | labo 3 / explo 3         | Conversion énergétique 3 | -                     |
-| **Armement**               | Militaire   | + attaque (toutes unités)                       | 18      | labo 1 / explo 1         | -                        | Régulier              |
-| **Blindage tactique**      | Militaire   | + défense (toutes unités)                       | 18      | labo 1 / explo 1         | -                        | -                     |
-| **Guerre électronique**    | Militaire   | + intelligence (toutes unités)                  | 15      | labo 2 / explo 2         | -                        | (Officier, futur)     |
-| **Cartographie stellaire** | Exploration | + gains XP & ressources d'exploration, - pertes | 10      | labo 1 / explo 1         | -                        | Scientifique (+ labo) |
-| **Technologie Cristal**    | Déblocage   | Débloque le **Bunker** (gate pur, pas de bonus) | 1       | labo 1 / explo 1         | -                        | Bunker                |
+| Technologie                | Catégorie   | Effet                                           | Niv max | Déblocage (labo / explo) | Cross-dépendance    | Débloque              |
+| -------------------------- | ----------- | ----------------------------------------------- | ------- | ------------------------ | ------------------- | --------------------- |
+| **Forage cristallin**      | Production  | + production de métal                           | 18      | labo 1 / explo 1         | -                   | -                     |
+| **Hydroponie**             | Production  | + production de nourriture                      | 18      | labo 1 / explo 1         | -                   | -                     |
+| **Raffinage du thorium**   | Production  | + production de thorium                         | 15      | labo 2 / explo 2         | Forage cristallin 5 | -                     |
+| **Conversion énergétique** | Énergie     | + production de la **centrale solaire**         | 10      | labo 1 / explo 1         | -                   | Centrale nucléaire    |
+| **Armement**               | Militaire   | + attaque (toutes unités)                       | 18      | labo 1 / explo 1         | -                   | Régulier              |
+| **Blindage tactique**      | Militaire   | + défense (toutes unités)                       | 18      | labo 1 / explo 1         | -                   | -                     |
+| **Guerre électronique**    | Militaire   | + intelligence (toutes unités)                  | 15      | labo 2 / explo 2         | -                   | -                     |
+| **Cartographie stellaire** | Exploration | + gains XP d'exploration et - pertes            | 10      | labo 1 / explo 1         | -                   | Scientifique (+ labo) |
+| **Technologie Cristal**    | Déblocage   | Débloque le **Bunker** (gate pur, pas de bonus) | 1       | labo 1 / explo 1         | -                   | Bunker                |
 
-> **Technologie Cristal** est une techno de **déblocage pur** : 1 niveau, aucun bonus numérique. Le Bunker est gaté **dès son niveau 1** (le gate porte sur la construction, pas sur les niveaux : pas de mur invisible après coup). C'est un choix early conscient : rechercher Cristal tôt pour s'abriter, ou accepter le risque de pillage.
+> **Technologie Cristal** est une techno de **déblocage pur** : 1 niveau, aucun bonus numérique. Le Bunker est gaté **dès son niveau 1** (le gate porte sur la construction). C'est un choix early conscient : rechercher Cristal tôt pour s'abriter, ou accepter le risque de pillage.
 
-> **Bonus de combat - modèle acté.** Armement, Blindage tactique et Guerre électronique appliquent un bonus **multiplicatif à accumulation additive** : `stat_eff = stat_base × (1 + r·niveau)`. Effet lisse, et **seul le delta de techno entre les camps compte**. **Valeur figée : `r = 0,04`** (au delta maximal, le combat reste ≥ ~3 rounds). Détail et validation : `combat_reference.md` §9.
+> **Conversion énergétique** : bonus sur la **production de la centrale solaire uniquement** (+4 %/niv, 10 niveaux max). Au max : +276 ⚡ late (marge énergétique +126 → +402 avec solaire 13 + nucléaire 10). La contrainte énergétique est maintenue par design. Gate de la centrale nucléaire : **Conversion énergétique niveau 4**.
 
-> **Centrale nucléaire** : gatée par Conversion énergétique (niveau requis placeholder : **4**). Le niveau exact se cale sur le moment où la centrale solaire devient trop chère par ⚡ marginal (crossover solaire/nucléaire, vers CC 5) : le gate ne doit pas retarder un joueur qui touche normalement à l'arbre techno. À valider en passe économie.
+> **Bonus de combat - modèle acté.** Formule multiplicative `×(1 + r·niv)`, r = 0,04, delta-only. Voir `combat_reference.md` §9.
 
 ---
 
 ## 8. Roster - anticipé
 
-Technologies **conçues maintenant**, implémentées quand leur fonctionnalité est prête.
+Technologies conçues maintenant, implémentées avec la fonctionnalité dont elles dépendent.
 
-| Technologie                 | Catégorie    | Effet                                                         | Niv max | Déblocage (labo / explo) | Débloque            | Dépend de            |
-| --------------------------- | ------------ | ------------------------------------------------------------- | ------- | ------------------------ | ------------------- | -------------------- |
-| **Renseignement**           | Espionnage   | +1 palier d'espionnage par niveau (contest `ta`/`td`)         | 10      | labo 2 / explo 2         | **Spectre**         | Feature espionnage   |
-| **Colonisation**            | Colonisation | Niv 1 = vaisseau de colonie + 2ᵉ planète · Niv 2 = 3ᵉ planète | 2       | labo 4 / explo 2         | Vaisseau de colonie | Feature colonisation |
-| **Régénération cellulaire** | Breakthrough | Ressuscite une fraction des pertes après combat               | 5       | labo 7 / explo 8         | -                   | Combat implémenté    |
+| Technologie                 | Catégorie    | Effet                               | Niv max | Conditions       |
+| --------------------------- | ------------ | ----------------------------------- | ------- | ---------------- |
+| **Renseignement**           | Espionnage   | + niveau d'espionnage effectif      | 10      | labo 2 / explo 2 |
+| **Colonisation**            | Colonisation | + 1 planète colonisable par niveau  | 2       | labo 4 / explo 2 |
+| **Régénération cellulaire** | Breakthrough | % des pertes de combat ressuscitées | 5       | labo 7 / explo 8 |
 
-> **Renseignement** débloque le **Spectre** (auparavant lié à Guerre électronique) : l'unité d'espionnage arrive avec la techno d'espionnage, cohérence thématique. Aucun prérequis de bâtiment radar (les deux systèmes ne se recouvrent pas : radar = flottes entrantes, Renseignement = espionnage sortant et contre-espionnage).
+> **Colonisation** : le Vaisseau de colonie exige Colonisation niv 1 + chantier spatial niveau 10 (placeholder ; niveau exact à caler avec la branche vaisseaux). La colonisation est le relais de progression late game (~jour 25-40).
 
-> **Colonisation** : version simple volontairement (2 niveaux = 2 planètes supplémentaires, max 3 planètes). Une ligne plus riche (vitesse, coût réduit, bonus colonies) est une évolution future.
-
-> **Régénération cellulaire** : effet **post-combat** (pourcentage appliqué après résolution), zéro impact sur l'algorithme de combat validé. C'est la **carotte discrète du haut de l'axe exploration** (explo 8-10). Plafond bas obligatoire (~25 % cumulé). Base : s'applique à toutes les pertes, où que le combat ait eu lieu ; une restriction « planètes propres uniquement » reste une option d'équilibrage (cf. §14).
+> **Régénération cellulaire** : effet post-combat (appliqué après résolution, zéro impact sur l'algorithme de combat validé). Plafond bas obligatoire (~25 % cumulé). Portée de base : toutes les pertes, où que le combat ait eu lieu ; restriction « planètes propres uniquement » reste une option d'équilibrage (cf. §14).
 
 ---
 
 ## 9. Barème des effets
 
-Placeholders à valider en passe d'équilibrage, **sauf le combat (figé)**.
+Valeurs calibrées v1 (passe économie), **sauf indication contraire**.
 
-| Technologie                                | Modèle                  | Valeur par niveau                                      | Au niveau max                |
-| ------------------------------------------ | ----------------------- | ------------------------------------------------------ | ---------------------------- |
-| Forage cristallin / Hydroponie / Raffinage | Additif sur production  | **+6 %/niv**                                           | +108 % (niv 18) / +90 % (15) |
-| Conversion énergétique                     | Additif sur production  | **+6 %/niv**                                           | +90 % (niv 15)               |
-| Supraconductivité                          | Additif sur conso       | **-2 %/niv**                                           | -26 % (niv 13)               |
-| Armement / Blindage tactique               | `×(1 + 0,04·niv)` figé  | **r = 0,04**                                           | ×1,72 (niv 18)               |
-| Guerre électronique                        | `×(1 + 0,04·niv)` figé  | **r = 0,04**                                           | ×1,60 (niv 15)               |
-| Cartographie stellaire                     | Additif sur gains explo | **+4 %/niv** XP & ressources, - pertes (avec plancher) | +40 % (niv 10)               |
-| Renseignement                              | Palier entier           | **+1 niveau** `ta`/`td`                                | 10 (niv 10)                  |
-| Régénération cellulaire                    | Additif sur pertes      | **+5 %/niv** ressuscités                               | ~25 % (niv 5, plafond bas)   |
-| Technologie Cristal                        | Déblocage pur           | -                                                      | -                            |
+| Technologie                                | Modèle                    | Valeur par niveau                                                             | Au niveau max                    |
+| ------------------------------------------ | ------------------------- | ----------------------------------------------------------------------------- | -------------------------------- |
+| Forage cristallin / Hydroponie / Raffinage | Additif sur production    | **+6 %/niv**                                                                  | +108 % (niv 18) / +90 % (15)     |
+| Conversion énergétique                     | Additif sur prod. solaire | **+4 %/niv**                                                                  | +40 % (niv 10) = +276 ⚡         |
+| Armement / Blindage tactique               | `×(1 + 0,04·niv)` figé    | **r = 0,04**                                                                  | ×1,72 (niv 18)                   |
+| Guerre électronique                        | `×(1 + 0,04·niv)` figé    | **r = 0,04**                                                                  | ×1,60 (niv 15)                   |
+| Cartographie stellaire                     | Additif sur XP explo      | **+4 %/niv XP, -2 %/niv pertes** (hors palier critique), **zéro bonus butin** | +40 % XP / -20 % pertes (niv 10) |
+| Renseignement                              | Palier entier             | **+1 niveau** espionnage effectif                                             | 10 (niv 10)                      |
+| Régénération cellulaire                    | Additif sur pertes        | **+5 %/niv** ressuscités                                                      | ~25 % (niv 5, plafond bas)       |
+| Technologie Cristal                        | Déblocage pur             | -                                                                             | -                                |
 
-> **Point de vigilance (passe économie)** : Conversion énergétique (+90 %) cumulée à Supraconductivité (-26 %) risque de rendre la contrainte énergétique triviale en late game, alors que le budget tout-max est déjà soluble par les bâtiments seuls (2 solaires + 1 nucléaire, marge +817 ⚡). Les `per_level` énergétiques devront être calés pour que l'énergie reste une contrainte vivante.
->
-> **Répartition exacte de Cartographie stellaire** (part +XP vs +ressources vs -pertes, valeur du plancher) : à définir à la passe magnitude d'exploration.
+> Note : la contrainte énergétique late est **maintenue par design** — Conversion énergétique seule porte la marge de +126 à +402 ⚡ max, sans trivialiser le budget (Supraconductivité retirée pour cette raison).
 
 ---
 
@@ -196,17 +191,16 @@ Placeholders à valider en passe d'équilibrage, **sauf le combat (figé)**.
 
 ### Roster de départ (military_camp seul)
 
-**Maraudeur, Sentinelle, Sonde, Mule** : offense + défense + recon + transport disponibles dès le début. L'ancienne « fenêtre de vulnérabilité » (offensif avant défensif) est **abandonnée** : avec des factions IA agressives dès l'early game (Varek), priver le nouveau joueur de son unité défensive de base est une friction qui coûte des joueurs. Le calendrier exact par niveau de `military_camp` est **à refaire** dans `unit_reference.md`.
+**Maraudeur, Sentinelle, Sonde, Mule** : offense + défense + recon + transport disponibles dès le début. Avec des factions IA agressives dès l'early game (Varek), priver le nouveau joueur de son unité défensive de base est une friction injustifiée. Le calendrier exact par niveau de `military_camp` est dans `unit_reference.md`.
 
 ### Unités avancées (military_camp + techno)
 
-| Unité                   | Conditions                                                               |
-| ----------------------- | ------------------------------------------------------------------------ |
-| **Régulier**            | military_camp (niveau à définir) + **Armement** recherché                |
-| **Scientifique**        | **research_lab** construit + **Cartographie stellaire** recherchée       |
-| **Spectre**             | military_camp + **Renseignement** recherché (avec la feature espionnage) |
-| **Vaisseau de colonie** | **Colonisation** niv 1 (avec la feature colonisation)                    |
-| **Officier** (futur)    | **Guerre électronique** (niveau à définir)                               |
+| Unité                   | Conditions                                                                 |
+| ----------------------- | -------------------------------------------------------------------------- |
+| **Régulier**            | military_camp (niveau à définir) + **Armement** recherché                  |
+| **Scientifique**        | **research_lab** construit + **Cartographie stellaire** recherchée         |
+| **Spectre**             | military_camp niv 5 + **Renseignement** niv 1 (avec la feature espionnage) |
+| **Vaisseau de colonie** | **Colonisation** niv 1 + chantier spatial niv 10 (placeholder)             |
 
 > Bootstrap complet : explorer à la **Sonde** (départ) → premiers points d'exploration → construire le **labo** → rechercher **Cartographie stellaire** → débloquer le **Scientifique** (moteur principal d'XP) → l'exploration s'accélère et ouvre le reste de l'arbre.
 
@@ -215,30 +209,35 @@ Placeholders à valider en passe d'équilibrage, **sauf le combat (figé)**.
 | Bâtiment               | Techno requise                                  |
 | ---------------------- | ----------------------------------------------- |
 | **Bunker**             | Technologie Cristal niv 1 (dès la construction) |
-| **Centrale nucléaire** | Conversion énergétique niv 4 (placeholder)      |
+| **Centrale nucléaire** | Conversion énergétique niv 4                    |
 
 ### Checkpoints du military_camp (technos militaires)
 
-Conservé du design précédent : les niveaux **4, 7 et 9** du `military_camp` servent de **checkpoints aux technos militaires** (Armement, Blindage tactique, Guerre électronique), en plus des checkpoints de labo. C'est la valeur des niveaux de camp qui ne débloquent aucune unité.
+Les niveaux **4, 7 et 9** du `military_camp` servent de checkpoints aux technos militaires (Armement, Blindage tactique, Guerre électronique), en plus des checkpoints de labo. C'est la valeur principale des niveaux de camp qui ne débloquent aucune unité.
 
 ---
 
-## 11. Évolutions futures
+## 11. Backlog d'enrichissement
 
-Hors périmètre actuel, notées pour anticipation :
+Hors périmètre actuel. À réouvrir si le jeu en a besoin après les phases de test.
 
-| Idée                                | Note                                                                                           |
-| ----------------------------------- | ---------------------------------------------------------------------------------------------- |
-| **Ingénierie parallèle**            | +1 file de construction. Sortie du périmètre (burst, casse la priorisation forcée).            |
-| **Chaîne de production**            | +1 file de production d'unités. Sortie du périmètre (même raison). Invention originale.        |
-| **Unité Officier**                  | Débloquée par Guerre électronique ; INT mène le tempo de l'armée.                              |
-| **Étiquettes de paliers**           | Noms originaux pour quelques niveaux jalons d'une techno (cosmétique, i18n). Pas en v1.        |
-| **Vitesse de recherche**            | Techno méta réduisant le temps de recherche.                                                   |
-| **Capacité de stockage**            | Techno augmentant le stockage (aujourd'hui 100 % bâtiment).                                    |
-| **Files de recherche parallèles**   | Plusieurs recherches simultanées.                                                              |
-| **Bonus de combat ciblés par type** | Spécialiser les bonus par type d'unité.                                                        |
-| **Branche spatiale / vaisseaux**    | Propulsion, réacteurs, armement de vaisseau, hyperespace : attend la définition des vaisseaux. |
-| **Technologies exclusives Elyrans** | Déblocage via diplomatie avec la Confédération Elyrans. Narratif pour l'instant.               |
+| Idée                                           | Note                                                                                                                                   |
+| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| **Supraconductivité**                          | Retirée : doublon d'effet avec Conversion énergétique. Candidate à réintroduction si la contrainte énergétique late devient trop dure. |
+| **Officier**                                   | Non planifiée. Débloquée par Guerre électronique (INT mène le tempo de l'armée). Rétrogradée de « future » à « non planifiée ».        |
+| **military_camp niveaux 6, 8, 10**             | Niveaux sans déblocage ni checkpoint actuellement ; candidats à des bonus de garnison ou de formation.                                 |
+| **Ingénierie parallèle**                       | +1 file de construction. Sortie du périmètre (burst, casse la priorisation forcée).                                                    |
+| **Chaîne de production**                       | +1 file de production d'unités. Sortie du périmètre (même raison). Invention originale.                                                |
+| **Étiquettes de paliers**                      | Noms originaux pour quelques niveaux jalons d'une techno (cosmétique, i18n). Pas en v1.                                                |
+| **Vitesse de recherche**                       | Techno méta réduisant le temps de recherche.                                                                                           |
+| **Capacité de stockage**                       | Techno augmentant le stockage (aujourd'hui 100 % bâtiment).                                                                            |
+| **Files de recherche parallèles**              | Plusieurs recherches simultanées.                                                                                                      |
+| **Bonus de combat ciblés par type**            | Spécialiser les bonus par type d'unité.                                                                                                |
+| **Ligne Colonisation enrichie**                | Vitesse, coût réduit, bonus colonies.                                                                                                  |
+| **Cooldown d'exploration par planète**         | Fréquence de lancement plafonnée.                                                                                                      |
+| **Branche spatiale / vaisseaux**               | Propulsion, réacteurs, armement de vaisseau, hyperespace : attend la définition des vaisseaux.                                         |
+| **Technologies exclusives Elyrans**            | Déblocage via diplomatie avec la Confédération Elyrans. Narratif pour l'instant.                                                       |
+| **Régénération cellulaire — planètes propres** | Restreindre l'effet aux combats défensifs sur ses propres planètes reste une option d'équilibrage.                                     |
 
 ---
 
@@ -252,8 +251,7 @@ Référence d'inspiration uniquement. Les noms et valeurs WoSG (licence Stargate
 | Technologie Cristal                                                      | Technologie Cristal        | Gate du Bunker (pas un bonus de métal)                      |
 | Moissonneuse Aschens                                                     | Hydroponie                 |                                                             |
 | Extracteur à Naquadah                                                    | Raffinage du thorium       |                                                             |
-| -                                                                        | Conversion énergétique     | **Originale** (Maîtrise de l'énergie = techno de vaisseau)  |
-| -                                                                        | Supraconductivité          | **Originale** (réduction de consommation)                   |
+| -                                                                        | Conversion énergétique     | **Originale** (bonus production solaire)                    |
 | P90 / Zat'n'ktel / Lance / Canon                                         | Armement                   | Technos d'arme consolidées en 1 (bonus global)              |
 | Paquetage militaire / Tourelle d'attaque mobile                          | Blindage tactique          | Augmentent la défense                                       |
 | Grenade à choc / Nish'ta / Manipulateur ADN                              | Guerre électronique        | Réduisent l'INT adverse → bonus d'INT (delta-only)          |
@@ -261,18 +259,21 @@ Référence d'inspiration uniquement. Les noms et valeurs WoSG (licence Stargate
 | Espionnage                                                               | Renseignement              | 10 niveaux conservés                                        |
 | Maîtrise de l'énergie / Technologie Naquadria                            | -                          | Technos de **vaisseaux**, mises de côté (branche vaisseaux) |
 | Technologies spatiales (Ions, Plasma, réacteurs, hyperespace, antigrav…) | -                          | Reportées avec la branche vaisseaux                         |
-| -                                                                        | (Chaîne de production)     | Invention originale, sortie du périmètre                    |
+| -                                                                        | (Supraconductivité)        | Retirée du roster — voir backlog §11                        |
+| -                                                                        | (Chaîne de production)     | Sortie du périmètre — voir backlog §11                      |
 
 ---
 
 ## 13. Structure de données
 
+> **Implémenté.** Source de vérité : `app/models/technologies.rb`. Voir `TECHNO_IMPLEMENTATION.md` pour les détails d'architecture (schéma BDD, services, job, routes).
+
 Conventions identiques à `Buildings::REGISTRY` (`requires`, `LEVEL_PREREQUISITES`, helpers). **`LAB_CAP` est supprimée.** Les déblocages (bâtiments, unités) sont déclarés **côté consommateur** (cf. §4).
+
+Chaque entrée `REGISTRY` comprend les champs `category`, `scope`, `max_level`, `requires`, `effect` **et un tableau `levels`** contenant la table de coûts `{ metal:, food:, thorium:, time: }` pour chaque niveau — tables complètes dans `research_costs_v1.md` et dans le code.
 
 ```ruby
 module Technologies
-  # Per-level lookup tables - canonical source of truth for technology effects.
-  #
   # Fields per entry:
   #   category    - :energy, :production, :military, :exploration,
   #                 :gate, :espionage, :colonization, :breakthrough
@@ -280,11 +281,13 @@ module Technologies
   #   max_level   - own ceiling (emergent cap = highest checkpoint in LEVEL_PREREQUISITES)
   #   requires    - level 1 unlock prerequisites
   #                 { research_lab:, exploration:, <other_tech>: }
-  #   effect      - { type:, per_level: } (PLACEHOLDERS except combat, locked r = 0.04)
-  #   levels      - cost table { metal:, food:, thorium:, time: } - TBD (balancing pass)
+  #   effect      - { type:, per_level: } — calibrated v1 (economy pass),
+  #                 except combat (locked r = 0.04, see combat_reference §9)
+  #   levels      - cost table array: [{ metal:, food:, thorium:, time: }, ...]
+  #                 — full tables in research_costs_v1.md
   #
   # Unlocks (units, buildings) are declared on the consumer side:
-  #   Buildings::REGISTRY  -> bunker requires technologie_cristal: 1,
+  #   Buildings::REGISTRY  -> bunker requires technologie_cristal: 1
   #                           nuclear_plant requires conversion_energetique: 4
   #   Units registry       -> regulier requires armement: 1, etc.
   REGISTRY = {
@@ -305,14 +308,11 @@ module Technologies
       effect: { type: :thorium_production_bonus, per_level: 0.06 }
     },
     conversion_energetique: {
-      category: :energy, scope: :initial, max_level: 15,
+      category: :energy, scope: :initial, max_level: 10,
       requires: { research_lab: 1, exploration: 1 },
-      effect: { type: :energy_production_bonus, per_level: 0.06 }
-    },
-    supraconductivite: {
-      category: :energy, scope: :initial, max_level: 13,
-      requires: { research_lab: 3, exploration: 3, conversion_energetique: 3 },
-      effect: { type: :energy_consumption_reduction, per_level: 0.02 }
+      # Bonus on solar_station production only (+4%/level).
+      # Unlocks nuclear_plant construction at level 4 (declared in Buildings::REGISTRY).
+      effect: { type: :solar_production_bonus, per_level: 0.04 }
     },
     armement: {
       category: :military, scope: :initial, max_level: 18,
@@ -332,7 +332,9 @@ module Technologies
     cartographie_stellaire: {
       category: :exploration, scope: :initial, max_level: 10,
       requires: { research_lab: 1, exploration: 1 },
-      effect: { type: :exploration_gain_bonus, per_level: 0.04 }
+      # +4%/level on exploration XP gained, -2%/level on losses (outside critical tier).
+      # Zero bonus on loot.
+      effect: { type: :exploration_xp_bonus, per_level: 0.04 }
     },
     technologie_cristal: {
       category: :gate, scope: :initial, max_level: 1,
@@ -362,39 +364,34 @@ module Technologies
   # Threshold format identical to Buildings::LEVEL_PREREQUISITES:
   #   { tech_key => { min_tech_level => { prereq_type => min_level } } }
   # The emergent ceiling of each tech is its highest checkpoint.
-  # ALL VALUES ARE PLACEHOLDERS (economy / exploration magnitude pass).
+  # Calibrated v1 (economy pass) - see game_design.md Annexe D.
   LEVEL_PREREQUISITES = {
     forage_cristallin: {
-      7  => { research_lab: 4,  exploration: 3 },
-      13 => { research_lab: 7,  exploration: 5 },
-      17 => { research_lab: 10, exploration: 7 }
+      7  => { research_lab: 4, exploration: 4 },
+      13 => { research_lab: 7, exploration: 6 },
+      17 => { research_lab: 10, exploration: 8 }
     },
     hydroponie: {
-      7  => { research_lab: 4,  exploration: 3 },
-      13 => { research_lab: 7,  exploration: 5 },
-      17 => { research_lab: 10, exploration: 7 }
+      7  => { research_lab: 4, exploration: 4 },
+      13 => { research_lab: 7, exploration: 6 },
+      17 => { research_lab: 10, exploration: 8 }
     },
     raffinage_thorium: {
       6  => { research_lab: 5, exploration: 4 },
       11 => { research_lab: 8, exploration: 6 }
     },
     conversion_energetique: {
-      6  => { research_lab: 4, exploration: 3 },
-      11 => { research_lab: 8, exploration: 6 }
-    },
-    supraconductivite: {
-      6  => { research_lab: 6, exploration: 5 },
-      10 => { research_lab: 9, exploration: 7 }
+      6  => { research_lab: 4, exploration: 3 }
     },
     armement: {
-      7  => { research_lab: 4,  military_camp: 4, exploration: 3 },
-      13 => { research_lab: 7,  military_camp: 7, exploration: 5 },
-      17 => { research_lab: 10, military_camp: 9, exploration: 7 }
+      7  => { research_lab: 4, military_camp: 4, exploration: 4 },
+      13 => { research_lab: 7, military_camp: 7, exploration: 6 },
+      17 => { research_lab: 10, military_camp: 9, exploration: 8 }
     },
     blindage_tactique: {
-      7  => { research_lab: 4,  military_camp: 4, exploration: 3 },
-      13 => { research_lab: 7,  military_camp: 7, exploration: 5 },
-      17 => { research_lab: 10, military_camp: 9, exploration: 7 }
+      7  => { research_lab: 4, military_camp: 4, exploration: 4 },
+      13 => { research_lab: 7, military_camp: 7, exploration: 6 },
+      17 => { research_lab: 10, military_camp: 9, exploration: 8 }
     },
     guerre_electronique: {
       6  => { research_lab: 5, military_camp: 4, exploration: 4 },
@@ -423,20 +420,13 @@ end
 
 ## 14. Questions ouvertes
 
-| Sujet                                              | État         | Note                                                                                                |
-| -------------------------------------------------- | ------------ | --------------------------------------------------------------------------------------------------- |
-| Valeurs `per_level` (hors combat)                  | À équilibrer | +6 % éco, -2 % supra, +4 % carto, +5 % régén = placeholders                                         |
-| Bonus de combat                                    | **Figé**     | `×(1 + r·niv)`, **r = 0,04**, delta-only (`combat_reference.md` §9)                                 |
-| Paliers labo / exploration / camp des checkpoints  | À équilibrer | Tous placeholders ; respecter la règle de calibration du §3                                         |
-| Tables de coûts de recherche                       | À construire | Coût géométrique métal/nourriture/thorium + temps (Annexe D)                                        |
-| Niveau de Conversion énergétique pour la nucléaire | À équilibrer | Placeholder 4 ; caler sur le crossover de coût solaire/nucléaire (vers CC 5)                        |
-| Répartition de l'effet Cartographie stellaire      | À définir    | Part +XP vs +ressources vs -pertes, valeur du plancher (passe magnitude exploration)                |
-| Portée de Régénération cellulaire                  | À trancher   | Base : toutes les pertes, partout. Option d'équilibrage : restreindre aux planètes propres          |
-| Nom « Technologie Cristal »                        | À confirmer  | Risque de confusion avec « Forage cristallin » ; alternative possible : « Structures cristallines » |
-| Cross-dépendance Colonisation ← Cartographie       | Proposé      | Lien thématique (cartographier avant de coloniser) ; à valider ou écarter                           |
-| Contrainte énergétique en late game                | À surveiller | Conversion + Supra cumulées risquent de trivialiser l'énergie (cf. §9)                              |
-| Calendrier military_camp (roster de départ)        | À refaire    | Maraudeur, Sentinelle, Sonde, Mule au départ ; niveaux exacts dans `unit_reference.md`              |
+| Sujet                                        | État        | Note                                                                                                |
+| -------------------------------------------- | ----------- | --------------------------------------------------------------------------------------------------- |
+| Portée de Régénération cellulaire            | À trancher  | Base : toutes les pertes, partout. Option d'équilibrage : restreindre aux planètes propres (§11)    |
+| Nom « Technologie Cristal »                  | À confirmer | Risque de confusion avec « Forage cristallin » ; alternative possible : « Structures cristallines » |
+| Cross-dépendance Colonisation ← Cartographie | Proposé     | Lien thématique (cartographier avant de coloniser) ; à valider ou écarter                           |
+| Coûts Colonisation / Régénération cellulaire | Provisoires | Validés provisoirement (50k/150k et base 60k) ; à confirmer lors de l'implémentation                |
 
 ---
 
-_Document vivant v1.0 - à mettre à jour au fil du développement._
+_Document vivant v1.1 - à mettre à jour au fil du développement._
