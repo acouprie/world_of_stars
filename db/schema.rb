@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_11_000002) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_15_000003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -39,6 +39,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_11_000002) do
     t.index ["planet_id"], name: "index_construction_queues_on_planet_id", unique: true
   end
 
+  create_table "planet_technologies", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "level", default: 0, null: false
+    t.bigint "planet_id", null: false
+    t.string "status", default: "idle", null: false
+    t.string "tech_key", null: false
+    t.datetime "updated_at", null: false
+    t.index ["planet_id", "tech_key"], name: "index_planet_technologies_on_planet_id_and_tech_key", unique: true
+    t.index ["planet_id"], name: "index_planet_technologies_on_planet_id"
+  end
+
   create_table "planets", force: :cascade do |t|
     t.string "biome", default: "forest", null: false
     t.integer "coord_x", null: false
@@ -56,6 +67,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_11_000002) do
     t.index ["coord_x", "coord_y"], name: "index_planets_on_coord_x_and_coord_y", unique: true
     t.index ["planet_type"], name: "index_planets_on_planet_type"
     t.index ["user_id"], name: "index_planets_on_user_id"
+  end
+
+  create_table "research_queues", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "finishes_at", null: false
+    t.integer "food_cost", null: false
+    t.integer "metal_cost", null: false
+    t.bigint "planet_id", null: false
+    t.string "sidekiq_job_id"
+    t.datetime "started_at"
+    t.string "status", default: "pending", null: false
+    t.integer "target_level", null: false
+    t.string "tech_key", null: false
+    t.integer "thorium_cost", null: false
+    t.datetime "updated_at", null: false
+    t.index ["planet_id"], name: "index_research_queues_on_planet_id"
+    t.index ["status"], name: "index_research_queues_on_status"
   end
 
   create_table "sessions", force: :cascade do |t|
@@ -94,6 +122,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_11_000002) do
   create_table "users", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email_address", null: false
+    t.integer "exploration_xp", default: 0, null: false
     t.string "password_digest", null: false
     t.datetime "updated_at", null: false
     t.string "username", null: false
@@ -104,7 +133,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_11_000002) do
   add_foreign_key "buildings", "planets"
   add_foreign_key "construction_queues", "buildings"
   add_foreign_key "construction_queues", "planets"
+  add_foreign_key "planet_technologies", "planets"
   add_foreign_key "planets", "users"
+  add_foreign_key "research_queues", "planets"
   add_foreign_key "sessions", "users"
   add_foreign_key "training_queues", "planets"
   add_foreign_key "units", "planets"
