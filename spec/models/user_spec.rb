@@ -109,6 +109,33 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe "#exploration_level" do
+    it "returns 0 with 0 XP" do
+      expect(build(:user, exploration_xp: 0).exploration_level).to eq(0)
+    end
+
+    it "returns 0 with 999 XP" do
+      expect(build(:user, exploration_xp: 999).exploration_level).to eq(0)
+    end
+
+    it "returns 1 with exactly 1000 XP" do
+      expect(build(:user, exploration_xp: 1000).exploration_level).to eq(1)
+    end
+
+    it "returns 1 with 1199 XP (just below level 2 threshold)" do
+      expect(build(:user, exploration_xp: 1199).exploration_level).to eq(1)
+    end
+
+    it "returns 2 with exactly 1200 XP" do
+      expect(build(:user, exploration_xp: 1200).exploration_level).to eq(2)
+    end
+
+    it "returns level >= 5 with sufficiently high XP" do
+      # Level 5 threshold: 1000 * 1.2^4 ≈ 2073.6, level 6 at ≈ 2488.3
+      expect(build(:user, exploration_xp: 2200).exploration_level).to eq(5)
+    end
+  end
+
   describe ".authenticate_by" do
     let!(:user) { create(:user, email_address: "bob@example.com") }
 
