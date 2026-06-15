@@ -1,0 +1,50 @@
+<% planet = local_assigns.fetch(:planet, @planet) %>
+<% queue = planet.research_queues.find(&:pending?) %>
+<% if queue %>
+  <%
+    elapsed = [Time.current - queue.started_at, 0].max
+    total   = (queue.finishes_at - queue.started_at).to_f
+    pct     = total > 0 ? [(elapsed.to_f / total * 100).round, 100].min : 0
+  %>
+  <div id="research-queue-bar"
+       data-controller="queue-timer"
+       data-queue-timer-completes-at-value="<%= queue.finishes_at.iso8601 %>"
+       data-queue-timer-started-at-value="<%= queue.started_at.iso8601 %>">
+    <div class="flex items-center gap-3 flex-wrap">
+      <span class="scifi-text text-[10px] uppercase tracking-wider text-text-muted whitespace-nowrap"><%= t("research.queue_label") %></span>
+      <span class="text-[12px] text-text whitespace-nowrap">
+        <%= t("technologies.names.#{queue.tech_key}", default: queue.tech_key.humanize) %>
+        <%= t("research.level_target", level: queue.target_level) %>
+      </span>
+      <div class="flex-1"></div>
+      <button class="flex items-center gap-1 group cursor-pointer"
+              title="<%= t("construction_queues.toggle_display") %>"
+              data-action="click->queue-timer#toggle">
+        <span data-queue-timer-target="display"
+              class="font-mono text-[12px] text-text whitespace-nowrap tabular-nums"></span>
+        <span class="text-[9px] text-text-subtle opacity-40 group-hover:opacity-90 transition-opacity select-none">⇄</span>
+      </button>
+      <button type="button"
+              class="text-[10px] text-text-subtle hover:text-alert transition-colors whitespace-nowrap cursor-pointer"
+              data-action="click->confirm-dialog#open"
+              data-confirm-dialog-url-param="<%= planet_research_queue_path(planet) %>"
+              data-confirm-dialog-method-param="delete"
+              data-confirm-dialog-title-param="<%= t('research.cancel_confirm_title') %>"
+              data-confirm-dialog-message-param="<%= t('research.cancel_confirm_message') %>">
+        <%= t("research.cancel_button") %>
+      </button>
+    </div>
+    <div class="h-1 w-full rounded-full overflow-hidden" style="background: var(--color-border);">
+      <div data-queue-timer-target="bar"
+           class="h-full rounded-full"
+           style="width: <%= pct %>%; background: var(--color-infra);"></div>
+    </div>
+  </div>
+<% else %>
+  <div id="research-queue-bar">
+    <div class="flex items-center gap-3">
+      <span class="scifi-text text-[10px] uppercase tracking-wider text-text-muted"><%= t("research.queue_label") %></span>
+      <span class="text-[11px] text-text-subtle"><%= t("research.no_research") %></span>
+    </div>
+  </div>
+<% end %>

@@ -1,0 +1,125 @@
+<% provide(:title, "World of Stars — #{t('research.page_title')}") %>
+
+<%= render 'planets/resources_bar', planet: @planet %>
+
+<div class="scifi-text flex items-center gap-3 px-5 py-4">
+  <%= link_to planet_path(@planet), class: "text-[11px] text-text-subtle hover:text-text transition-colors" do %>
+    ← <%= @planet.name %>
+  <% end %>
+  <span class="text-text-subtle opacity-30">/</span>
+  <span class="text-[13px] text-text"><%= t("research.page_title") %></span>
+</div>
+
+<%# Exploration level header %>
+<%
+  explo_level = @user.exploration_level
+  base_xp     = User::EXPLORATION_LEVEL_BASE_XP
+  factor      = User::EXPLORATION_LEVEL_FACTOR
+  prev_xp     = explo_level == 0 ? 0 : (base_xp * factor ** (explo_level - 1)).round
+  next_xp     = (base_xp * factor ** explo_level).round
+  xp_in_level = @user.exploration_xp - prev_xp
+  xp_needed   = next_xp - prev_xp
+  progress_pct = [[xp_in_level.to_f / xp_needed * 100, 0].max, 100].min.round
+%>
+<div class="px-5 pb-3 flex flex-col gap-1.5 scifi-text">
+  <div class="flex items-center justify-between">
+    <span class="text-[12px] text-text"><%= t("research.exploration_level", level: explo_level) %></span>
+    <span class="text-[11px] text-text-muted"><%= t("research.xp_progress", current: number_with_delimiter(@user.exploration_xp), needed: number_with_delimiter(next_xp)) %></span>
+  </div>
+  <div class="h-1 w-full rounded-full overflow-hidden" style="background: var(--color-border);">
+    <div class="h-full rounded-full transition-all" style="width: <%= progress_pct %>%; background: var(--color-quantum);"></div>
+  </div>
+</div>
+
+<%# Research queue bar %>
+<div class="px-5 pb-4">
+  <%= render "research/queue_bar", planet: @planet %>
+</div>
+
+<%# Technology tree by category %>
+<div class="px-5 pb-8 flex flex-col gap-6 scifi-text">
+  <% @techs_by_category.each do |category, techs| %>
+    <div class="flex flex-col gap-3">
+      <p class="text-[11px] uppercase tracking-wider" style="color: var(--color-<%= tech_category_color(category) %>);">
+        <%= t("technologies.categories.#{category}") %>
+      </p>
+
+      <% techs.each do |tech| %>
+        <%
+          key    = tech[:key]
+          status = tech[:status]
+          cost   = tech[:next_cost]
+          locked = status == :locked
+          at_max = status == :max
+          researching = status == :researching
+          can_research = status == :available && @active_queue.nil?
+        %>
+        <div class="rounded border p-3 flex flex-col gap-2 <%= tech_card_classes(status) %>">
+          <div class="flex items-start justify-between gap-2">
+            <div class="flex flex-col gap-0.5">
+              <div class="flex items-center gap-2">
+                <span class="text-[13px] font-medium text-text">
+                  <%= t("technologies.names.#{key}", default: key.to_s.humanize) %>
+                </span>
+                <% if at_max %>
+                  <span class="rounded border border-quantum/40 bg-quantum/10 text-quantum text-[9px] px-1.5 py-0.5"><%= t("research.max_badge") %></span>
+                <% elsif researching %>
+                  <span class="rounded border border-infra/40 bg-infra/10 text-infra text-[9px] px-1.5 py-0.5"><%= t("research.researching_badge") %></span>
+                <% end %>
+              </div>
+              <span class="text-[11px] text-text-muted"><%= t("research.current_level", current: tech[:current_level], max: tech[:max_level]) %></span>
+            </div>
+          </div>
+
+          <% if locked %>
+            <div class="flex flex-col gap-1 text-[11px] text-text-muted">
+              <span class="text-alert/70">⊘ <%= t("research.prerequisites_not_met") %></span>
+            </div>
+          <% end %>
+
+          <% if cost && !at_max && !researching %>
+            <div class="flex flex-wrap gap-x-3 gap-y-1 text-[12px]">
+              <% if cost[:metal].to_i > 0 %>
+                <span class="flex items-center gap-1">
+                  <%= image_tag "icons/metal.png", alt: t("resources.metal"), class: "h-3 w-3" %>
+                  <span class="<%= @planet.metal_stock.to_f >= cost[:metal].to_f ? 'text-quantum' : 'text-alert' %>"><%= number_with_delimiter(cost[:metal]) %></span>
+                </span>
+              <% end %>
+              <% if cost[:food].to_i > 0 %>
+                <span class="flex items-center gap-1">
+                  <%= image_tag "icons/food.png", alt: t("resources.food"), class: "h-3 w-3" %>
+                  <span class="<%= @planet.food_stock.to_f >= cost[:food].to_f ? 'text-quantum' : 'text-alert' %>"><%= number_with_delimiter(cost[:food]) %></span>
+                </span>
+              <% end %>
+              <% if cost[:thorium].to_i > 0 %>
+                <span class="flex items-center gap-1">
+                  <%= image_tag "icons/thorium.png", alt: t("resources.thorium"), class: "h-3 w-3" %>
+                  <span class="<%= @planet.thorium_stock.to_f >= cost[:thorium].to_f ? 'text-quantum' : 'text-alert' %>"><%= number_with_delimiter(cost[:thorium]) %></span>
+                </span>
+              <% end %>
+              <span class="text-text-muted text-[11px] flex items-center gap-1">
+                <span class="opacity-60">⏱</span>
+                <%= format_duration(cost[:time]) %>
+              </span>
+            </div>
+
+            <%= form_with url: planet_research_queue_path(@planet), method: :post, class: "mt-1" do |f| %>
+              <%= f.hidden_field :tech_key, value: key %>
+              <%= f.submit t("research.research_button"),
+                    class: "w-full rounded border px-3 py-1.5 text-[12px] font-medium transition-opacity " +
+                           (can_research && tech[:can_afford] ? "border-infra text-infra cursor-pointer hover:bg-infra/10" : "border-border text-text-subtle opacity-40 cursor-not-allowed"),
+                    disabled: !(can_research && tech[:can_afford]) %>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if @techs_by_category.empty? %>
+    <div class="flex flex-col items-center justify-center gap-2 py-12 text-center">
+      <span class="text-2xl opacity-30">⊘</span>
+      <span class="text-[12px] text-text-subtle"><%= t("research.no_techs") %></span>
+    </div>
+  <% end %>
+</div>
