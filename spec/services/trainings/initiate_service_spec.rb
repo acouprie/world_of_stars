@@ -39,8 +39,8 @@ RSpec.describe Trainings::InitiateService do
     it "debits proportionally for quantity > 1" do
       cost         = Units.cost_for(:maraudeur)
       before_metal = planet.metal_stock.to_f
-      call(quantity: 3)
-      expect(planet.reload.metal_stock.to_f).to be_within(0.01).of(before_metal - cost[:metal] * 3)
+      call(quantity: 2)
+      expect(planet.reload.metal_stock.to_f).to be_within(0.01).of(before_metal - cost[:metal] * 2)
     end
   end
 
@@ -63,10 +63,10 @@ RSpec.describe Trainings::InitiateService do
     end
 
     it "scales duration by quantity" do
-      result   = call(quantity: 5)
+      result   = call(quantity: 2)
       queue    = result.queue
       per_unit = Units.training_time(:maraudeur, 1)
-      expect((queue.completes_at - queue.started_at).to_i).to eq(per_unit * 5)
+      expect((queue.completes_at - queue.started_at).to_i).to eq(per_unit * 2)
     end
   end
 
@@ -108,12 +108,20 @@ RSpec.describe Trainings::InitiateService do
       expect(result.success?).to be false
     end
 
-    it "fails for sentinelle when military_camp < 5" do
+    it "fails for sentinelle when military_camp < 2" do
       result = described_class.new(planet, "sentinelle", 1).call
       expect(result.success?).to be false
     end
 
-    it "fails for spectre when military_camp < 6" do
+    it "succeeds for sentinelle when military_camp >= 2 (no technology required)" do
+      military_camp.update!(level: 2)
+      planet.buildings.reset
+      planet.buildings.load
+      result = described_class.new(planet, "sentinelle", 1).call
+      expect(result.success?).to be true
+    end
+
+    it "fails for spectre when military_camp < 5" do
       result = described_class.new(planet, "spectre", 1).call
       expect(result.success?).to be false
     end
@@ -140,20 +148,21 @@ RSpec.describe Trainings::InitiateService do
       expect(result.success?).to be true
     end
 
-    it "fails for sentinelle without blindage_tactique" do
+    it "fails for spectre without renseignement (even with camp >= 5)" do
       military_camp.update!(level: 5)
-      planet.buildings.reset
-      planet.buildings.load
-      result = described_class.new(planet, "sentinelle", 1).call
-      expect(result.success?).to be false
-    end
-
-    it "fails for spectre without guerre_electronique" do
-      military_camp.update!(level: 6)
       planet.buildings.reset
       planet.buildings.load
       result = described_class.new(planet, "spectre", 1).call
       expect(result.success?).to be false
+    end
+
+    it "succeeds for spectre when military_camp >= 5 and renseignement is researched" do
+      military_camp.update!(level: 5)
+      planet.buildings.reset
+      planet.buildings.load
+      allow_any_instance_of(User).to receive(:technology_level) { |_, key| key == :renseignement ? 1 : 0 }
+      result = described_class.new(planet, "spectre", 1).call
+      expect(result.success?).to be true
     end
   end
 
@@ -164,10 +173,11 @@ RSpec.describe Trainings::InitiateService do
       expect(result.error).to eq("prerequisite_missing")
     end
 
-    it "succeeds when research_lab >= 1 is built" do
+    it "succeeds when research_lab is built and cartographie_stellaire is researched" do
       create(:building, planet: planet, building_type: "research_lab", level: 1, slot_index: 3)
       planet.buildings.reset
       planet.buildings.load
+      allow_any_instance_of(User).to receive(:technology_level) { |_, key| key == :cartographie_stellaire ? 1 : 0 }
       result = described_class.new(planet, "scientifique", 1).call
       expect(result.success?).to be true
     end
@@ -190,19 +200,10 @@ RSpec.describe Trainings::InitiateService do
     end
   end
 
-  describe "queue capacity (chaine_de_production technology)" do
-    it "fails with queue_full when default slot is occupied" do
+  describe "queue capacity (single slot)" do
+    it "fails with queue_full when the slot is occupied" do
       call
       expect(call.error).to eq("queue_full")
-    end
-
-    it "allows a second queue when chaine_de_production returns level >= 1" do
-      # with_lock reloads the planet and clears the user association cache, so stub any User.
-      # The block handles all keys: chaine_de_production → 1, everything else → 0.
-      allow_any_instance_of(User).to receive(:technology_level) { |_, key| key == :chaine_de_production ? 1 : 0 }
-      call
-      result2 = described_class.new(planet, "maraudeur", 1).call
-      expect(result2.success?).to be true
     end
   end
 

@@ -107,7 +107,8 @@ en:
       armement: "Armament"
       blindage_tactique: "Tactical Armour"
       guerre_electronique: "Electronic Warfare"
-      chaine_de_production: "Production Line"
+      renseignement: "Intelligence"
+      cartographie_stellaire: "Stellar Cartography"
 
   construction_queues:
     cancel_button: "Cancel"

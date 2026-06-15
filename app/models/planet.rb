@@ -109,11 +109,9 @@ class Planet < ApplicationRecord
     end.keys
   end
 
-  # Number of parallel training queue slots available to this planet's owner.
-  # Defaults to 1; each level of the chaine_de_production technology adds one slot.
-  # TODO: remove the stub guard once Technologies are implemented (tech_reference §6)
+  # Single training queue slot per planet. Parallel queues (ex-Chaîne de production) are backlog.
   def training_queue_slots
-    1 + (user&.technology_level(:chaine_de_production) || 0)
+    1
   end
 
   # Must be called inside a with_lock block.

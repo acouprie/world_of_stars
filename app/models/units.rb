@@ -12,7 +12,7 @@ module Units
   #   combat     — true ONLY for maraudeur, regulier, sentinelle; false for all others
   #                including scientifique (ATQ 2 but not a combat unit per combat_reference §6)
   #   stats      — { atk, def, int, transport, exploration, espionage } — baseline v2.1
-  #   cost       — { metal, food, thorium } — calibration placeholder (scale factor k=1 from unit_reference §4)
+  #   cost       — { metal, food, thorium } — scale k=5 (unit_reference §4, passe économie validée)
   #   base_time  — formation time in seconds at training_camp level 1
   #   requires   — unlock prerequisites (military_camp level, research_lab level, or technology key)
   #                technology: :key means the player must have researched that technology at level >= 1
@@ -21,7 +21,7 @@ module Units
       category: :combat,
       combat: true,
       stats: { atk: 16, def: 20, int: 6, transport: 50, exploration: :minor_fixed, espionage: 0 },
-      cost: { metal: 70, food: 30, thorium: 0 },
+      cost: { metal: 350, food: 150, thorium: 0 },
       base_time: 450,
       requires: { military_camp: 1 }
     },
@@ -29,7 +29,7 @@ module Units
       category: :combat,
       combat: true,
       stats: { atk: 11, def: 30, int: 8, transport: 80, exploration: :minor_fixed, espionage: 0 },
-      cost: { metal: 75, food: 30, thorium: 10 },
+      cost: { metal: 375, food: 150, thorium: 50 },
       base_time: 630,
       requires: { military_camp: 3, technology: :armement }
     },
@@ -37,23 +37,23 @@ module Units
       category: :combat,
       combat: true,
       stats: { atk: 13, def: 38, int: 10, transport: 30, exploration: :minor_fixed, espionage: 0 },
-      cost: { metal: 95, food: 35, thorium: 30 },
+      cost: { metal: 475, food: 175, thorium: 150 },
       base_time: 750,
-      requires: { military_camp: 5, technology: :blindage_tactique }
+      requires: { military_camp: 2 }
     },
     scientifique: {
       category: :exploration,
       combat: false,
       stats: { atk: 2, def: 14, int: 7, transport: 60, exploration: :main, espionage: 0 },
-      cost: { metal: 60, food: 45, thorium: 25 },
+      cost: { metal: 300, food: 225, thorium: 125 },
       base_time: 750,
-      requires: { research_lab: 1 }
+      requires: { research_lab: 1, technology: :cartographie_stellaire }
     },
     sonde: {
       category: :reconnaissance,
       combat: false,
       stats: { atk: 0, def: 12, int: 4, transport: 150, exploration: :minor, espionage: 3 },
-      cost: { metal: 80, food: 40, thorium: 30 },
+      cost: { metal: 400, food: 200, thorium: 150 },
       base_time: 750,
       requires: { military_camp: 1 }
     },
@@ -61,15 +61,15 @@ module Units
       category: :reconnaissance,
       combat: false,
       stats: { atk: 0, def: 10, int: 2, transport: 0, exploration: :minor, espionage: 12 },
-      cost: { metal: 70, food: 25, thorium: 40 },
+      cost: { metal: 350, food: 125, thorium: 200 },
       base_time: 900,
-      requires: { military_camp: 6, technology: :guerre_electronique }
+      requires: { military_camp: 5, technology: :renseignement }
     },
     mule: {
       category: :transport,
       combat: false,
       stats: { atk: 0, def: 16, int: 1, transport: 350, exploration: nil, espionage: 0 },
-      cost: { metal: 70, food: 40, thorium: 0 },
+      cost: { metal: 350, food: 200, thorium: 0 },
       base_time: 750,
       requires: { military_camp: 2 }
     }

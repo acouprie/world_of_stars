@@ -274,8 +274,8 @@ RSpec.describe Combats::Resolver do
       r = resolve({ maraudeur: 300 }, { maraudeur: 10 }, seed: 42)
       expect(r.outcome).to eq(:attacker_wins)
       killed = r.losses[:defender].fetch(:maraudeur, 0)
-      # maraudeur cost = 70 metal + 30 food + 0 thorium = 100
-      expect(r.xp[:attacker]).to eq(killed * 100)
+      # maraudeur cost k=5: 350 metal + 150 food + 0 thorium = 500
+      expect(r.xp[:attacker]).to eq(killed * 500)
     end
 
     it "XP = base × 1 when winner has losses, even at ratio < 5× (§11 zero-loss condition)" do

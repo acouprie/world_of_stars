@@ -12,7 +12,7 @@ class User < ApplicationRecord
 
   # TODO: Returns 0 for all technologies until Technologies are implemented (tech_reference §6, §10).
   # When the Technologies feature lands, replace this with a DB lookup on the player's researched
-  # technology levels (e.g. :armement, :chaine_de_production, :blindage_tactique).
+  # technology levels (e.g. :armement, :blindage_tactique, :renseignement, :cartographie_stellaire).
   def technology_level(_technology_key)
     0
   end

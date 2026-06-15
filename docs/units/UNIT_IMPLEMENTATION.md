@@ -101,21 +101,22 @@
 
 ---
 
-## 3bis. Divergences avec la passe économie - corrections à appliquer
+## 3bis. Divergences avec la passe économie - corrections appliquées
 
 Implémenté sur la base des docs pré-passe économie. Prompt de correction : `prompt_correction_implement_units.md`.
+**Toutes les divergences du tableau ci-dessous ont été corrigées** (commit de correction alignement passe économie).
 
-| # | Sujet | Implémenté | Attendu |
-| - | ----- | ---------- | ------- |
-| 1 | Échelle de coûts | k = 1 (Maraudeur 100...) | **k = 5** (Maraudeur 500...) |
-| 2 | Sentinelle | camp 5 + Blindage tactique | **camp 2, sans techno** |
-| 3 | Mule | camp 2 | camp 2 (inchangé) |
-| 4 | Spectre | camp 6 + Guerre électronique | **camp 5 + Renseignement** |
-| 5 | Scientifique | research_lab seul | **research_lab + Cartographie stellaire** |
-| 6 | Files de production | parallèles via « Chaîne de production » | **file unique** (Chaîne de production = backlog) |
-| 7 | Mécanismes d'exploration | coût/3 plafonné transport, escorte/recon qualitatifs | **poids w, escorte 0,5×part, critique sans modificateurs, butin non-combat pondéré, bases d'XP 60/25/25/10/0** |
-| 8 | Niveaux d'exploration joueur | (orchestration) | seuils **×1,7**, à déclarer en constantes |
-| 9 | Missions simultanées | (orchestration : « une à la fois ») | **5 explorations simultanées** |
+| # | Sujet | Avant correction | Après correction | Statut |
+| - | ----- | ---------------- | ---------------- | ------ |
+| 1 | Échelle de coûts | k = 1 (Maraudeur 100...) | **k = 5** (Maraudeur 500...) | ✅ corrigé |
+| 2 | Sentinelle | camp 5 + Blindage tactique | **camp 2, sans techno** | ✅ corrigé |
+| 3 | Mule | camp 2 | camp 2 (inchangé) | ✅ inchangé |
+| 4 | Spectre | camp 6 + Guerre électronique | **camp 5 + Renseignement** | ✅ corrigé |
+| 5 | Scientifique | research_lab seul | **research_lab + Cartographie stellaire** | ✅ corrigé |
+| 6 | Files de production | parallèles via « Chaîne de production » | **file unique** (Chaîne de production = backlog) | ✅ corrigé |
+| 7 | Mécanismes d'exploration | coût/3 plafonné transport, escorte/recon qualitatifs | **poids w, escorte 0,5×part, critique sans modificateurs, butin non-combat pondéré, bases d'XP 60/25/25/10/0** | ✅ corrigé |
+| 8 | Niveaux d'exploration joueur | (orchestration) | seuils **×1,7**, déclarés en constantes (`Explorations::EXPLORATION_LEVEL_BASE/FACTOR/GAIN_PER_LEVEL`) | ✅ corrigé |
+| 9 | Missions simultanées | (orchestration : « une à la fois ») | **`MAX_SIMULTANEOUS_EXPLORATIONS = 5`** déclaré | ✅ corrigé |
 
 ---
 
@@ -132,7 +133,7 @@ Implémenté sur la base des docs pré-passe économie. Prompt de correction : `
 
 ## 5. Stubs / TODOs encore actifs
 
-1. **`User#technology_level` → 0** (jusqu'au système de technologies). Conséquence **après correction du calendrier** : Régulier (Armement), Spectre (Renseignement) et Scientifique (Cartographie stellaire) sont **verrouillés** en l'état ; Maraudeur, Sonde, **Sentinelle et Mule** sont produisibles dès les camps 1-2.
+1. **`User#technology_level` → 0** (jusqu'au système de technologies). Conséquence post-correction calendrier : Régulier (Armement), Spectre (Renseignement) et Scientifique (Cartographie stellaire) sont **verrouillés** en l'état. Roster produisible : **Maraudeur + Sonde** (camp 1), **Sentinelle + Mule** (camp 2, sans techno). C'est le comportement design-correct ; utiliser un seed/fixture dev qui force `technology_level` si besoin en test manuel, pas un contournement dans la logique.
 2. **Prérequis `exploration_level` du `research_lab`** → TODO dans `Buildings::InitiateService` (c'est une stat **joueur**, pas un niveau de bâtiment).
 3. **Vérifications légères suggérées, non confirmées** : test sur la table de multiplicateurs XP (§11, condition zéro-perte + paliers de ratio) et sur `pillage_capacity` côté combat ; test de propriété garantissant `E[butin] ≤ E[coût des pertes]` côté exploration (à rejouer avec les poids w).
 

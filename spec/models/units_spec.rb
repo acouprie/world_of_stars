@@ -42,15 +42,15 @@ RSpec.describe Units do
     end
   end
 
-  describe "costs (unit_reference §4, k=1 baseline)" do
+  describe "costs (unit_reference §4, k=5 validated)" do
     {
-      maraudeur:    { metal: 70, food: 30, thorium: 0  },
-      regulier:     { metal: 75, food: 30, thorium: 10 },
-      sentinelle:   { metal: 95, food: 35, thorium: 30 },
-      scientifique: { metal: 60, food: 45, thorium: 25 },
-      sonde:        { metal: 80, food: 40, thorium: 30 },
-      spectre:      { metal: 70, food: 25, thorium: 40 },
-      mule:         { metal: 70, food: 40, thorium: 0  }
+      maraudeur:    { metal: 350, food: 150, thorium: 0   },
+      regulier:     { metal: 375, food: 150, thorium: 50  },
+      sentinelle:   { metal: 475, food: 175, thorium: 150 },
+      scientifique: { metal: 300, food: 225, thorium: 125 },
+      sonde:        { metal: 400, food: 200, thorium: 150 },
+      spectre:      { metal: 350, food: 125, thorium: 200 },
+      mule:         { metal: 350, food: 200, thorium: 0   }
     }.each do |type, expected|
       it "#{type} has cost #{expected}" do
         expect(Units.cost_for(type)).to eq(expected)

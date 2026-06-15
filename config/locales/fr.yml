@@ -107,7 +107,8 @@ fr:
       armement: "Armement"
       blindage_tactique: "Blindage tactique"
       guerre_electronique: "Guerre électronique"
-      chaine_de_production: "Chaîne de production"
+      renseignement: "Renseignement"
+      cartographie_stellaire: "Cartographie stellaire"
 
   construction_queues:
     cancel_button: "Annuler"
