@@ -30,7 +30,7 @@ module Units
       combat: true,
       stats: { atk: 11, def: 30, int: 8, transport: 80, exploration: :minor_fixed, espionage: 0 },
       cost: { metal: 375, food: 150, thorium: 50 },
-      base_time: 630,
+      base_time: 600,
       requires: { military_camp: 3, technology: :armement }
     },
     sentinelle: {
