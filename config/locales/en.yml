@@ -62,6 +62,15 @@ en:
     construction_queues:
       cancelled: "Construction cancelled, resources refunded"
       no_pending_queue: "No construction in progress"
+    researches:
+      started: "Research started"
+      already_researching: "A research is already in progress"
+      prerequisite_missing: "Prerequisites not met"
+      insufficient_resources: "Insufficient resources"
+      max_level_reached: "Maximum level reached"
+    research_queues:
+      cancelled: "Research cancelled, resources refunded"
+      no_pending_queue: "No research in progress"
 
   ui:
     cancel: "Cancel"
@@ -78,6 +87,47 @@ en:
     train: "Train"
     requires_building: "%{building} level %{level} required"
     requires_technology: "Technology %{tech} required"
+
+  technologies:
+    names:
+      forage_cristallin: "Crystal Drilling"
+      hydroponie: "Hydroponics"
+      raffinage_thorium: "Thorium Refining"
+      conversion_energetique: "Energy Conversion"
+      armement: "Armament"
+      blindage_tactique: "Tactical Shielding"
+      guerre_electronique: "Electronic Warfare"
+      cartographie_stellaire: "Stellar Cartography"
+      technologie_cristal: "Crystal Technology"
+      renseignement: "Intelligence"
+      colonisation: "Colonization"
+      regeneration_cellulaire: "Cellular Regeneration"
+    categories:
+      energy: "Energy"
+      production: "Production"
+      military: "Military"
+      exploration: "Exploration"
+      gate: "Unlock"
+      espionage: "Espionage"
+      colonization: "Colonization"
+      breakthrough: "Breakthrough"
+
+  research:
+    page_title: "Research"
+    queue_label: "Research in progress"
+    no_research: "No research in progress"
+    level_target: "Lv. %{level}"
+    cancel_button: "Cancel"
+    cancel_confirm_title: "Cancel research?"
+    cancel_confirm_message: "Resource costs will be fully refunded."
+    research_button: "Research"
+    max_badge: "Max"
+    researching_badge: "In progress"
+    prerequisites_not_met: "Prerequisites not met"
+    current_level: "Lv. %{current} / %{max}"
+    exploration_level: "Exploration level %{level}"
+    xp_progress: "%{current} / %{needed} XP"
+    no_techs: "No technologies available"
 
   units:
     types:

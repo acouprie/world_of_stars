@@ -62,6 +62,15 @@ fr:
     construction_queues:
       cancelled: "Construction annulée, ressources remboursées"
       no_pending_queue: "Aucune construction en cours"
+    researches:
+      started: "Recherche lancée"
+      already_researching: "Une recherche est déjà en cours"
+      prerequisite_missing: "Prérequis non rempli"
+      insufficient_resources: "Ressources insuffisantes"
+      max_level_reached: "Niveau maximum atteint"
+    research_queues:
+      cancelled: "Recherche annulée, ressources remboursées"
+      no_pending_queue: "Aucune recherche en cours"
 
   ui:
     cancel: "Annuler"
@@ -104,11 +113,44 @@ fr:
 
   technologies:
     names:
+      forage_cristallin: "Forage cristallin"
+      hydroponie: "Hydroponie"
+      raffinage_thorium: "Raffinage du thorium"
+      conversion_energetique: "Conversion énergétique"
       armement: "Armement"
       blindage_tactique: "Blindage tactique"
       guerre_electronique: "Guerre électronique"
-      renseignement: "Renseignement"
       cartographie_stellaire: "Cartographie stellaire"
+      technologie_cristal: "Technologie Cristal"
+      renseignement: "Renseignement"
+      colonisation: "Colonisation"
+      regeneration_cellulaire: "Régénération cellulaire"
+    categories:
+      energy: "Énergie"
+      production: "Production"
+      military: "Militaire"
+      exploration: "Exploration"
+      gate: "Déblocage"
+      espionage: "Espionnage"
+      colonization: "Colonisation"
+      breakthrough: "Percée"
+
+  research:
+    page_title: "Recherche"
+    queue_label: "Recherche en cours"
+    no_research: "Aucune recherche en cours"
+    level_target: "Nv. %{level}"
+    cancel_button: "Annuler"
+    cancel_confirm_title: "Annuler la recherche ?"
+    cancel_confirm_message: "Le coût en ressources sera intégralement remboursé."
+    research_button: "Rechercher"
+    max_badge: "Max"
+    researching_badge: "En cours"
+    prerequisites_not_met: "Prérequis non remplis"
+    current_level: "Nv. %{current} / %{max}"
+    exploration_level: "Exploration niveau %{level}"
+    xp_progress: "%{current} / %{needed} XP"
+    no_techs: "Aucune technologie disponible"
 
   construction_queues:
     cancel_button: "Annuler"
