@@ -17,7 +17,7 @@ module Trainings
         planet.calculate_resources!
 
         return failure("queue_full")           unless queue_slot_available?
-        return failure("prerequisite_missing") unless prerequisite_met?
+        return failure("prerequisite_missing") unless Units.unlocked?(@unit_type, planet)
 
         cost = total_cost
         return failure("insufficient_resources") unless can_afford?(cost)
@@ -57,19 +57,6 @@ module Trainings
 
     def queue_slot_available?
       planet.training_queues.pending.count < planet.training_queue_slots
-    end
-
-    def prerequisite_met?
-      config       = Units::REGISTRY[@unit_type.to_sym]
-      all_requires = Units::UNIVERSAL_REQUIRES.merge(config[:requires] || {})
-      all_requires.all? do |req_type, req_value|
-        case req_type
-        when :technology
-          (planet.user&.technology_level(req_value) || 0) >= 1
-        else
-          building_level(req_type) >= req_value
-        end
-      end
     end
 
     def building_level(type)
