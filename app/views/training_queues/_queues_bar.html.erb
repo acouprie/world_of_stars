@@ -1,0 +1,41 @@
+<% planet = local_assigns.fetch(:planet, @planet) %>
+<% pending_queues = planet.training_queues.select(&:pending?).sort_by(&:started_at) %>
+<div id="training-queues-bar">
+  <% if pending_queues.any? %>
+    <% pending_queues.each do |queue| %>
+      <%
+        elapsed = [Time.current - queue.started_at, 0].max
+        total   = (queue.completes_at - queue.started_at).to_f
+        pct     = total > 0 ? [(elapsed.to_f / total * 100).round, 100].min : 0
+      %>
+      <div class="flex flex-col gap-1 py-1"
+           data-controller="queue-timer"
+           data-queue-timer-completes-at-value="<%= queue.completes_at.iso8601 %>"
+           data-queue-timer-started-at-value="<%= queue.started_at.iso8601 %>">
+        <div class="flex items-center gap-3 flex-wrap">
+          <span class="scifi-text text-[10px] uppercase tracking-wider text-text-muted whitespace-nowrap"><%= t("training_queues.queue_label") %></span>
+          <span class="text-[12px] text-text whitespace-nowrap">
+            <%= unit_name(queue.unit_type) %> &times;<%= queue.quantity %>
+          </span>
+          <div class="flex-1"></div>
+          <button class="flex items-center gap-1 group cursor-pointer"
+                  data-action="click->queue-timer#toggle">
+            <span data-queue-timer-target="display"
+                  class="font-mono text-[12px] text-text whitespace-nowrap tabular-nums"></span>
+            <span class="text-[9px] text-text-subtle opacity-40 group-hover:opacity-90 transition-opacity select-none">⇄</span>
+          </button>
+        </div>
+        <div class="h-1 w-full rounded-full overflow-hidden" style="background: var(--color-border);">
+          <div data-queue-timer-target="bar"
+               class="h-full rounded-full"
+               style="width: <%= pct %>%; background: var(--color-military);"></div>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="flex items-center gap-3">
+      <span class="scifi-text text-[10px] uppercase tracking-wider text-text-muted"><%= t("training_queues.queue_label") %></span>
+      <span class="text-[11px] text-text-subtle"><%= t("training_queues.empty") %></span>
+    </div>
+  <% end %>
+</div>

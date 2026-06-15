@@ -19,6 +19,13 @@
 
 <%= render "construction_queues/queue_bar", planet: @planet %>
 
+<%= render "training_queues/queues_bar", planet: @planet %>
+
 <div id="buildings-list-container">
   <%= render 'planets/buildings_list', planet: @planet %>
+</div>
+
+<div class="px-5 pb-2">
+  <%= link_to t("training_queues.manage_link"), planet_training_queues_path(@planet),
+        class: "scifi-text text-[11px] text-military hover:text-military/70 transition-colors" %>
 </div>

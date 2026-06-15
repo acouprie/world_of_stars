@@ -24,6 +24,8 @@ class Planet < ApplicationRecord
   belongs_to :user, optional: true
   has_many :buildings, dependent: :destroy
   has_one  :construction_queue, dependent: :destroy
+  has_many :units, dependent: :destroy
+  has_many :training_queues, dependent: :destroy
 
   validates :planet_type,  inclusion: { in: PLANET_TYPES }
   validates :biome,  inclusion: { in: BIOMES }
@@ -107,9 +109,14 @@ class Planet < ApplicationRecord
     end.keys
   end
 
+  # Single training queue slot per planet. Parallel queues (ex-Chaîne de production) are backlog.
+  def training_queue_slots
+    1
+  end
+
   # Must be called inside a with_lock block.
   def calculate_resources!(now: Time.current)
-    elapsed = (now - resources_updated_at).to_f
+    elapsed = (now - resources_updated_at).to_f * GameSpeed::MULTIPLIER
     elapsed = 0.0 if elapsed < 0
 
     self.metal_stock   = [[metal_stock.to_f   + metal_rate   * elapsed, 0].max, metal_capacity].min
