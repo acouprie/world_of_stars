@@ -15,9 +15,15 @@ end
 
 RSpec.configure do |config|
   config.fixture_paths = [Rails.root.join("spec/fixtures")]
-  config.use_transactional_fixtures = true
+  config.use_transactional_fixtures = false
   config.infer_spec_type_from_file_location!
   config.filter_rails_from_backtrace!
+
+  config.before(:suite)          { DatabaseCleaner.clean_with(:truncation) }
+  config.before(:each)           { DatabaseCleaner.strategy = :transaction }
+  config.before(:each, js: true) { DatabaseCleaner.strategy = :deletion }
+  config.before(:each)           { DatabaseCleaner.start }
+  config.after(:each)            { DatabaseCleaner.clean }
 end
 
 Shoulda::Matchers.configure do |config|

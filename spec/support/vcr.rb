@@ -7,4 +7,6 @@ VCR.configure do |config|
     match_requests_on: %i[method uri body]
   }
   config.filter_sensitive_data("<API_KEY>") { ENV["API_KEY"] }
+  # Allow Capybara/Cuprite to probe the local test server.
+  config.ignore_localhost = true
 end

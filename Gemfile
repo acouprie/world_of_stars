@@ -50,6 +50,9 @@ end
 
 group :test do
   gem "shoulda-matchers", "~> 6.0"
+  gem "capybara"
+  gem "cuprite"
+  gem "database_cleaner-active_record"
 end
 
 group :development do

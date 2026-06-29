@@ -1,4 +1,4 @@
-FROM ruby:3.4
+FROM ruby:3.4-bookworm
 
 RUN apt-get update -qq && \
   apt-get install --no-install-recommends -y \
@@ -21,7 +21,19 @@ ENV BUNDLE_PATH="/usr/local/bundle"
 
 # Gems installed at image build time; source is mounted at runtime
 COPY Gemfile Gemfile.lock* ./
-RUN bundle install
+RUN bundle install && chmod -R a+rX /usr/local/bundle
+
+# Install Google Chrome (official binary, better Docker support than Debian's Chromium)
+# and ensure nodejs is current. Placed after bundle install to preserve that cache.
+# Ferrum auto-detects google-chrome before chromium, so it takes priority.
+RUN apt-get update -qq && \
+  curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
+  apt-get install --no-install-recommends -y nodejs && \
+  curl -fsSL https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
+    -o /tmp/chrome.deb && \
+  apt-get install -y /tmp/chrome.deb && \
+  rm /tmp/chrome.deb && \
+  rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 COPY package.json package-lock.json* ./
 RUN npm install && chmod -R a+w /rails/node_modules

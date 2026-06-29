@@ -5,6 +5,11 @@ services:
       dockerfile: Dockerfile.dev
     command: ./bin/dev
     user: "${UID}:${GID}"
+    # Docker's default seccomp profile blocks syscalls Chrome needs to spawn its
+    # subprocesses (renderer, GPU process, crash handler). --no-sandbox only
+    # disables Chrome's internal sandbox; it does not affect Docker's seccomp filter.
+    security_opt:
+      - seccomp=unconfined
     volumes:
       - .:/rails
       - node_modules:/rails/node_modules
@@ -19,6 +24,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
       SECRET_KEY_BASE: ${SECRET_KEY_BASE:-dev_only_secret_key_base_replace_in_production}
       GAME_SPEED: 60
+      HOME: /tmp
     depends_on:
       db:
         condition: service_healthy
