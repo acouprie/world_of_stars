@@ -8,6 +8,10 @@ module SystemHelpers
       fill_in "password",      with: password
       click_button "Se connecter"
     end
+    # Wait for the post-login redirect to complete. Turbo form submissions can
+    # settle the DOM before the navigation finishes; this assertion ensures the
+    # login page is gone before the caller proceeds.
+    expect(page).not_to have_selector("[data-auth-target='loginForm']")
   end
 end
 
