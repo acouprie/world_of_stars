@@ -6,7 +6,8 @@ class ResearchQueue < ApplicationRecord
   validates :tech_key,     presence: true
   validates :target_level, numericality: { only_integer: true, greater_than: 0 }
   validates :status,       inclusion: { in: STATUSES }
-  validates :finishes_at,  presence: true
+  validates :started_at, :completes_at, presence: true
+  validate  :completes_at_after_started_at
   validate  :only_one_pending_per_planet, if: :pending?
 
   scope :pending,   -> { where(status: "pending") }
@@ -18,6 +19,11 @@ class ResearchQueue < ApplicationRecord
   def cancelled? = status == "cancelled"
 
   private
+
+  def completes_at_after_started_at
+    return unless started_at && completes_at
+    errors.add(:completes_at, "must be after started_at") if completes_at <= started_at
+  end
 
   def only_one_pending_per_planet
     scope = self.class.where(planet_id: planet_id, status: "pending")

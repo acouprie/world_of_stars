@@ -70,13 +70,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_000003) do
   end
 
   create_table "research_queues", force: :cascade do |t|
+    t.datetime "completes_at", null: false
     t.datetime "created_at", null: false
-    t.datetime "finishes_at", null: false
     t.integer "food_cost", null: false
     t.integer "metal_cost", null: false
     t.bigint "planet_id", null: false
     t.string "sidekiq_job_id"
-    t.datetime "started_at"
+    t.datetime "started_at", null: false
     t.string "status", default: "pending", null: false
     t.integer "target_level", null: false
     t.string "tech_key", null: false

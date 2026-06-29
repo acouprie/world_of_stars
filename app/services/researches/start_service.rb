@@ -39,7 +39,7 @@ module Researches
           target_level: target_level,
           status:       "pending",
           started_at:   now,
-          finishes_at:  now + duration.seconds,
+          completes_at: now + duration.seconds,
           metal_cost:   cost[:metal],
           food_cost:    cost[:food],
           thorium_cost: cost[:thorium]
@@ -49,7 +49,7 @@ module Researches
         planet.save!
 
         job_id = CompleteResearchJob
-                   .set(wait_until: queue.finishes_at)
+                   .set(wait_until: queue.completes_at)
                    .perform_later(queue.id)
                    .job_id
         queue.update_column(:sidekiq_job_id, job_id)

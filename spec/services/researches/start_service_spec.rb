@@ -59,9 +59,9 @@ RSpec.describe Researches::StartService do
       expect(pt.status).to eq("researching")
     end
 
-    it "sets finishes_at in the future" do
+    it "sets completes_at in the future" do
       service.call
-      expect(planet.research_queues.pending.first.finishes_at).to be > Time.current
+      expect(planet.research_queues.pending.first.completes_at).to be > Time.current
     end
 
     it "stores costs on the queue" do

@@ -1,5 +1,6 @@
 require "spec_helper"
 ENV["RAILS_ENV"] = "test"
+ENV["GAME_SPEED"] = "1"
 require_relative "../config/environment"
 require "rspec/rails"
 require "shoulda/matchers"

@@ -5,7 +5,7 @@ FactoryBot.define do
     target_level { 1 }
     status       { "pending" }
     started_at   { Time.current }
-    finishes_at  { 1.hour.from_now }
+    completes_at { 1.hour.from_now }
     metal_cost   { 800 }
     food_cost    { 480 }
     thorium_cost { 320 }

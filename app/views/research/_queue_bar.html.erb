@@ -3,12 +3,12 @@
 <% if queue %>
   <%
     elapsed = [Time.current - queue.started_at, 0].max
-    total   = (queue.finishes_at - queue.started_at).to_f
+    total   = (queue.completes_at - queue.started_at).to_f
     pct     = total > 0 ? [(elapsed.to_f / total * 100).round, 100].min : 0
   %>
   <div id="research-queue-bar"
        data-controller="queue-timer"
-       data-queue-timer-completes-at-value="<%= queue.finishes_at.iso8601 %>"
+       data-queue-timer-completes-at-value="<%= queue.completes_at.iso8601 %>"
        data-queue-timer-started-at-value="<%= queue.started_at.iso8601 %>">
     <div class="flex items-center gap-3 flex-wrap">
       <span class="scifi-text text-[10px] uppercase tracking-wider text-text-muted whitespace-nowrap"><%= t("research.queue_label") %></span>

@@ -12,7 +12,7 @@ RSpec.describe CompleteResearchJob, type: :job do
       target_level: 1,
       status:       "pending",
       started_at:   1.hour.ago,
-      finishes_at:  1.second.ago,
+      completes_at: 1.second.ago,
       metal_cost:   800,
       food_cost:    480,
       thorium_cost: 320)
