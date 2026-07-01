@@ -28,7 +28,9 @@ Rails.application.routes.draw do
 
   # JSON API
   namespace :api do
-    resources :planets, only: [:index]
+    resources :planets, only: [:index] do
+      get :exploration_readiness, on: :member
+    end
   end
 
   # Game routes
@@ -40,6 +42,9 @@ Rails.application.routes.draw do
     get  'research',       to: 'research#index',              as: :research
     post 'research/queue', to: 'researches/queue#create',     as: :research_queue
     delete 'research/queue', to: 'researches/queue#destroy'
+
+    get  'explorations', to: 'explorations#index', as: :explorations
+    post 'explorations', to: 'explorations/missions#create'
   end
 
   # Documentation routes

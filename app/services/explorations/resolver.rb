@@ -1,10 +1,4 @@
 module Explorations
-  # Player exploration levels: threshold(n) = EXPLORATION_LEVEL_BASE * EXPLORATION_LEVEL_FACTOR**(n-1)
-  EXPLORATION_LEVEL_BASE        = 400
-  EXPLORATION_LEVEL_FACTOR      = 1.7
-  EXPLORATION_GAIN_PER_LEVEL    = 1.0292
-  MAX_SIMULTANEOUS_EXPLORATIONS = 5
-
   class Resolver
     # Risk weights shared by losses and loot base (exploration_magnitude_v1 §2).
     # Keyed by unit category; reconnaissance units survive better, mules are easy targets.

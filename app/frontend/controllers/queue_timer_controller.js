@@ -40,7 +40,12 @@ export default class extends Controller {
       this.barTarget.style.width = `${pct}%`
     }
 
-    if (remaining === 0) clearInterval(this.interval)
+    if (remaining === 0 && !this.visitScheduled) {
+      this.visitScheduled = true
+      clearInterval(this.interval)
+      // Wait for Sidekiq to complete the job before refreshing
+      setTimeout(() => Turbo.visit(window.location.href), 4000)
+    }
   }
 
   formatDuration(ms) {

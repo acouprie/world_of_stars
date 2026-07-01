@@ -28,6 +28,7 @@ class Planet < ApplicationRecord
   has_many :training_queues, dependent: :destroy
   has_many :planet_technologies, dependent: :destroy
   has_many :research_queues, dependent: :destroy
+  has_many :exploration_missions, dependent: :destroy
 
   validates :planet_type,  inclusion: { in: PLANET_TYPES }
   validates :biome,  inclusion: { in: BIOMES }

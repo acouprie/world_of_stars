@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_15_000003) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_29_214405) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -37,6 +37,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_000003) do
     t.datetime "updated_at", null: false
     t.index ["building_id"], name: "index_construction_queues_on_building_id"
     t.index ["planet_id"], name: "index_construction_queues_on_planet_id", unique: true
+  end
+
+  create_table "exploration_missions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "exploration_points", default: 0
+    t.datetime "finishes_at", null: false
+    t.integer "food_gained", default: 0
+    t.jsonb "force_snapshot", null: false
+    t.jsonb "losses_snapshot"
+    t.integer "metal_gained", default: 0
+    t.text "narrative_report"
+    t.bigint "planet_id", null: false
+    t.datetime "started_at", null: false
+    t.string "status", default: "pending", null: false
+    t.bigint "target_planet_id", null: false
+    t.integer "thorium_gained", default: 0
+    t.datetime "updated_at", null: false
+    t.index ["planet_id", "status"], name: "index_exploration_missions_on_planet_id_and_status"
+    t.index ["planet_id"], name: "index_exploration_missions_on_planet_id"
   end
 
   create_table "planet_technologies", force: :cascade do |t|
@@ -133,6 +152,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_000003) do
   add_foreign_key "buildings", "planets"
   add_foreign_key "construction_queues", "buildings"
   add_foreign_key "construction_queues", "planets"
+  add_foreign_key "exploration_missions", "planets"
+  add_foreign_key "exploration_missions", "planets", column: "target_planet_id"
   add_foreign_key "planet_technologies", "planets"
   add_foreign_key "planets", "users"
   add_foreign_key "research_queues", "planets"

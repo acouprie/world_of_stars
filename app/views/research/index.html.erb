@@ -13,8 +13,8 @@
 <%# Exploration level header %>
 <%
   explo_level = @user.exploration_level
-  base_xp     = User::EXPLORATION_LEVEL_BASE_XP
-  factor      = User::EXPLORATION_LEVEL_FACTOR
+  base_xp     = Explorations::EXPLORATION_LEVEL_BASE
+  factor      = Explorations::EXPLORATION_LEVEL_FACTOR
   prev_xp     = explo_level == 0 ? 0 : (base_xp * factor ** (explo_level - 1)).round
   next_xp     = (base_xp * factor ** explo_level).round
   xp_in_level = @user.exploration_xp - prev_xp

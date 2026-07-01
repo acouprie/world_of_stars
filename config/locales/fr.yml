@@ -71,10 +71,26 @@ fr:
     research_queues:
       cancelled: "Recherche annulée, ressources remboursées"
       no_pending_queue: "Aucune recherche en cours"
+    explorations:
+      started: "Mission d'exploration lancée"
+      no_quantum_portal: "Portail quantique non construit sur cette planète"
+      target_not_empty: "La planète cible n'est pas libre"
+      empty_force: "Sélectionnez au moins une unité"
+      invalid_unit_type: "Type d'unité inconnu"
+      insufficient_units: "Unités insuffisantes"
+      max_simultaneous_reached: "Nombre maximum de missions simultanées atteint (5)"
 
   ui:
     cancel: "Annuler"
     confirm: "Confirmer"
+
+  explorations:
+    page_title: "Explorations"
+    missions_active: "missions actives"
+    active_section: "Missions en cours"
+    history_section: "Historique des missions"
+    no_missions_yet: "Aucune mission lancée pour l'instant."
+    narrative_pending: "Rapport en cours de génération..."
 
   training_queues:
     page_title: "Production d'unités"

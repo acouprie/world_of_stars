@@ -71,10 +71,26 @@ en:
     research_queues:
       cancelled: "Research cancelled, resources refunded"
       no_pending_queue: "No research in progress"
+    explorations:
+      started: "Exploration mission launched"
+      no_quantum_portal: "Quantum portal not built on this planet"
+      target_not_empty: "Target planet is not empty"
+      empty_force: "Select at least one unit"
+      invalid_unit_type: "Unknown unit type"
+      insufficient_units: "Insufficient units available"
+      max_simultaneous_reached: "Maximum simultaneous missions reached (5)"
 
   ui:
     cancel: "Cancel"
     confirm: "Confirm"
+
+  explorations:
+    page_title: "Explorations"
+    missions_active: "missions active"
+    active_section: "Active missions"
+    history_section: "Mission history"
+    no_missions_yet: "No mission launched yet."
+    narrative_pending: "Report being generated..."
 
   training_queues:
     page_title: "Unit Production"

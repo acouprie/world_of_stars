@@ -115,3 +115,33 @@ NB_USERS.times do |i|
 end
 
 puts "Done - #{User.count} users in galaxy."
+
+puts "Creating Explorer user (planet ready for exploration)..."
+
+explorer = User.create!(
+  username:              "Explorer",
+  email_address:         "explorer@example.com",
+  password:              "Password1!",
+  password_confirmation: "Password1!"
+)
+explorer_planet = Users::OnboardingService.new(explorer).call
+explorer_planet.update!(
+  metal_stock:   10_000,
+  food_stock:    10_000,
+  thorium_stock: 5_000
+)
+
+[
+  { building_type: "command_center", level: 4, slot_index: 1 },
+  { building_type: "solar_station",  level: 5, slot_index: 2 },
+  { building_type: "military_camp",  level: 1, slot_index: 3 },
+  { building_type: "training_camp",  level: 1, slot_index: 4 },
+  { building_type: "quantum_portal", level: 1, slot_index: 5 }
+].each { |attrs| explorer_planet.buildings.create!(attrs) }
+
+[
+  { unit_type: "maraudeur", count: 20 },
+  { unit_type: "sonde",     count: 10 }
+].each { |attrs| explorer_planet.units.create!(attrs) }
+
+puts "Done — Explorer ready on planet #{explorer_planet.name} (id=#{explorer_planet.id})."

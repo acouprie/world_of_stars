@@ -5,8 +5,8 @@ RSpec.describe "Research system", type: :system do
   let(:planet) { create(:planet, user: user) }
 
   before do
-    # All technologies require exploration: 1 (exploration_xp >= 1000).
-    user.update!(exploration_xp: 1000)
+    # Level 1 threshold: 400 XP (Explorations::EXPLORATION_LEVEL_BASE).
+    user.update!(exploration_xp: 500)
     create(:building, planet: planet, building_type: "research_lab", level: 1, slot_index: 1)
     planet.update!(metal_stock: 5_000, food_stock: 5_000, thorium_stock: 5_000)
     sign_in_as(user)
@@ -75,7 +75,7 @@ RSpec.describe "Research system", type: :system do
   end
 
   it "affiche correctement le niveau d'exploration et la barre de progression" do
-    user.update!(exploration_xp: 1_200)
+    user.update!(exploration_xp: 750)
 
     visit planet_research_path(planet)
 

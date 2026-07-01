@@ -56,7 +56,7 @@ RSpec.describe Technologies do
       before do
         add_building(planet, :research_lab, 4)
         add_building(planet, :military_camp, 3) # below required 4
-        user.exploration_xp = 1728 # exploration_level = 4
+        user.exploration_xp = 2000 # exploration_level = 4 (threshold: 400 * 1.7^3 ≈ 1965)
       end
 
       it "returns false when military_camp checkpoint is not satisfied for target level 7" do
