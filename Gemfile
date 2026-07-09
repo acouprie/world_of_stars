@@ -18,7 +18,7 @@ gem "bcrypt", "~> 3.1.7"
 # Redis — ActionCable, Sidekiq, cache
 gem "redis", "~> 5.0"
 # Background jobs (builds, fleets, faction ticks)
-gem "sidekiq", "~> 7.0"
+gem "sidekiq", "~> 8.0"
 gem "connection_pool", "< 3.0"
 # Rate limiting (login attempts, futures APIs)
 gem "rack-attack"
