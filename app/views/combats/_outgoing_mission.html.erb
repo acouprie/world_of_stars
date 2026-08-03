@@ -1,0 +1,35 @@
+<%
+  elapsed = [Time.current - mission.started_at, 0].max
+  total   = (mission.arrives_at - mission.started_at).to_f
+  pct     = total > 0 ? [(elapsed.to_f / total * 100).round, 100].min : 0
+  force   = mission.attacker_force
+  target  = mission.target_planet
+%>
+<div class="rounded border p-3 flex flex-col gap-2"
+     style="border-color: var(--color-border);"
+     data-controller="queue-timer"
+     data-queue-timer-completes-at-value="<%= mission.arrives_at.iso8601 %>"
+     data-queue-timer-started-at-value="<%= mission.started_at.iso8601 %>">
+  <div class="flex items-start justify-between gap-2">
+    <div class="flex flex-col gap-0.5">
+      <span class="scifi-text text-[12px] text-text">
+        <%= t("combats.outbound_to", planet: target.name) %>
+        <span class="text-text-muted text-[10px]">[ <%= target.coord_x %> : <%= target.coord_y %> ]</span>
+      </span>
+      <span class="scifi-text text-[10px] text-text-muted">
+        <%= force.map { |type, qty| "#{qty} #{unit_name(type)}" }.join(", ") %>
+      </span>
+    </div>
+    <button class="flex items-center gap-1 group cursor-pointer"
+            data-action="click->queue-timer#toggle">
+      <span data-queue-timer-target="display"
+            class="font-mono text-[12px] text-text whitespace-nowrap tabular-nums"></span>
+      <span class="text-[9px] text-text-subtle opacity-40 group-hover:opacity-90 transition-opacity select-none">⇄</span>
+    </button>
+  </div>
+  <div class="h-1 w-full rounded-full overflow-hidden" style="background: var(--color-border);">
+    <div data-queue-timer-target="bar"
+         class="h-full rounded-full"
+         style="width: <%= pct %>%; background: var(--color-military);"></div>
+  </div>
+</div>

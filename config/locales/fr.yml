@@ -1,4 +1,8 @@
 fr:
+  time:
+    formats:
+      short: "%d %b %Y %Hh%M"
+
   home:
     index:
       logout: "Se déconnecter"
@@ -79,6 +83,14 @@ fr:
       invalid_unit_type: "Type d'unité inconnu"
       insufficient_units: "Unités insuffisantes"
       max_simultaneous_reached: "Nombre maximum de missions simultanées atteint (5)"
+    combats:
+      started: "Attaque lancée"
+      no_quantum_portal_source: "Portail quantique non construit sur cette planète"
+      no_quantum_portal_target: "Portail quantique non construit sur la planète cible"
+      cannot_attack_own_planet: "Impossible d'attaquer sa propre planète"
+      empty_force: "Sélectionnez au moins une unité"
+      invalid_unit_type: "Type d'unité inconnu"
+      insufficient_units: "Unités insuffisantes"
 
   ui:
     cancel: "Annuler"
@@ -91,6 +103,32 @@ fr:
     history_section: "Historique des missions"
     no_missions_yet: "Aucune mission lancée pour l'instant."
     narrative_pending: "Rapport en cours de génération..."
+
+  combats:
+    page_title: "Combats"
+    active_section: "Missions en cours"
+    history_section: "Historique des rapports"
+    no_missions_yet: "Aucune attaque lancée pour l'instant."
+    narrative_pending: "Rapport en cours de génération..."
+    outbound_to: "En route vers %{planet}"
+    direction_attack: "Attaque sur %{planet}"
+    direction_defense: "Défense de %{planet}"
+    outcome:
+      attacker_wins: "Victoire"
+      defender_holds: "Défaite"
+      attacker_retreat: "Repli"
+    attacker_losses: "Pertes attaquant"
+    defender_losses: "Pertes défenseur"
+    troops_sent: "Troupes envoyées"
+    attacker_survivors: "Survivants attaquant"
+    defender_survivors: "Survivants défenseur"
+    rounds: "Rounds"
+    xp_gained: "XP gagnée"
+    launch_form:
+      title: "Composer la force d'assaut"
+      duration: "Arrivée dans 1 heure"
+      submit: "Attaquer"
+      no_units: "Aucune unité de combat disponible sur cette planète."
 
   training_queues:
     page_title: "Production d'unités"

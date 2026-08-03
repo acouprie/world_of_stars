@@ -281,6 +281,23 @@ function InfoPanel({ planet, currentUserId, onClose, isMobile, sourcePlanetId, h
           <div style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>
             Joueur : <span style={{ color: 'var(--color-text)' }}>{planet.user_name}</span>
           </div>
+          {hasQuantumPortal && planet.has_quantum_portal && sourcePlanetId
+            ? (
+              <a
+                href={`/planets/${sourcePlanetId}/combats?target_planet_id=${planet.id}`}
+                style={{
+                  display: 'block', width: '100%', textAlign: 'center', padding: '8px 12px',
+                  border: '1px solid var(--color-military)', borderRadius: '4px',
+                  background: 'none', color: 'var(--color-military)', fontSize: '12px',
+                  fontFamily: 'Courier New, monospace', textDecoration: 'none', letterSpacing: '0.05em',
+                  boxSizing: 'border-box',
+                }}
+              >
+                Attaquer
+              </a>
+            )
+            : <DisabledButton label="Attaquer" />
+          }
           <DisabledButton label="Envoyer une flotte" />
           <DisabledButton label="Espionner" />
         </>

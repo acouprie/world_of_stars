@@ -1,0 +1,45 @@
+<% units = @planet.units.select { |u| u.count > 0 } %>
+<div class="rounded border p-4 flex flex-col gap-3" style="border-color: var(--color-military);">
+  <div class="flex flex-col gap-0.5">
+    <span class="scifi-text text-[11px] uppercase tracking-wider text-military"><%= t("combats.launch_form.title") %></span>
+    <span class="scifi-text text-[12px] text-text">
+      <%= target_planet.name %>
+      <span class="text-text-muted text-[10px]">[ <%= target_planet.coord_x %> : <%= target_planet.coord_y %> ]</span>
+    </span>
+  </div>
+
+  <% if units.empty? %>
+    <p class="scifi-text text-[11px] text-text-subtle"><%= t("combats.launch_form.no_units") %></p>
+  <% else %>
+    <%= form_with url: planet_combats_path(@planet), method: :post, class: "flex flex-col gap-3", data: { controller: "combat-launch-form" } do %>
+      <%= hidden_field_tag :target_planet_id, target_planet.id %>
+
+      <div class="flex flex-col gap-2">
+        <% units.each do |u| %>
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-[13px] leading-none <%= unit_category_color_class(u.unit_type) %>"><%= unit_icon(u.unit_type) %></span>
+              <div class="flex flex-col gap-0.5">
+                <span class="scifi-text text-[12px] text-text"><%= unit_name(u.unit_type) %></span>
+                <span class="scifi-text text-[10px] text-text-muted"><%= u.count %> <%= t("training_queues.available_units").downcase %></span>
+              </div>
+            </div>
+            <input type="number" name="force[<%= u.unit_type %>]" min="0" max="<%= u.count %>" value="0"
+                   data-combat-launch-form-target="input"
+                   data-action="input->combat-launch-form#recompute"
+                   class="w-16 rounded border border-border bg-surface text-text text-[12px] px-2 py-1.5 text-center">
+          </div>
+        <% end %>
+      </div>
+
+      <div class="flex items-center justify-between gap-2 pt-1 border-t border-border">
+        <span class="scifi-text text-[11px] text-text-muted pt-2"><%= t("combats.launch_form.duration") %></span>
+        <button type="submit" disabled
+                data-combat-launch-form-target="submit"
+                class="mt-2 rounded border border-military text-military px-4 py-1.5 text-[12px] font-medium transition-opacity cursor-pointer hover:bg-military/10 disabled:opacity-40 disabled:cursor-not-allowed">
+          <%= t("combats.launch_form.submit") %>
+        </button>
+      </div>
+    <% end %>
+  <% end %>
+</div>

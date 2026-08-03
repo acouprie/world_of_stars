@@ -1,4 +1,8 @@
 en:
+  time:
+    formats:
+      short: "%d %b %Y %H:%M"
+
   home:
     index:
       logout: "Log out"
@@ -79,6 +83,14 @@ en:
       invalid_unit_type: "Unknown unit type"
       insufficient_units: "Insufficient units available"
       max_simultaneous_reached: "Maximum simultaneous missions reached (5)"
+    combats:
+      started: "Attack launched"
+      no_quantum_portal_source: "Quantum portal not built on this planet"
+      no_quantum_portal_target: "Quantum portal not built on the target planet"
+      cannot_attack_own_planet: "Cannot attack your own planet"
+      empty_force: "Select at least one unit"
+      invalid_unit_type: "Unknown unit type"
+      insufficient_units: "Insufficient units available"
 
   ui:
     cancel: "Cancel"
@@ -91,6 +103,32 @@ en:
     history_section: "Mission history"
     no_missions_yet: "No mission launched yet."
     narrative_pending: "Report being generated..."
+
+  combats:
+    page_title: "Combats"
+    active_section: "Missions underway"
+    history_section: "Report history"
+    no_missions_yet: "No attack launched yet."
+    narrative_pending: "Report being generated..."
+    outbound_to: "En route to %{planet}"
+    direction_attack: "Attack on %{planet}"
+    direction_defense: "Defense of %{planet}"
+    outcome:
+      attacker_wins: "Victory"
+      defender_holds: "Defeat"
+      attacker_retreat: "Retreat"
+    attacker_losses: "Attacker losses"
+    defender_losses: "Defender losses"
+    troops_sent: "Troops sent"
+    attacker_survivors: "Attacker survivors"
+    defender_survivors: "Defender survivors"
+    rounds: "Rounds"
+    xp_gained: "XP gained"
+    launch_form:
+      title: "Compose the assault force"
+      duration: "Arrival in 1 hour"
+      submit: "Attack"
+      no_units: "No combat units available on this planet."
 
   training_queues:
     page_title: "Unit Production"
