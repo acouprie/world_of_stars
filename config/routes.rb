@@ -45,6 +45,9 @@ Rails.application.routes.draw do
 
     get  'explorations', to: 'explorations#index', as: :explorations
     post 'explorations', to: 'explorations/missions#create'
+
+    get  'combats', to: 'combats#index', as: :combats
+    post 'combats', to: 'combats/missions#create'
   end
 
   # Documentation routes

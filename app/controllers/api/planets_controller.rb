@@ -18,7 +18,7 @@ module Api
     end
 
     def index
-      planets = Planet.includes(:user).all
+      planets = Planet.includes(:user, :buildings).all
       render json: {
         current_user_id: Current.user.id,
         planets: planets.map { |p|
@@ -32,6 +32,7 @@ module Api
             is_home: p.is_home,
             user_id: p.user_id,
             user_name: p.user&.username,
+            has_quantum_portal: p.buildings.any? { |b| b.building_type == "quantum_portal" && b.level >= 1 },
           }
         },
       }

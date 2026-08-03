@@ -29,6 +29,8 @@ class Planet < ApplicationRecord
   has_many :planet_technologies, dependent: :destroy
   has_many :research_queues, dependent: :destroy
   has_many :exploration_missions, dependent: :destroy
+  has_many :combat_missions,          foreign_key: :planet_id,        dependent: :destroy
+  has_many :incoming_combat_missions, foreign_key: :target_planet_id, class_name: "CombatMission", dependent: :destroy
 
   validates :planet_type,  inclusion: { in: PLANET_TYPES }
   validates :biome,  inclusion: { in: BIOMES }

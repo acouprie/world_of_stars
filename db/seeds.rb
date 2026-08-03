@@ -140,8 +140,68 @@ explorer_planet.update!(
 ].each { |attrs| explorer_planet.buildings.create!(attrs) }
 
 [
-  { unit_type: "maraudeur", count: 20 },
-  { unit_type: "sonde",     count: 10 }
+  { unit_type: "maraudeur", count: 2000 },
+  { unit_type: "sonde",     count: 1000 }
 ].each { |attrs| explorer_planet.units.create!(attrs) }
 
 puts "Done — Explorer ready on planet #{explorer_planet.name} (id=#{explorer_planet.id})."
+
+puts "Creating combat target users (planets with a quantum portal and defending units)..."
+
+combat_targets = [
+  {
+    username:  "Outpost",
+    email:     "outpost@example.com",
+    buildings: [
+      { building_type: "command_center", level: 4, slot_index: 1 },
+      { building_type: "quantum_portal", level: 1, slot_index: 2 },
+      { building_type: "military_camp",  level: 1, slot_index: 3 }
+    ],
+    units: [
+      { unit_type: "maraudeur", count: 20 },
+      { unit_type: "mule",      count: 5 }
+    ]
+  },
+  {
+    username:  "Stronghold",
+    email:     "stronghold@example.com",
+    buildings: [
+      { building_type: "command_center", level: 4, slot_index: 1 },
+      { building_type: "quantum_portal", level: 1, slot_index: 2 },
+      { building_type: "military_camp",  level: 2, slot_index: 3 }
+    ],
+    units: [
+      { unit_type: "sentinelle", count: 100 },
+      { unit_type: "regulier",   count: 50 },
+      { unit_type: "mule",       count: 10 }
+    ]
+  }
+]
+
+# Placed on the empty planets closest to the Explorer's home planet, so both
+# targets show up right next to it on the galaxy map instead of anywhere in the grid.
+nearby_planets = Planet.where(planet_type: "empty", user_id: nil)
+                        .sort_by { |p| toric_distance(explorer_planet.coord_x, explorer_planet.coord_y, p.coord_x, p.coord_y) }
+                        .first(combat_targets.size)
+
+combat_targets.zip(nearby_planets).each do |config, defender_planet|
+  defender = User.create!(
+    username:              config[:username],
+    email_address:         config[:email],
+    password:              "Password1!",
+    password_confirmation: "Password1!"
+  )
+
+  defender_planet.update!(
+    user:                 defender,
+    planet_type:          "player",
+    is_home:              true,
+    resources_updated_at: Time.current,
+    **Users::OnboardingService::STARTING_RESOURCES
+  )
+
+  config[:buildings].each { |attrs| defender_planet.buildings.create!(attrs) }
+  config[:units].each     { |attrs| defender_planet.units.create!(attrs) }
+
+  puts "Done — #{config[:username]} defending planet #{defender_planet.name} (id=#{defender_planet.id}, coords=[#{defender_planet.coord_x}, #{defender_planet.coord_y}])."
+end

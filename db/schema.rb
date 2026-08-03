@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_29_214405) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_01_174346) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -23,6 +23,31 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_29_214405) do
     t.datetime "updated_at", null: false
     t.index ["planet_id", "building_type"], name: "index_buildings_on_planet_id_and_building_type", unique: true
     t.index ["planet_id"], name: "index_buildings_on_planet_id"
+  end
+
+  create_table "combat_missions", force: :cascade do |t|
+    t.datetime "arrives_at", null: false
+    t.jsonb "attacker_force", null: false
+    t.jsonb "attacker_losses"
+    t.integer "attacker_xp_gained", default: 0
+    t.datetime "created_at", null: false
+    t.jsonb "defender_force_snapshot"
+    t.jsonb "defender_losses"
+    t.integer "defender_xp_gained", default: 0
+    t.integer "food_pillaged", default: 0
+    t.integer "metal_pillaged", default: 0
+    t.text "narrative_report"
+    t.string "outcome"
+    t.bigint "planet_id", null: false
+    t.integer "rounds_count"
+    t.datetime "started_at", null: false
+    t.string "status", default: "traveling", null: false
+    t.bigint "target_planet_id", null: false
+    t.integer "thorium_pillaged", default: 0
+    t.datetime "updated_at", null: false
+    t.index ["planet_id", "status"], name: "index_combat_missions_on_planet_id_and_status"
+    t.index ["planet_id"], name: "index_combat_missions_on_planet_id"
+    t.index ["target_planet_id"], name: "index_combat_missions_on_target_planet_id"
   end
 
   create_table "construction_queues", force: :cascade do |t|
@@ -139,6 +164,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_29_214405) do
   end
 
   create_table "users", force: :cascade do |t|
+    t.integer "combat_xp", default: 0, null: false
     t.datetime "created_at", null: false
     t.string "email_address", null: false
     t.integer "exploration_xp", default: 0, null: false
@@ -150,6 +176,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_29_214405) do
   end
 
   add_foreign_key "buildings", "planets"
+  add_foreign_key "combat_missions", "planets"
+  add_foreign_key "combat_missions", "planets", column: "target_planet_id"
   add_foreign_key "construction_queues", "buildings"
   add_foreign_key "construction_queues", "planets"
   add_foreign_key "exploration_missions", "planets"
